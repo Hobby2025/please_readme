@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { GithubApiResponse } from '@/types';
+import type { GithubApiResponse } from '@/types';
 
 export async function POST(request: Request): Promise<NextResponse<GithubApiResponse>> {
   try {
@@ -19,12 +19,14 @@ export async function POST(request: Request): Promise<NextResponse<GithubApiResp
       success: false,
       message: '실제 GitHub 프로필 업데이트는 지원되지 않습니다. 마크다운을 복사하여 GitHub 프로필 README에 직접 붙여넣어주세요.'
     }, { status: 501 });
-  } catch (error: any) {
+  } catch (error: Error | unknown) {
     console.error('API 오류:', error);
+    
+    const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
     
     return NextResponse.json({
       success: false,
-      message: error.message || '알 수 없는 오류가 발생했습니다.'
+      message: errorMessage
     }, { status: 500 });
   }
 } 

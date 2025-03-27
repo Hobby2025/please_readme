@@ -1,6 +1,17 @@
 import { NextResponse } from 'next/server';
 import { createCanvas, loadImage } from 'canvas';
-import { GitHubStats } from '@/types';
+import { techColors } from '@/utils/techIcons';
+
+// 타입 정의
+interface GitHubStats {
+  stars: number;
+  commits: number;
+  prs: number;
+  issues: number;
+  contributions: number;
+  languages: { [key: string]: number };
+  avatar_url?: string;
+}
 
 // 폰트 설정 개선
 let fontFamily = 'sans-serif';
@@ -10,6 +21,37 @@ try {
   fontFamily = 'Arial, sans-serif';
 } catch (error) {
   console.error('폰트 설정 오류:', error);
+}
+
+// 에러 이미지 생성 함수
+function createErrorImage(username: string, theme: string) {
+  // 캔버스 생성
+  const width = 1000;
+  const height = 500;
+  const canvas = createCanvas(width, height);
+  const ctx = canvas.getContext('2d');
+  
+  // 배경 칠하기
+  ctx.fillStyle = theme === 'light' ? '#ffffff' : '#0d1117';
+  ctx.fillRect(0, 0, width, height);
+  
+  // 경계선 추가
+  ctx.strokeStyle = theme === 'light' ? '#e1e4e8' : '#30363d';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(2, 2, width - 4, height - 4);
+  
+  // 텍스트 스타일 설정
+  ctx.fillStyle = theme === 'light' ? '#24292e' : '#c9d1d9';
+  ctx.font = `bold 36px ${fontFamily}`;
+  ctx.textAlign = 'center';
+  
+  // 오류 메시지 표시
+  ctx.fillText(`GitHub 사용자 '${username}'를 찾을 수 없습니다`, width / 2, height / 2 - 20);
+  ctx.font = `18px ${fontFamily}`;
+  ctx.fillText('올바른 GitHub 사용자명인지 확인해 주세요', width / 2, height / 2 + 20);
+  
+  // 캔버스를 PNG로 변환
+  return canvas.toBuffer('image/png');
 }
 
 export async function GET(request: Request) {
@@ -35,7 +77,8 @@ export async function GET(request: Request) {
     try {
       // GitHub API에서 사용자 데이터 가져오기 - 절대 URL로 변경
       const origin = new URL(request.url).origin;
-      const apiUrl = `${origin}/api/github/${encodeURIComponent(username)}`;
+      // 동적 경로 대신 쿼리 파라미터 사용 경로로 변경
+      const apiUrl = `${origin}/api/github/username?username=${encodeURIComponent(username)}`;
       
       console.log('GitHub API 요청 URL:', apiUrl);
       
@@ -50,46 +93,11 @@ export async function GET(request: Request) {
         const errorText = await githubStatsRes.text();
         console.error('GitHub API 응답 오류:', errorText);
         
-        // GitHub 사용자를 찾을 수 없는 경우 기본 이미지 생성을 계속 진행
-        // 기본 통계 데이터로 폴백
-        console.log('기본 통계 데이터를 사용하여 계속 진행합니다.');
+        // GitHub 사용자를 찾을 수 없는 경우 기본 이미지 생성
+        console.log('오류 이미지를 생성합니다.');
         
-        const defaultStats: GitHubStats = {
-          totalCommits: 0,
-          totalPRs: 0,
-          totalIssues: 0,
-          avatar_url: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png' // GitHub 기본 로고
-        };
-        
-        const githubStats = defaultStats;
-        
-        // 캔버스 생성
-        const width = 1000;
-        const height = 500;
-        const canvas = createCanvas(width, height);
-        const ctx = canvas.getContext('2d');
-        
-        // 배경 칠하기
-        ctx.fillStyle = theme === 'light' ? '#ffffff' : '#0d1117';
-        ctx.fillRect(0, 0, width, height);
-        
-        // 경계선 추가
-        ctx.strokeStyle = theme === 'light' ? '#e1e4e8' : '#30363d';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(2, 2, width - 4, height - 4);
-        
-        // 텍스트 스타일 설정
-        ctx.fillStyle = theme === 'light' ? '#24292e' : '#c9d1d9';
-        ctx.font = `bold 36px ${fontFamily}`;
-        ctx.textAlign = 'center';
-        
-        // 오류 메시지 표시
-        ctx.fillText(`GitHub 사용자 '${username}'를 찾을 수 없습니다`, width / 2, height / 2 - 20);
-        ctx.font = `18px ${fontFamily}`;
-        ctx.fillText('올바른 GitHub 사용자명인지 확인해 주세요', width / 2, height / 2 + 20);
-        
-        // 캔버스를 PNG로 변환
-        const buffer = canvas.toBuffer('image/png');
+        // 에러 이미지 생성 및 반환
+        const buffer = createErrorImage(username, theme);
         
         return new NextResponse(buffer, {
           headers: {
@@ -116,12 +124,17 @@ export async function GET(request: Request) {
       ctx.lineWidth = 2;
       ctx.strokeRect(2, 2, width - 4, height - 4);
       
-      // 아바타 이미지 로드
+      // 사용자 아바타 로드 시도 (실패하면 GitHub 기본 로고 사용)
       let avatarImg;
       try {
-        avatarImg = await loadImage(githubStats.avatar_url);
+        if (githubStats.avatar_url) {
+          avatarImg = await loadImage(githubStats.avatar_url);
+        } else {
+          avatarImg = await loadImage('https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png');
+        }
       } catch (error) {
-        console.error('아바타 이미지를 로드할 수 없습니다:', error);
+        console.error('아바타 이미지 로드 실패:', error);
+        avatarImg = await loadImage('https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png');
       }
       
       // 아바타 이미지 그리기
@@ -184,15 +197,23 @@ export async function GET(request: Request) {
       let skillY = 180;
       
       for (const skill of skillsList) {
-        const badgeWidth = ctx.measureText(skill).width + 20;
+        const formattedSkill = skill.toLowerCase().trim();
+        const skillColor = techColors[formattedSkill] || '#3a3a3a';
+        const badgeWidth = ctx.measureText(skill).width + 30;
         
-        // 스킬 배지 배경
-        ctx.fillStyle = theme === 'light' ? '#e1e4e8' : '#30363d';
-        ctx.fillRect(skillX, skillY - 15, badgeWidth, 25);
+        // 스킬 배지 배경 - 기술별 색상 적용
+        ctx.fillStyle = `${skillColor}20`; // 투명도 20%
+        ctx.strokeStyle = `${skillColor}40`; // 투명도 40%
+        
+        // 배지 테두리 라운드 처리
+        ctx.beginPath();
+        ctx.roundRect(skillX, skillY - 15, badgeWidth, 25, 12.5);
+        ctx.fill();
+        ctx.stroke();
         
         // 스킬 텍스트
-        ctx.fillStyle = theme === 'light' ? '#24292e' : '#c9d1d9';
-        ctx.fillText(skill, skillX + 10, skillY);
+        ctx.fillStyle = skillColor;
+        ctx.fillText(skill, skillX + 15, skillY);
         
         // 다음 배지 위치 이동
         skillX += badgeWidth + 10;
@@ -217,13 +238,13 @@ export async function GET(request: Request) {
       const statsSpacing = 150; // 각 통계 항목 사이의 간격
       
       // 커밋 정보
-      ctx.fillText(`commits: ${githubStats.totalCommits}`, 50, statsStartY);
+      ctx.fillText(`commits: ${githubStats.commits}`, 50, statsStartY);
       
       // PR 정보
-      ctx.fillText(`Pull Requests: ${githubStats.totalPRs}`, 50 + statsSpacing, statsStartY);
+      ctx.fillText(`Pull Requests: ${githubStats.prs}`, 50 + statsSpacing, statsStartY);
       
       // 이슈 정보
-      ctx.fillText(`issue: ${githubStats.totalIssues}`, 50 + statsSpacing * 2, statsStartY);
+      ctx.fillText(`issue: ${githubStats.issues}`, 50 + statsSpacing * 2, statsStartY);
       
       // 캔버스를 PNG로 변환
       const buffer = canvas.toBuffer('image/png');

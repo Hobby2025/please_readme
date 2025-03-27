@@ -15,8 +15,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GitHub 프로필 이미지 생성기",
-  description: "GitHub 프로필을 위한 멋진 이미지를 생성하세요",
+  title: "Please Readme",
+  description: "GitHub 사용자명과 간단한 정보를 입력하면 멋진 GitHub 프로필 이미지를 생성합니다.",
+  icons: {
+    icon: [
+      { url: 'icons/favicon.ico' },
+      { url: 'icons/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+      { url: 'icons/web-app-manifest-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: 'icons/web-app-manifest-512x512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: 'icons/apple-touch-icon.png' },
+    ],
+  },
+  manifest: 'icons/site.webmanifest',
 };
 
 export default function RootLayout({
@@ -27,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} font-ridi min-h-screen`}
       >
         {children}
       </body>

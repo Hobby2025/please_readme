@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createCanvas, loadImage, registerFont } from 'canvas';
+import { createCanvas } from 'canvas';
 
 // 폰트 등록 (실제 구현시 필요)
 // registerFont('./fonts/NanumGothic.ttf', { family: 'NanumGothic' });
@@ -92,7 +92,8 @@ function getThemeText(theme: string): string {
 }
 
 // 텍스트 래핑 함수
-function wrapText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function wrapText(ctx: CanvasRenderingContext2D | any, text: string, x: number, y: number, maxWidth: number, lineHeight: number) {
   const words = text.split(' ');
   let line = '';
   let testLine = '';

@@ -1,4 +1,4 @@
-import { ProfileInfo } from '../types';
+import type { ProfileInfo } from '../types';
 
 export function generateMarkdown(profile: ProfileInfo): string {
   if (profile.useCustomCode && profile.customCode) {
