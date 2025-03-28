@@ -22,7 +22,11 @@ const nextConfig = {
   // 빌드 시 경고 숨기기
   output: 'standalone',
   // 동적 경로 처리 방식
-  trailingSlash: false
+  trailingSlash: false,
+  // next/image 컴포넌트의 이미지 호스트 설정
+  images: {
+    domains: ['github.com', 'avatars.githubusercontent.com', 'github.githubassets.com'],
+  }
 };
 
 module.exports = nextConfig; 

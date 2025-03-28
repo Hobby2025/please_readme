@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import ProfileForm from '../components/ProfileForm';
 import ProfilePreview from '../components/ProfilePreview';
-import GitHubStatsCard from '../components/GitHubStatsCard';
 import '../types';
 
 interface ProfileData {
@@ -61,10 +60,9 @@ export default function Home() {
             <ProfileForm profile={profile} setProfile={setProfile} />
           </div>
           
-          {/* 오른쪽 컬럼 - 미리보기 */}
+          {/* 오른쪽 컬럼 - 프로필 미리보기 */}
           <div className="w-full lg:w-7/12 bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg overflow-hidden">
             <ProfilePreview profile={profile} setProfile={setProfile} />
-            <GitHubStatsCard stats={profile.githubStats} />
           </div>
         </div>
 

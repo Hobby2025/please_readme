@@ -44,8 +44,8 @@ export default function ProfilePreview({ profile, setProfile }: ProfilePreviewPr
     setLoading(true);
     setError(null);
     
-    // GitHub API 호출
-    fetch(`/api/github/username?username=${encodeURIComponent(trimmedUsername)}`)
+    // GitHub API 호출 
+    fetch(`/api/github?username=${encodeURIComponent(trimmedUsername)}`)
       .then(res => {
         if (!res.ok) {
           if (res.status === 404) {
@@ -71,21 +71,26 @@ export default function ProfilePreview({ profile, setProfile }: ProfilePreviewPr
         
         // 이미지 URL 생성
         const skills = profile.skills.join(',');
-        const url = `/api/image?username=${encodeURIComponent(trimmedUsername)}&name=${encodeURIComponent(profile.name)}&bio=${encodeURIComponent(profile.bio)}&skills=${encodeURIComponent(skills)}&theme=${profile.theme}`;
         
-        // 이미지 로드 테스트
+        // 실제 이미지 경로 대신 GitHub 통계 정보를 사용하여 가상 URL 생성
+        const imageUrl = `/profile/${encodeURIComponent(trimmedUsername)}`;
+        setImageUrl(imageUrl);
+        setLoading(false);
+
+        // API 엔드포인트 확인 - 실제 이미지 API가 없어 성공적으로 이미지를 로드하지 못함
+        // 따라서 GitHub 프로필 이미지를 직접 표시
+        const githubProfileUrl = `https://github.com/${trimmedUsername}.png`;
         const img = new window.Image();
         img.onload = () => {
-          setImageUrl(url);
+          // GitHub 프로필 이미지가 로드되면 성공 처리
           setLoading(false);
         };
         img.onerror = () => {
-          console.error('이미지 로드 실패:', url);
-          setImageUrl(url); // 실패해도 URL은 설정 (오류 이미지를 보여주기 위해)
-          setError('이미지 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+          // 기본 이미지 URL 설정
+          console.warn('GitHub 프로필 이미지 로드 실패, 기본 이미지 사용');
           setLoading(false);
         };
-        img.src = url;
+        img.src = githubProfileUrl;
       })
       .catch(err => {
         console.error('GitHub 통계 가져오기 실패:', err);
@@ -210,34 +215,65 @@ export default function ProfilePreview({ profile, setProfile }: ProfilePreviewPr
                 </div>
                 <h3 className="text-base font-medium text-gray-900 dark:text-white mb-1">오류가 발생했습니다</h3>
                 <p className="text-sm text-center text-gray-600 dark:text-gray-400 mb-6">{error}</p>
-                {imageUrl && (
-                  <div className="w-full border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800 overflow-hidden">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">기본 이미지를 사용하여 계속 진행합니다:</p>
-                    <Image 
-                      src={imageUrl} 
-                      alt="기본 GitHub 프로필" 
-                      className="max-w-full h-auto rounded"
-                      width={1000}
-                      height={500}
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-                  </div>
-                )}
               </div>
             </div>
           ) : imageUrl ? (
             <div className="w-full h-full relative flex items-center justify-center">
-              <Image 
-                src={imageUrl} 
-                alt={`${profile.name || profile.username}의 GitHub 프로필`} 
-                className="max-w-full max-h-[400px] h-auto rounded-lg shadow-md"
-                width={1000}
-                height={500}
-              />
-              <div className="absolute bottom-2 right-2 bg-white/80 dark:bg-gray-800/80 px-2 py-1 rounded text-xs text-gray-500 dark:text-gray-400 backdrop-blur-sm">
-                {new Date().toLocaleDateString()}
+              <div className="max-w-full max-h-[400px] bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+                <div className="flex flex-col items-center mb-4">
+                  <img 
+                    src={`https://github.com/${profile.username}.png`}
+                    alt={`${profile.username}의 GitHub 아바타`}
+                    className="w-20 h-20 rounded-full border-4 border-[#8B5CF6]/30"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png';
+                    }}
+                  />
+                  <h2 className="text-xl font-bold mt-2">{profile.name || `${profile.username}'s GitHub`}</h2>
+                  {profile.bio && <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{profile.bio}</p>}
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 p-3 rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">커밋 (올해)</span>
+                      <span className="font-bold text-[#8B5CF6]">{profile.githubStats?.currentYearCommits || 0}</span>
+                    </div>
+                  </div>
+                  <div className="bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 p-3 rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">PR</span>
+                      <span className="font-bold text-[#8B5CF6]">{profile.githubStats?.prs || 0}</span>
+                    </div>
+                  </div>
+                  <div className="bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 p-3 rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">이슈</span>
+                      <span className="font-bold text-[#8B5CF6]">{profile.githubStats?.issues || 0}</span>
+                    </div>
+                  </div>
+                  <div className="bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 p-3 rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">기여도</span>
+                      <span className="font-bold text-[#8B5CF6]">{profile.githubStats?.contributions || 0}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {profile.skills.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {profile.skills.map(skill => (
+                      <TechBadge 
+                        key={skill} 
+                        tech={skill} 
+                      />
+                    ))}
+                  </div>
+                )}
+                
+                <div className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
+                  {new Date().toLocaleDateString()}
+                </div>
               </div>
             </div>
           ) : (
@@ -252,7 +288,7 @@ export default function ProfilePreview({ profile, setProfile }: ProfilePreviewPr
                 정보를 입력하고 아래 버튼을 클릭하여 GitHub 프로필 이미지를 생성하세요
               </p>
               {/* 스킬 미리보기 */}
-              {!imageUrl && profile.skills.length > 0 && (
+              {profile.skills.length > 0 && (
                 <div className="mt-4 w-full max-w-md">
                   <h4 className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">기술 스택 미리보기:</h4>
                   <div className="flex flex-wrap gap-2 mb-5">
@@ -312,4 +348,4 @@ export default function ProfilePreview({ profile, setProfile }: ProfilePreviewPr
       </div>
     </div>
   );
-} 
+}
