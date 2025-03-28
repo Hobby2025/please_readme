@@ -16,15 +16,17 @@ interface ProfileData {
     prs: number;
     issues: number;
     contributions: number;
+    currentYearCommits: number;
     languages: { [key: string]: number };
   };
 }
 
 interface ProfilePreviewProps {
   profile: ProfileData;
+  setProfile?: React.Dispatch<React.SetStateAction<ProfileData>>;
 }
 
-export default function ProfilePreview({ profile }: ProfilePreviewProps) {
+export default function ProfilePreview({ profile, setProfile }: ProfilePreviewProps) {
   const [imageUrl, setImageUrl] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,12 +48,27 @@ export default function ProfilePreview({ profile }: ProfilePreviewProps) {
     fetch(`/api/github/username?username=${encodeURIComponent(trimmedUsername)}`)
       .then(res => {
         if (!res.ok) {
-          throw new Error('GitHub API 요청 실패');
+          if (res.status === 404) {
+            throw new Error('GitHub 사용자를 찾을 수 없습니다.');
+          } else if (res.status === 403) {
+            throw new Error('GitHub API 요청 제한에 도달했습니다. 잠시 후 다시 시도해주세요.');
+          } else {
+            throw new Error('GitHub API 요청 실패: ' + res.status);
+          }
         }
         return res.json();
       })
-      .then(() => {
-        // data 변수가 사용되지 않으므로 매개변수에서 제거
+      .then((data) => {
+        // GitHub 통계 데이터를 profile에 적용
+        if (setProfile) {
+          setProfile(prevProfile => ({
+            ...prevProfile,
+            githubStats: data
+          }));
+        } else {
+          console.warn('setProfile 함수가 제공되지 않아 GitHub 통계를 업데이트할 수 없습니다.');
+        }
+        
         // 이미지 URL 생성
         const skills = profile.skills.join(',');
         const url = `/api/image?username=${encodeURIComponent(trimmedUsername)}&name=${encodeURIComponent(profile.name)}&bio=${encodeURIComponent(profile.bio)}&skills=${encodeURIComponent(skills)}&theme=${profile.theme}`;
@@ -63,7 +80,8 @@ export default function ProfilePreview({ profile }: ProfilePreviewProps) {
           setLoading(false);
         };
         img.onerror = () => {
-          setImageUrl(url);
+          console.error('이미지 로드 실패:', url);
+          setImageUrl(url); // 실패해도 URL은 설정 (오류 이미지를 보여주기 위해)
           setError('이미지 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
           setLoading(false);
         };
@@ -71,7 +89,7 @@ export default function ProfilePreview({ profile }: ProfilePreviewProps) {
       })
       .catch(err => {
         console.error('GitHub 통계 가져오기 실패:', err);
-        setError('GitHub 사용자를 찾을 수 없거나 API 요청 제한에 도달했습니다. 사용자명이 정확한지 확인하거나 잠시 후 다시 시도해보세요.');
+        setError(err.message || 'GitHub 사용자를 찾을 수 없거나 API 요청 제한에 도달했습니다. 사용자명이 정확한지 확인하거나 잠시 후 다시 시도해보세요.');
         setLoading(false);
       });
   };
@@ -250,12 +268,12 @@ export default function ProfilePreview({ profile }: ProfilePreviewProps) {
               <button
                 onClick={generateImage}
                 disabled={loading || !profile.username.trim()}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#8B5CF6] hover:bg-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8B5CF6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="inline-flex items-center px-5 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-[#8B5CF6] hover:bg-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8B5CF6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors mx-auto"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                이미지 생성하기
+                {loading ? '생성 중...' : '이미지 생성하기'}
               </button>
             </div>
           )}

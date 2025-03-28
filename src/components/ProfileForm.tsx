@@ -15,6 +15,7 @@ interface ProfileData {
     prs: number;
     issues: number;
     contributions: number;
+    currentYearCommits: number;
     languages: { [key: string]: number };
   };
 }

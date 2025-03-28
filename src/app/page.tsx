@@ -18,6 +18,7 @@ interface ProfileData {
     prs: number;
     issues: number;
     contributions: number;
+    currentYearCommits: number;
     languages: { [key: string]: number };
   };
 }
@@ -35,6 +36,7 @@ export default function Home() {
       prs: 0,
       issues: 0,
       contributions: 0,
+      currentYearCommits: 0,
       languages: {}
     }
   });
@@ -61,7 +63,7 @@ export default function Home() {
           
           {/* 오른쪽 컬럼 - 미리보기 */}
           <div className="w-full lg:w-7/12 bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg overflow-hidden">
-            <ProfilePreview profile={profile} />
+            <ProfilePreview profile={profile} setProfile={setProfile} />
             <GitHubStatsCard stats={profile.githubStats} />
           </div>
         </div>

@@ -9,6 +9,7 @@ interface GitHubStats {
   prs: number;
   issues: number;
   contributions: number;
+  currentYearCommits: number;
   languages: { [key: string]: number };
   avatar_url?: string;
 }
@@ -17,7 +18,6 @@ interface GitHubStats {
 let fontFamily = 'sans-serif';
 try {
   // 시스템 폰트로 fallback
-  console.log('시스템 기본 폰트를 사용합니다');
   fontFamily = 'Arial, sans-serif';
 } catch (error) {
   console.error('폰트 설정 오류:', error);
@@ -80,8 +80,6 @@ export async function GET(request: Request) {
       // 동적 경로 대신 쿼리 파라미터 사용 경로로 변경
       const apiUrl = `${origin}/api/github/username?username=${encodeURIComponent(username)}`;
       
-      console.log('GitHub API 요청 URL:', apiUrl);
-      
       const githubStatsRes = await fetch(apiUrl, {
         method: 'GET',
         headers: {
@@ -94,7 +92,6 @@ export async function GET(request: Request) {
         console.error('GitHub API 응답 오류:', errorText);
         
         // GitHub 사용자를 찾을 수 없는 경우 기본 이미지 생성
-        console.log('오류 이미지를 생성합니다.');
         
         // 에러 이미지 생성 및 반환
         const buffer = createErrorImage(username, theme);
@@ -237,8 +234,11 @@ export async function GET(request: Request) {
       const statsStartY = statsY + 40;
       const statsSpacing = 150; // 각 통계 항목 사이의 간격
       
-      // 커밋 정보
-      ctx.fillText(`commits: ${githubStats.commits}`, 50, statsStartY);
+      // 현재 연도 계산
+      const currentYear = new Date().getFullYear();
+      
+      // 커밋 정보 (현재 연도 커밋 수로 변경)
+      ctx.fillText(`${currentYear}년 커밋: ${githubStats.currentYearCommits}`, 50, statsStartY);
       
       // PR 정보
       ctx.fillText(`Pull Requests: ${githubStats.prs}`, 50 + statsSpacing, statsStartY);

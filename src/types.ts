@@ -34,10 +34,14 @@ export interface ProfilePreviewProps {
 }
 
 export interface GitHubStats {
-  totalCommits: number;
-  totalPRs: number;
-  totalIssues: number;
-  avatar_url: string;
+  stars: number;
+  commits: number;
+  prs: number;
+  issues: number;
+  contributions: number;
+  currentYearCommits: number;
+  languages: { [key: string]: number };
+  avatar_url?: string;
 }
 
 // GitHub API 응답 타입 정의 추가

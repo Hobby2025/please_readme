@@ -6,6 +6,7 @@ interface GitHubStats {
   prs: number;
   issues: number;
   contributions: number;
+  currentYearCommits: number;
   languages: { [key: string]: number };
 }
 
@@ -14,6 +15,8 @@ interface GitHubStatsCardProps {
 }
 
 export default function GitHubStatsCard({ stats }: GitHubStatsCardProps) {
+  const currentYear = new Date().getFullYear();
+  
   return (
     <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl p-6 shadow-lg">
       <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">GitHub 통계</h3>
@@ -29,8 +32,8 @@ export default function GitHubStatsCard({ stats }: GitHubStatsCardProps) {
         <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
           <GitCommit className="w-5 h-5 text-green-500" />
           <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">총 커밋</p>
-            <p className="text-lg font-semibold text-gray-900 dark:text-white">{stats.commits}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{currentYear}년 커밋</p>
+            <p className="text-lg font-semibold text-gray-900 dark:text-white">{stats.currentYearCommits}</p>
           </div>
         </div>
         
