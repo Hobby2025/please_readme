@@ -39,26 +39,50 @@ export default function TechBadge({ tech, onRemove }: TechBadgeProps) {
   
   return (
     <span
-      className="inline-flex rounded-full items-center py-1 pl-2 pr-1 text-sm font-medium transition-all"
+      className="inline-flex rounded-md items-center py-1.5 pl-2 pr-2.5 text-xs font-medium shadow-sm transition-all duration-200 hover:shadow-md"
       style={{ 
-        backgroundColor: `${techColor}20`, 
-        color: techColor,
-        border: `1px solid ${techColor}40`
+        backgroundColor: techColor, 
+        color: '#ffffff',
+        border: `1px solid ${techColor}`,
+        boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
       }}
     >
       {hasIcon ? (
-        <i className={`${techIcons[formattedTech]} mr-1`} style={{ fontSize: '16px' }}></i>
-      ) : null}
-      {tech}
+        <div className="flex items-center justify-center mr-1.5 relative">
+          <i 
+            className={`${techIcons[formattedTech]}`} 
+            style={{ 
+              fontSize: '16px',
+              color: '#ffffff',
+              textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+            }}
+          ></i>
+        </div>
+      ) : (
+        <span 
+          className="w-4 h-4 rounded-full mr-1.5 flex items-center justify-center bg-white/30"
+        >
+          <span className="text-2xs font-bold text-white">
+            {tech.charAt(0).toUpperCase()}
+          </span>
+        </span>
+      )}
+      
+      <span className="font-bold tracking-wide text-white text-xs" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>
+        {tech}
+      </span>
+
       {onRemove && (
         <button
           type="button"
           onClick={() => onRemove(tech)}
-          className="flex-shrink-0 ml-1 h-5 w-5 rounded-full inline-flex items-center justify-center hover:bg-black/10 focus:outline-none transition-colors"
-          style={{ color: techColor }}
+          className="flex-shrink-0 ml-1.5 h-4 w-4 rounded-full inline-flex items-center justify-center bg-white/20 hover:bg-white/30 focus:outline-none transition-colors"
+          style={{ 
+            color: '#ffffff'
+          }}
         >
           <span className="sr-only">제거</span>
-          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <svg className="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>

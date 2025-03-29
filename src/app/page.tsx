@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import ProfileForm from '../components/ProfileForm';
-import ProfilePreview from '../components/ProfilePreview';
+import ProfileForm from '@/components/ProfileForm';
+import ProfilePreview from '@/components/ProfilePreview';
+import GithubCard from '@/components/GithubCard';
 import '../types';
 
 interface ProfileData {
@@ -11,6 +12,7 @@ interface ProfileData {
   bio: string;
   skills: string[];
   theme: 'light' | 'dark';
+  backgroundImageUrl?: string;
   githubStats: {
     stars: number;
     commits: number;
@@ -29,6 +31,7 @@ export default function Home() {
     bio: '',
     skills: [],
     theme: 'light',
+    backgroundImageUrl: '',
     githubStats: {
       stars: 0,
       commits: 0,
@@ -53,21 +56,8 @@ export default function Home() {
           </p>
         </header>
 
-        {/* 메인 콘텐츠 영역 */}
-        <div className="flex flex-col lg:flex-row gap-6 mb-8">
-          {/* 왼쪽 컬럼 - 폼 */}
-          <div className="w-full lg:w-5/12 bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg overflow-hidden">
-            <ProfileForm profile={profile} setProfile={setProfile} />
-          </div>
-          
-          {/* 오른쪽 컬럼 - 프로필 미리보기 */}
-          <div className="w-full lg:w-7/12 bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg overflow-hidden">
-            <ProfilePreview profile={profile} setProfile={setProfile} />
-          </div>
-        </div>
-
         {/* 사용 방법 */}
-        <div className="bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg overflow-hidden">
+        <div className="bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg overflow-hidden mb-8">
           <div className="bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-lg font-medium text-[#8B5CF6] dark:text-[#A78BFA] flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#8B5CF6]" viewBox="0 0 20 20" fill="currentColor">
@@ -111,6 +101,22 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* 메인 콘텐츠 영역 */}
+        <div className="flex flex-col lg:flex-row gap-6 mb-8">
+          {/* 왼쪽 컬럼 - 폼 */}
+          <div className="w-full lg:w-5/12 bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg overflow-hidden">
+            <ProfileForm profile={profile} setProfile={setProfile} />
+          </div>
+          
+          {/* 오른쪽 컬럼 - 프로필 미리보기 */}
+          <div className="w-full lg:w-7/12 bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg overflow-hidden">
+            <ProfilePreview 
+              profile={profile} 
+              setProfile={setProfile} 
+            />
+          </div>
+        </div>
         
         {/* 푸터 */}
         <footer className="mt-8 pt-4 border-t border-[#8B5CF6]/20 dark:border-[#8B5CF6]/10 text-center text-gray-600 dark:text-gray-400">
@@ -129,3 +135,4 @@ export default function Home() {
     </main>
   );
 }
+
