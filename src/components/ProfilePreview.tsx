@@ -122,16 +122,16 @@ export default function ProfilePreview({ profile, setProfile }: ProfilePreviewPr
   
   const copyImageUrl = () => {
     if (imageUrl) {
-      // 이미지의 절대 URL 생성
-      const absoluteUrl = `${window.location.origin}${imageUrl}`;
+      // 이미지의 절대 URL 생성 - 버셀 배포 도메인 사용
+      const absoluteUrl = `https://please-readme.vercel.app${imageUrl}`;
       handleCopy('URL', absoluteUrl);
     }
   };
   
   const copyMarkdown = () => {
     if (imageUrl) {
-      // 이미지의 절대 URL 생성
-      const absoluteUrl = `${window.location.origin}${imageUrl}`;
+      // 이미지의 절대 URL 생성 - 버셀 배포 도메인 사용
+      const absoluteUrl = `https://please-readme.vercel.app${imageUrl}`;
       
       // 마크다운 형식으로 이미지 태그 생성
       const markdown = `![${profile.name || profile.username}의 GitHub 프로필](${absoluteUrl})`;
@@ -141,8 +141,8 @@ export default function ProfilePreview({ profile, setProfile }: ProfilePreviewPr
 
   const copyHtml = () => {
     if (imageUrl) {
-      // 이미지의 절대 URL 생성
-      const absoluteUrl = `${window.location.origin}${imageUrl}`;
+      // 이미지의 절대 URL 생성 - 버셀 배포 도메인 사용
+      const absoluteUrl = `https://please-readme.vercel.app${imageUrl}`;
       
       // HTML 이미지 태그 생성
       const html = `<img src="${absoluteUrl}" alt="${profile.name || profile.username}의 GitHub 프로필" width="1000" height="500" />`;
