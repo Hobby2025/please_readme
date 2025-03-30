@@ -25,9 +25,11 @@ interface ProfileData {
 interface ProfilePreviewProps {
   profile: ProfileData;
   setProfile?: React.Dispatch<React.SetStateAction<ProfileData>>;
+  onPreviewGenerated?: (generated: boolean) => void;
+  onResetPreview?: () => void;
 }
 
-export default function ProfilePreview({ profile, setProfile }: ProfilePreviewProps) {
+export default function ProfilePreview({ profile, setProfile, onPreviewGenerated, onResetPreview }: ProfilePreviewProps) {
   const [imageUrl, setImageUrl] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,6 +84,11 @@ export default function ProfilePreview({ profile, setProfile }: ProfilePreviewPr
         
         // 데이터 로드 완료 표시
         setDataLoaded(true);
+        
+        // 부모 컴포넌트에 미리보기 생성 상태 전달
+        if (onPreviewGenerated) {
+          onPreviewGenerated(true);
+        }
 
         // API 엔드포인트 확인 - 실제 이미지 API가 없어 성공적으로 이미지를 로드하지 못함
         // 따라서 GitHub 프로필 이미지를 직접 표시
@@ -147,6 +154,18 @@ export default function ProfilePreview({ profile, setProfile }: ProfilePreviewPr
       // HTML 이미지 태그 생성
       const html = `<img src="${absoluteUrl}" alt="${profile.name || profile.username}의 GitHub 프로필" width="1000" height="500" />`;
       handleCopy('HTML', html);
+    }
+  };
+  
+  // 새 이미지 생성 버튼 클릭 시 호출
+  const handleResetPreview = () => {
+    setImageUrl('');
+    setError(null);
+    setDataLoaded(false);
+    
+    // 부모 컴포넌트에 미리보기 초기화 상태 전달
+    if (onResetPreview) {
+      onResetPreview();
     }
   };
   
@@ -283,11 +302,7 @@ export default function ProfilePreview({ profile, setProfile }: ProfilePreviewPr
                   </ol>
                 </div>
                 <button
-                  onClick={() => {
-                    setImageUrl('');
-                    setError(null);
-                    setDataLoaded(false);
-                  }}
+                  onClick={handleResetPreview}
                   className="inline-flex items-center px-3 py-1.5 border border-[#8B5CF6]/20 dark:border-[#8B5CF6]/30 text-xs font-medium rounded shadow-sm text-[#8B5CF6] dark:text-[#A78BFA] bg-white dark:bg-gray-800 hover:bg-[#8B5CF6]/5 dark:hover:bg-[#8B5CF6]/10 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8B5CF6]"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -316,11 +331,7 @@ export default function ProfilePreview({ profile, setProfile }: ProfilePreviewPr
                 </ol>
               </div>
               <button
-                onClick={() => {
-                  setImageUrl('');
-                  setError(null);
-                  setDataLoaded(false);
-                }}
+                onClick={handleResetPreview}
                 className="inline-flex items-center px-3 py-1.5 border border-[#8B5CF6]/20 dark:border-[#8B5CF6]/30 text-xs font-medium rounded shadow-sm text-[#8B5CF6] dark:text-[#A78BFA] bg-white dark:bg-gray-800 hover:bg-[#8B5CF6]/5 dark:hover:bg-[#8B5CF6]/10 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8B5CF6]"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

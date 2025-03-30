@@ -24,9 +24,10 @@ interface ProfileData {
 interface ProfileFormProps {
   profile: ProfileData;
   setProfile: React.Dispatch<React.SetStateAction<ProfileData>>;
+  disabled?: boolean;
 }
 
-export default function ProfileForm({ profile, setProfile }: ProfileFormProps) {
+export default function ProfileForm({ profile, setProfile, disabled = false }: ProfileFormProps) {
   const [newSkill, setNewSkill] = useState<string>('');
   const [draggedSkill, setDraggedSkill] = useState<string | null>(null);
   const [showSkillOptions, setShowSkillOptions] = useState<boolean>(false);
@@ -52,20 +53,54 @@ export default function ProfileForm({ profile, setProfile }: ProfileFormProps) {
   // username이 변경될 때 표시 이름의 기본값 설정
   useEffect(() => {
     if (profile.username && !profile.name) {
-      setProfile(prev => ({
-        ...prev,
-        name: `${profile.username}'s GitHub Status`
-      }));
+      // 앞뒤 공백 제거하고 기본값 설정
+      const trimmedUsername = profile.username.trim();
+      if (trimmedUsername) {
+        setProfile(prev => ({
+          ...prev,
+          name: `${trimmedUsername}'s GitHub Status`
+        }));
+      }
     }
   }, [profile.username, profile.name, setProfile]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
-    // username 필드의 경우 앞뒤 공백 제거
+    // username 필드의 경우 앞뒤 공백 제거하고 업데이트
     if (name === 'username') {
-      setProfile({ ...profile, [name]: value.trim() });
+      const trimmedValue = value.trim();
+      
+      // username이 비어있으면 name도 비우기
+      if (!trimmedValue) {
+        setProfile({
+          ...profile,
+          username: '',
+          name: ''
+        });
+      } else {
+        setProfile({ ...profile, username: trimmedValue });
+        
+        // username이 변경되고 name이 비어있거나 이전 자동 생성된 name이면 자동 업데이트
+        if (!profile.name || profile.name === `${profile.username}'s GitHub Status`) {
+          setProfile(prev => ({
+            ...prev,
+            username: trimmedValue,
+            name: `${trimmedValue}'s GitHub Status`
+          }));
+        }
+      }
+    } else if (name === 'name') {
+      // 이름 입력 처리 - 값이 없으면 빈 문자열로 명시적 설정
+      if (!value.trim()) {
+        // 값을 완전히 지웠을 때 빈 문자열로 설정
+        setProfile({ ...profile, name: '' });
+      } else {
+        // 일반적인 이름 변경
+        setProfile({ ...profile, name: value });
+      }
     } else {
+      // 다른 필드 처리
       setProfile({ ...profile, [name]: value });
     }
   };
@@ -74,15 +109,32 @@ export default function ProfileForm({ profile, setProfile }: ProfileFormProps) {
   const handleUsernameBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     // 입력값의 앞뒤 공백 제거
     const trimmedValue = e.target.value.trim();
-    setProfile({ ...profile, username: trimmedValue });
     
-    // username이 있고 name이 비어있는 경우 기본값 설정
-    if (trimmedValue && !profile.name) {
+    // 값이 비어있으면 username과 name 모두 비우기
+    if (!trimmedValue) {
       setProfile(prev => ({
         ...prev,
-        username: trimmedValue,
-        name: `${trimmedValue}'s GitHub Status`
+        username: '',
+        name: ''
       }));
+      return;
+    }
+    
+    // 값이 변경됐을 때만 업데이트
+    if (trimmedValue !== profile.username) {
+      setProfile(prev => ({
+        ...prev,
+        username: trimmedValue
+      }));
+      
+      // username이 있고 name이 비어있거나 이전 자동 생성된 name이면 자동 업데이트
+      if (!profile.name || profile.name === `${profile.username}'s GitHub Status`) {
+        setProfile(prev => ({
+          ...prev,
+          username: trimmedValue,
+          name: `${trimmedValue}'s GitHub Status`
+        }));
+      }
     }
   };
 
@@ -191,7 +243,7 @@ export default function ProfileForm({ profile, setProfile }: ProfileFormProps) {
         </h2>
       </div>
       
-      <div className="p-6 space-y-6">
+      <div className={`p-6 space-y-6 ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
         {/* 기본 정보 섹션 */}
         <div className="pb-4 mb-2 border-b border-gray-100 dark:border-gray-700">
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center">
@@ -239,7 +291,7 @@ export default function ProfileForm({ profile, setProfile }: ProfileFormProps) {
           {/* 이름 */}
           <div className="mb-4">
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              표시 이름
+              카드 표시 이름
             </label>
             <div className="relative mt-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -496,6 +548,12 @@ export default function ProfileForm({ profile, setProfile }: ProfileFormProps) {
           </div>
         </div>
       </div>
+      
+      {disabled && (
+        <div className="p-4 bg-purple-100 dark:bg-purple-900/30 text-center text-sm font-medium text-purple-800 dark:text-purple-300">
+          미리보기가 생성되었습니다. 수정하려면 '새 이미지 생성' 버튼을 클릭하세요.
+        </div>
+      )}
     </div>
   );
 } 
