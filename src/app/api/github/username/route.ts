@@ -152,13 +152,14 @@ export async function GET(request: Request) {
     
     console.log(`GitHub API 요청: 사용자 '${decodedUsername}' 통계 가져오는 중...`);
     
-    // GitHub API를 통해 사용자 데이터 가져오기
-    const stats = await fetchGitHubUserData(decodedUsername);
-    
-    // GitHub Token이 없는 경우 REST API로 폴백
-    if (!process.env.GITHUB_TOKEN) {
-      console.warn('GitHub Token이 없어 기본 통계 데이터를 사용합니다.');
-      // 기본 REST API로 대체 로직
+    try {
+      // GitHub API를 통해 사용자 데이터 가져오기
+      const stats = await fetchGitHubUserData(decodedUsername);
+      return NextResponse.json(stats);
+    } catch (error) {
+      console.warn('GraphQL API 오류, REST API로 대체:', error);
+      
+      // GraphQL API 실패 시 REST API로 기본 정보 가져오기
       const userResponse = await fetch(`https://api.github.com/users/${decodedUsername}`, {
         headers: {
           'Accept': 'application/vnd.github.v3+json',
@@ -175,7 +176,7 @@ export async function GET(request: Request) {
       
       const userData = await userResponse.json();
       
-      // 기본 통계 데이터 생성
+      // 기본 통계 데이터 생성 (모든 수치 0으로 설정)
       return NextResponse.json({
         stars: 0,
         commits: 0,
@@ -187,8 +188,6 @@ export async function GET(request: Request) {
         avatar_url: userData.avatar_url
       });
     }
-    
-    return NextResponse.json(stats);
   } catch (error) {
     console.error('GitHub API 오류:', error);
     return NextResponse.json(
