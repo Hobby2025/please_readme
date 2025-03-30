@@ -299,28 +299,30 @@ export default function GithubCard({ profile }: GithubCardProps) {
           )}
 
           {/* 구분선 */}
-          <div className="my-6 flex items-center justify-center">
-            <div className="flex items-center space-x-2 w-full">
-              <div 
-                className="h-0.5 flex-1 rounded"
-                style={{  backgroundColor: rank.accentColor }}
-              />
-              <div className="flex space-x-1">
-                {[...Array(3)].map((_, i) => (
-                  <div 
-                    key={i} 
-                    className="w-1.5 h-1.5 rounded-full"
-                    style={{ backgroundColor: rank.accentColor }}
-                  />
-                ))}
+          {profile.bio && profile.bio.trim() !== '' && Array.isArray(profile.skills) && profile.skills.length > 0 && (
+            <div className="my-6 flex items-center justify-center">
+              <div className="flex items-center space-x-2 w-full">
+                <div 
+                  className="h-0.5 flex-1 rounded"
+                  style={{  backgroundColor: rank.accentColor }}
+                />
+                <div className="flex space-x-1">
+                  {[...Array(3)].map((_, i) => (
+                    <div 
+                      key={i} 
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{ backgroundColor: rank.accentColor }}
+                    />
+                  ))}
+                </div>
+                <div 
+                  className="h-0.5 flex-1 rounded"
+                  style={{  backgroundColor: rank.accentColor }}
+                />
               </div>
-              <div 
-                className="h-0.5 flex-1 rounded"
-                style={{  backgroundColor: rank.accentColor }}
-              />
             </div>
-          </div>
-          
+          )}
+
           {/* GitHub 통계 */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700/90 text-white' : 'bg-gray-100/90 text-gray-800'}`} style={{ borderLeft: `4px solid ${rank.mainColor}` }}>
