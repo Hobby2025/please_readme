@@ -42,6 +42,19 @@ export default function Home() {
       languages: {}
     }
   });
+  
+  // 프로필 미리보기 상태를 추가
+  const [isPreviewGenerated, setIsPreviewGenerated] = useState<boolean>(false);
+
+  // 미리보기가 생성되었을 때 호출되는 함수
+  const handlePreviewGenerated = (generated: boolean) => {
+    setIsPreviewGenerated(generated);
+  };
+  
+  // 새 이미지 생성 버튼 클릭 시 호출되는 함수
+  const handleResetPreview = () => {
+    setIsPreviewGenerated(false);
+  };
 
   return (
     <main className="min-h-screen p-4 sm:p-6 md:p-8">
@@ -106,7 +119,11 @@ export default function Home() {
         <div className="flex flex-col lg:flex-row gap-6 mb-8">
           {/* 왼쪽 컬럼 - 폼 */}
           <div className="w-full lg:w-5/12 bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg overflow-hidden">
-            <ProfileForm profile={profile} setProfile={setProfile} />
+            <ProfileForm 
+              profile={profile} 
+              setProfile={setProfile} 
+              disabled={isPreviewGenerated}
+            />
           </div>
           
           {/* 오른쪽 컬럼 - 프로필 미리보기 */}
@@ -114,6 +131,8 @@ export default function Home() {
             <ProfilePreview 
               profile={profile} 
               setProfile={setProfile} 
+              onPreviewGenerated={handlePreviewGenerated}
+              onResetPreview={handleResetPreview}
             />
           </div>
         </div>
