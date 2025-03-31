@@ -129,17 +129,15 @@ export default function ProfilePreview({ profile, setProfile, onPreviewGenerated
   
   const copyProfileCode = () => {
     if (imageUrl) {
-      // 실제 API 엔드포인트를 사용한 이미지 임포트 마크다운 코드 생성
-      const apiBaseUrl = "https://please-readme.vercel.app/api/profile";
-      const lightThemeUrl = `${apiBaseUrl}?name=${encodeURIComponent(profile.name || '')}&bio=${encodeURIComponent(profile.bio || '')}&theme=light&username=${encodeURIComponent(profile.username)}`;
-      const darkThemeUrl = `${apiBaseUrl}?name=${encodeURIComponent(profile.name || '')}&bio=${encodeURIComponent(profile.bio || '')}&theme=dark&username=${encodeURIComponent(profile.username)}`;
+      // GitHub 통계 정보를 가진 API URL 생성
+      const apiUrl = `/api/profile?username=${encodeURIComponent(profile.username)}&name=${encodeURIComponent(profile.name || '')}&bio=${encodeURIComponent(profile.bio || '')}&theme=${profile.theme}&skills=${profile.skills.join(',')}&stars=${profile.githubStats?.stars || 0}&commits=${profile.githubStats?.commits || 0}&prs=${profile.githubStats?.prs || 0}&issues=${profile.githubStats?.issues || 0}&contributions=${profile.githubStats?.contributions || 0}&currentYearCommits=${profile.githubStats?.currentYearCommits || 0}`;
       
-      const markdown = `<div align="center"> 
-    <picture decoding="async" loading="lazy">
-        <source media="(prefers-color-scheme: light)" srcset="${lightThemeUrl}">
-        <source media="(prefers-color-scheme: dark)" srcset="${darkThemeUrl}">
-        <img alt="GitHub 프로필" src="${lightThemeUrl}">
-    </picture>
+      // 실제 배포된 도메인 사용
+      const fullApiUrl = `https://please-readme.vercel.app${apiUrl}`;
+      
+      // 마크다운으로 이미지 임베딩
+      const markdown = `<div align="center">
+  <img src="${fullApiUrl}" alt="${profile.name || profile.username}의 GitHub 프로필" width="800" />
 </div>`;
       
       handleCopy('프로필 코드', markdown);
