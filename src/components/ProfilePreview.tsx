@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Image from 'next/image';
 import TechBadge from './TechBadge';
 import GithubCard from './GithubCard';
+import { toast } from 'react-hot-toast';
+import copy from 'copy-to-clipboard';
 
 interface ProfileData {
   username: string;
@@ -20,6 +22,7 @@ interface ProfileData {
     currentYearCommits: number;
     languages: { [key: string]: number };
   };
+  backgroundImageUrl?: string;
 }
 
 interface ProfilePreviewProps {
@@ -128,22 +131,29 @@ export default function ProfilePreview({ profile, setProfile, onPreviewGenerated
   };
   
   const copyProfileCode = () => {
-    if (imageUrl) {
-      // GitHub 통계 정보를 가진 API URL 생성
-      const apiUrl = `/api/profile?username=${encodeURIComponent(profile.username)}&name=${encodeURIComponent(profile.name || '')}&bio=${encodeURIComponent(profile.bio || '')}&theme=${profile.theme}&skills=${profile.skills.join(',')}&stars=${profile.githubStats?.stars || 0}&commits=${profile.githubStats?.commits || 0}&prs=${profile.githubStats?.prs || 0}&issues=${profile.githubStats?.issues || 0}&contributions=${profile.githubStats?.contributions || 0}&currentYearCommits=${profile.githubStats?.currentYearCommits || 0}`;
-      
-      // 실제 배포된 도메인 사용
-      const fullApiUrl = `https://please-readme.vercel.app${apiUrl}`;
-      
-      // 마크다운으로 이미지 임베딩
-      const markdown = `<div align="center">
-  <img src="${fullApiUrl}" alt="${profile.name || profile.username}의 GitHub 프로필" width="800" />
-</div>`;
-      
-      handleCopy('프로필 코드', markdown);
-    } else {
-      setCopySuccess({ type: '프로필 코드', success: false });
+    if (!profile.username) {
+      toast.error('사용자명을 입력해주세요.');
+      return;
     }
+    
+    // API URL 생성
+    const params = new URLSearchParams();
+    params.append('username', profile.username);
+    if (profile.name) params.append('name', profile.name);
+    if (profile.bio) params.append('bio', profile.bio);
+    params.append('theme', profile.theme);
+    if (profile.skills.length > 0) params.append('skills', profile.skills.join(','));
+    if (profile.backgroundImageUrl) params.append('background_image_url', profile.backgroundImageUrl);
+    
+    const apiUrl = `/api/profile?${params.toString()}`;
+    
+    // 마크다운 코드 생성
+    const markdownCode = `![${profile.name || profile.username}'s GitHub Profile](${window.location.origin}${apiUrl})`;
+    
+    // 클립보드에 복사
+    copy(markdownCode);
+    setImageUrl(`${window.location.origin}${apiUrl}`);
+    toast.success('마크다운 코드가 클립보드에 복사되었습니다!');
   };
   
   // 새 이미지 생성 버튼 클릭 시 호출
