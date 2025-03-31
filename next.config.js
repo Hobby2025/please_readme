@@ -25,8 +25,37 @@ const nextConfig = {
   trailingSlash: false,
   // next/image 컴포넌트의 이미지 호스트 설정
   images: {
-    domains: ['github.com', 'avatars.githubusercontent.com', 'github.githubassets.com'],
-  }
+    domains: ['github.com', 'avatars.githubusercontent.com', 'github.githubassets.com', 'please-readme.vercel.app'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'please-readme.vercel.app',
+        port: '',
+        pathname: '/api/profile/**',
+      },
+    ],
+  },
+  async headers() {
+    return [
+      {
+        source: '/api/profile',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'X-Requested-With, Content-Type, Accept',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig; 

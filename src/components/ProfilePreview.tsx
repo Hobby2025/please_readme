@@ -127,33 +127,24 @@ export default function ProfilePreview({ profile, setProfile, onPreviewGenerated
       });
   };
   
-  const copyImageUrl = () => {
+  const copyProfileCode = () => {
     if (imageUrl) {
-      // 이미지의 절대 URL 생성 - 버셀 배포 도메인 사용
-      const absoluteUrl = `https://please-readme.vercel.app${imageUrl}`;
-      handleCopy('URL', absoluteUrl);
-    }
-  };
-  
-  const copyMarkdown = () => {
-    if (imageUrl) {
-      // 이미지의 절대 URL 생성 - 버셀 배포 도메인 사용
-      const absoluteUrl = `https://please-readme.vercel.app${imageUrl}`;
+      // 실제 API 엔드포인트를 사용한 이미지 임포트 마크다운 코드 생성
+      const apiBaseUrl = "https://please-readme.vercel.app/api/profile";
+      const lightThemeUrl = `${apiBaseUrl}?name=${encodeURIComponent(profile.name || '')}&bio=${encodeURIComponent(profile.bio || '')}&theme=light&username=${encodeURIComponent(profile.username)}`;
+      const darkThemeUrl = `${apiBaseUrl}?name=${encodeURIComponent(profile.name || '')}&bio=${encodeURIComponent(profile.bio || '')}&theme=dark&username=${encodeURIComponent(profile.username)}`;
       
-      // 마크다운 형식으로 이미지 태그 생성
-      const markdown = `![${profile.name || profile.username}의 GitHub 프로필](${absoluteUrl})`;
-      handleCopy('마크다운', markdown);
-    }
-  };
-
-  const copyHtml = () => {
-    if (imageUrl) {
-      // 이미지의 절대 URL 생성 - 버셀 배포 도메인 사용
-      const absoluteUrl = `https://please-readme.vercel.app${imageUrl}`;
+      const markdown = `<div align="center"> 
+    <picture decoding="async" loading="lazy">
+        <source media="(prefers-color-scheme: light)" srcset="${lightThemeUrl}">
+        <source media="(prefers-color-scheme: dark)" srcset="${darkThemeUrl}">
+        <img alt="GitHub 프로필" src="${lightThemeUrl}">
+    </picture>
+</div>`;
       
-      // HTML 이미지 태그 생성
-      const html = `<img src="${absoluteUrl}" alt="${profile.name || profile.username}의 GitHub 프로필" width="1000" height="500" />`;
-      handleCopy('HTML', html);
+      handleCopy('프로필 코드', markdown);
+    } else {
+      setCopySuccess({ type: '프로필 코드', success: false });
     }
   };
   
@@ -185,38 +176,6 @@ export default function ProfilePreview({ profile, setProfile, onPreviewGenerated
               ? `${copySuccess.type} 복사됨!` 
               : `${copySuccess.type} 복사 실패`
             }
-          </div>
-        )}
-
-        {imageUrl && (
-          <div className="flex gap-2">
-            <button
-              onClick={copyImageUrl}
-              className="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded text-[#8B5CF6] bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 dark:bg-[#8B5CF6]/20 dark:text-[#A78BFA] dark:hover:bg-[#8B5CF6]/30 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8B5CF6]"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-              </svg>
-              URL
-            </button>
-            <button
-              onClick={copyMarkdown}
-              className="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded text-[#8B5CF6] bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 dark:bg-[#8B5CF6]/20 dark:text-[#A78BFA] dark:hover:bg-[#8B5CF6]/30 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8B5CF6]"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-              </svg>
-              마크다운
-            </button>
-            <button
-              onClick={copyHtml}
-              className="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded text-[#8B5CF6] bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 dark:bg-[#8B5CF6]/20 dark:text-[#A78BFA] dark:hover:bg-[#8B5CF6]/30 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8B5CF6]"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-              </svg>
-              HTML
-            </button>
           </div>
         )}
       </div>
@@ -284,23 +243,33 @@ export default function ProfilePreview({ profile, setProfile, onPreviewGenerated
             )}
           </div>
         ) : (
-          <div className="flex-1">
-            <GithubCard profile={profile} />
-            
-            <div className="mt-5 p-4 bg-[#8B5CF6]/5 dark:bg-[#8B5CF6]/10 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between flex-wrap gap-3">
-                <div>
-                  <h3 className="flex items-center text-sm font-medium text-[#8B5CF6] dark:text-[#A78BFA] mb-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-[#8B5CF6]" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                    </svg>
-                    GitHub 프로필에 적용하는 방법
-                  </h3>
-                  <ol className="ml-6 mt-1 text-xs text-gray-600 dark:text-gray-400 list-decimal space-y-1">
-                    <li>위 버튼을 클릭하여 원하는 형식의 코드를 복사하세요</li>
-                    <li>복사한 코드를 GitHub 프로필 README.md 파일에 붙여넣으세요</li>
-                  </ol>
-                </div>
+          <div className="flex-1 overflow-hidden p-4">
+            <div className="flex flex-col items-center justify-center rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-[#8B5CF6]/5 dark:bg-[#8B5CF6]/10 p-6">
+              <div className="flex justify-center mb-6">
+                <h3 className="text-lg font-medium text-[#8B5CF6] dark:text-[#A78BFA]">
+                  생성된 프로필 이미지
+                </h3>
+              </div>
+              
+              {/* GithubCard 컴포넌트 사용 */}
+              <div className="w-full max-w-3xl mb-6 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg">
+                <GithubCard profile={profile} />
+              </div>
+              
+              {/* 복사 버튼 */}
+              <div className="flex justify-center mb-8">
+                <button
+                  onClick={copyProfileCode}
+                  className="inline-flex items-center px-5 py-3 text-base font-medium rounded-md shadow-sm text-white bg-[#8B5CF6] hover:bg-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8B5CF6] transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                  </svg>
+                  GitHub 프로필 코드 복사
+                </button>
+              </div>
+              
+              <div className="flex justify-center">
                 <button
                   onClick={handleResetPreview}
                   className="inline-flex items-center px-3 py-1.5 border border-[#8B5CF6]/20 dark:border-[#8B5CF6]/30 text-xs font-medium rounded shadow-sm text-[#8B5CF6] dark:text-[#A78BFA] bg-white dark:bg-gray-800 hover:bg-[#8B5CF6]/5 dark:hover:bg-[#8B5CF6]/10 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8B5CF6]"
@@ -311,34 +280,6 @@ export default function ProfilePreview({ profile, setProfile, onPreviewGenerated
                   새 이미지 생성
                 </button>
               </div>
-            </div>
-          </div>
-        )}
-        
-        {imageUrl && !dataLoaded && (
-          <div className="mt-5 p-4 bg-[#8B5CF6]/5 dark:bg-[#8B5CF6]/10 rounded-lg border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div>
-                <h3 className="flex items-center text-sm font-medium text-[#8B5CF6] dark:text-[#A78BFA] mb-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-[#8B5CF6]" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
-                  GitHub 프로필에 적용하는 방법
-                </h3>
-                <ol className="ml-6 mt-1 text-xs text-gray-600 dark:text-gray-400 list-decimal space-y-1">
-                  <li>위 버튼을 클릭하여 원하는 형식의 코드를 복사하세요</li>
-                  <li>복사한 코드를 GitHub 프로필 README.md 파일에 붙여넣으세요</li>
-                </ol>
-              </div>
-              <button
-                onClick={handleResetPreview}
-                className="inline-flex items-center px-3 py-1.5 border border-[#8B5CF6]/20 dark:border-[#8B5CF6]/30 text-xs font-medium rounded shadow-sm text-[#8B5CF6] dark:text-[#A78BFA] bg-white dark:bg-gray-800 hover:bg-[#8B5CF6]/5 dark:hover:bg-[#8B5CF6]/10 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8B5CF6]"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                새 이미지 생성
-              </button>
             </div>
           </div>
         )}

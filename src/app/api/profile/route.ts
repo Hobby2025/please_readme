@@ -10,6 +10,7 @@ export async function GET(request: Request) {
     const name = searchParams.get('name') || 'GitHub 사용자';
     const bio = searchParams.get('bio') || '안녕하세요, 제 GitHub 프로필에 오신 것을 환영합니다!';
     const theme = searchParams.get('theme') || 'default';
+    const username = searchParams.get('username') || '';
     
     // 캔버스 생성
     const canvas = createCanvas(800, 400);
@@ -25,12 +26,19 @@ export async function GET(request: Request) {
     ctx.textAlign = 'center';
     ctx.fillText(name, 400, 100);
     
+    // 사용자명 표시
+    if (username) {
+      ctx.font = 'bold 20px Arial';
+      ctx.fillStyle = getThemeText(theme);
+      ctx.fillText(`@${username}`, 400, 140);
+    }
+    
     // 자기소개 텍스트
     ctx.font = '20px Arial';
     ctx.fillStyle = getThemeText(theme);
     
     // 여러 줄로 텍스트 렌더링
-    wrapText(ctx, bio, 400, 150, 600, 30);
+    wrapText(ctx, bio, 400, username ? 180 : 150, 600, 30);
     
     // 캔버스를 PNG로 변환
     const buffer = canvas.toBuffer('image/png');
