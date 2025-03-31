@@ -56,13 +56,35 @@ export default function ProfilePreview({ profile, setProfile, onPreviewGenerated
     fetch(`/api/github?username=${encodeURIComponent(trimmedUsername)}`)
       .then(res => {
         if (!res.ok) {
-          if (res.status === 404) {
-            throw new Error('GitHub 사용자를 찾을 수 없습니다.');
-          } else if (res.status === 403) {
-            throw new Error('GitHub API 요청 제한에 도달했습니다. 잠시 후 다시 시도해주세요.');
-          } else {
-            throw new Error('GitHub API 요청 실패: ' + res.status);
-          }
+          return res.json().then(errorData => {
+            // 서버에서 제공하는 오류 메시지 사용
+            if (errorData && errorData.error) {
+              throw new Error(errorData.error);
+            }
+            
+            // 기본 HTTP 상태 기반 오류 메시지
+            if (res.status === 404) {
+              throw new Error('GitHub 사용자를 찾을 수 없습니다.');
+            } else if (res.status === 429) {
+              throw new Error('GitHub API 요청 제한에 도달했습니다. 잠시 후 다시 시도해주세요.');
+            } else if (res.status === 403) {
+              throw new Error('GitHub API 요청 제한에 도달했습니다. 잠시 후 다시 시도해주세요.');
+            } else {
+              throw new Error('GitHub API 요청 실패: ' + res.status);
+            }
+          }).catch(error => {
+            // JSON 파싱 오류 등 예외 처리
+            if (error instanceof SyntaxError) {
+              if (res.status === 404) {
+                throw new Error('GitHub 사용자를 찾을 수 없습니다.');
+              } else if (res.status === 429 || res.status === 403) {
+                throw new Error('GitHub API 요청 제한에 도달했습니다. 잠시 후 다시 시도해주세요.');
+              } else {
+                throw new Error('GitHub API 요청 실패: ' + res.status);
+              }
+            }
+            throw error;
+          });
         }
         return res.json();
       })

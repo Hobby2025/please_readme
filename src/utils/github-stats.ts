@@ -170,17 +170,37 @@ export function calculateRank(stats: GitHubStats | undefined): RankInfo {
  */
 export async function fetchGitHubStats(username: string): Promise<GitHubStats> {
   try {
+    // GitHub API 요청 시 사용자 에이전트 설정
+    const headers = {
+      'User-Agent': 'Please-Readme-App',
+      'Accept': 'application/vnd.github.v3+json'
+    };
+    
     // 기본 사용자 정보 가져오기
-    const userResponse = await fetch(`https://api.github.com/users/${username}`);
+    const userResponse = await fetch(`https://api.github.com/users/${username}`, { headers });
     
     if (!userResponse.ok) {
+      if (userResponse.status === 403) {
+        const rateLimitRemaining = userResponse.headers.get('X-RateLimit-Remaining');
+        if (rateLimitRemaining === '0') {
+          const resetTime = userResponse.headers.get('X-RateLimit-Reset');
+          const resetDate = resetTime ? new Date(parseInt(resetTime) * 1000) : new Date();
+          const minutesUntilReset = Math.ceil((resetDate.getTime() - new Date().getTime()) / (60 * 1000));
+          throw new Error(`GitHub API 요청 제한에 도달했습니다. ${minutesUntilReset}분 후에 다시 시도해 주세요.`);
+        }
+      }
+      
+      if (userResponse.status === 404) {
+        throw new Error(`GitHub 사용자 '${username}'을(를) 찾을 수 없습니다.`);
+      }
+      
       throw new Error(`GitHub API 요청 실패: ${userResponse.status}`);
     }
     
     const userData = await userResponse.json();
     
     // 사용자 레포지토리 가져오기
-    const reposResponse = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`);
+    const reposResponse = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`, { headers });
     
     if (!reposResponse.ok) {
       throw new Error(`GitHub 레포지토리 요청 실패: ${reposResponse.status}`);
@@ -189,7 +209,7 @@ export async function fetchGitHubStats(username: string): Promise<GitHubStats> {
     const repos = await reposResponse.json();
     
     // 사용자 스타 가져오기
-    const starredResponse = await fetch(`https://api.github.com/users/${username}/starred?per_page=100`);
+    const starredResponse = await fetch(`https://api.github.com/users/${username}/starred?per_page=100`, { headers });
     let starCount = 0;
     
     if (starredResponse.ok) {
@@ -244,16 +264,7 @@ export async function fetchGitHubStats(username: string): Promise<GitHubStats> {
     };
   } catch (error) {
     console.error('GitHub 통계 가져오기 실패:', error);
-    // 오류 발생 시 기본값 반환
-    return {
-      stars: 0,
-      commits: 0,
-      prs: 0,
-      issues: 0,
-      contributions: 0,
-      currentYearCommits: 0,
-      languages: {}
-    };
+    throw error; // 오류를 상위 함수로 전파하여 적절한 오류 메시지 표시
   }
 }
 
@@ -359,14 +370,13 @@ export async function fetchGitHubStatsGraphQL(username: string, token?: string):
  * 환경에 맞는 적절한 GitHub 통계 가져오기 방식 선택
  */
 export async function getGitHubStats(username: string): Promise<GitHubStats> {
-  // 서버 측에서는 환경 변수를 통해 토큰 사용 가능
-  const token = typeof process !== 'undefined' && process.env ? process.env.GITHUB_TOKEN : undefined;
+  // GITHUB_TOKEN을 직접 참조
+  // @ts-ignore - Vercel 환경 변수 처리
+  const token = process.env.GITHUB_TOKEN || '';
   
-  // 토큰이 있으면 GraphQL, 없으면 REST API 사용
   if (token) {
     return fetchGitHubStatsGraphQL(username, token);
   }
   
-  // 기본적으로 REST API 사용
   return fetchGitHubStats(username);
 } 
