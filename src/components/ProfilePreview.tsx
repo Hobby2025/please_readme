@@ -6,6 +6,8 @@ import TechBadge from './TechBadge';
 import GithubCard from './GithubCard';
 import { toast } from 'react-hot-toast';
 import copy from 'copy-to-clipboard';
+import { fetchGitHubStatsClient } from '@/utils/github-client';
+import { GitHubStats } from '@/utils/github-stats';
 
 interface ProfileData {
   username: string;
@@ -52,43 +54,9 @@ export default function ProfilePreview({ profile, setProfile, onPreviewGenerated
     setLoading(true);
     setError(null);
     
-    // GitHub API 호출 
-    fetch(`/api/github?username=${encodeURIComponent(trimmedUsername)}`)
-      .then(res => {
-        if (!res.ok) {
-          return res.json().then(errorData => {
-            // 서버에서 제공하는 오류 메시지 사용
-            if (errorData && errorData.error) {
-              throw new Error(errorData.error);
-            }
-            
-            // 기본 HTTP 상태 기반 오류 메시지
-            if (res.status === 404) {
-              throw new Error('GitHub 사용자를 찾을 수 없습니다.');
-            } else if (res.status === 429) {
-              throw new Error('GitHub API 요청 제한에 도달했습니다. 잠시 후 다시 시도해주세요.');
-            } else if (res.status === 403) {
-              throw new Error('GitHub API 요청 제한에 도달했습니다. 잠시 후 다시 시도해주세요.');
-            } else {
-              throw new Error('GitHub API 요청 실패: ' + res.status);
-            }
-          }).catch(error => {
-            // JSON 파싱 오류 등 예외 처리
-            if (error instanceof SyntaxError) {
-              if (res.status === 404) {
-                throw new Error('GitHub 사용자를 찾을 수 없습니다.');
-              } else if (res.status === 429 || res.status === 403) {
-                throw new Error('GitHub API 요청 제한에 도달했습니다. 잠시 후 다시 시도해주세요.');
-              } else {
-                throw new Error('GitHub API 요청 실패: ' + res.status);
-              }
-            }
-            throw error;
-          });
-        }
-        return res.json();
-      })
-      .then((data) => {
+    // github-client의 클라이언트 함수를 사용하여 GitHub 통계 가져오기 
+    fetchGitHubStatsClient(trimmedUsername)
+      .then((data: GitHubStats) => {
         // GitHub 통계 데이터를 profile에 적용
         if (setProfile) {
           setProfile(prevProfile => ({
@@ -117,7 +85,7 @@ export default function ProfilePreview({ profile, setProfile, onPreviewGenerated
 
         // API 엔드포인트 확인 - 실제 이미지 API가 없어 성공적으로 이미지를 로드하지 못함
         // 따라서 GitHub 프로필 이미지를 직접 표시
-        const githubProfileUrl = `https://github.com/${trimmedUsername}.png`;
+        const githubProfileUrl = data.avatar_url || `https://github.com/${trimmedUsername}.png`;
         const img = new window.Image();
         img.onload = () => {
           // GitHub 프로필 이미지가 로드되면 성공 처리

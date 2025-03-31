@@ -1,4 +1,7 @@
-'use client';
+/**
+ * GitHub 통계 관련 유틸리티 함수
+ * 이 파일은 서버 컴포넌트에서만 사용됨
+ */
 
 /**
  * GitHub 통계 인터페이스
@@ -11,6 +14,7 @@ export interface GitHubStats {
   contributions: number;
   currentYearCommits: number;
   languages: { [key: string]: number };
+  avatar_url?: string;
 }
 
 /**
@@ -260,7 +264,8 @@ export async function fetchGitHubStats(username: string): Promise<GitHubStats> {
       issues: totalIssues || Math.round(userData.public_repos * 0.7) || 0, // 총 이슈 수
       contributions: totalContributions || userData.public_repos || 0, // 총 기여도
       currentYearCommits: currentYearCommits || Math.round(totalCommits * 0.4) || 0, // 올해 커밋 수
-      languages: languages // 언어 사용 통계
+      languages: languages, // 언어 사용 통계
+      avatar_url: userData.avatar_url
     };
   } catch (error) {
     console.error('GitHub 통계 가져오기 실패:', error);
@@ -307,6 +312,7 @@ export async function fetchGitHubStatsGraphQL(username: string, token?: string):
           starredRepositories {
             totalCount
           }
+          avatarUrl
         }
       }
     `;
@@ -358,6 +364,7 @@ export async function fetchGitHubStatsGraphQL(username: string, token?: string):
       contributions: contributions.contributionCalendar.totalContributions || 0,
       currentYearCommits: contributions.totalCommitContributions || 0,
       languages: languages,
+      avatar_url: user.avatarUrl
     };
   } catch (error) {
     console.error('GitHub GraphQL 통계 가져오기 실패:', error);
@@ -370,13 +377,14 @@ export async function fetchGitHubStatsGraphQL(username: string, token?: string):
  * 환경에 맞는 적절한 GitHub 통계 가져오기 방식 선택
  */
 export async function getGitHubStats(username: string): Promise<GitHubStats> {
-  // GITHUB_TOKEN을 직접 참조
-  // @ts-ignore - Vercel 환경 변수 처리
+  // 서버 측에서 환경 변수를 통해 토큰 사용
   const token = process.env.GITHUB_TOKEN || '';
   
+  // 토큰이 있으면 GraphQL, 없으면 REST API 사용
   if (token) {
     return fetchGitHubStatsGraphQL(username, token);
   }
   
+  // 기본적으로 REST API 사용
   return fetchGitHubStats(username);
 } 
