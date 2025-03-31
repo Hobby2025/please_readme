@@ -9,8 +9,9 @@ const nextConfig = {
     },
     // 실험적 기능 추가
     typedRoutes: false,
-    serverComponentsExternalPackages: ['canvas']
   },
+  // 외부 패키지 설정 (Next.js 15.2.4에서 이동됨)
+  serverExternalPackages: ['canvas'],
   eslint: {
     // 경고만 표시하고 빌드는 계속 진행
     ignoreDuringBuilds: true
