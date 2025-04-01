@@ -9,9 +9,8 @@ try {
   // macOS/Linux에서 사용 가능한 일반적인 한글 폰트
   // 실제 사용 가능성이 높은 순서대로 시도
   const fontPaths = [
-    path.resolve('./public/fonts/RIDIBatang.woff'),    // 직접 다운로드한 폰트
-    path.resolve('./public/fonts/NotoSansKR-Regular.ttf'), // 직접 다운로드한 폰트
-    path.resolve('./public/fonts/NotoSansKR-Bold.ttf'),   // 직접 다운로드한 폰트
+    path.resolve('./public/fonts/D2Coding-Ver1.3.2-20180524.ttf'),    // D2 Coding 폰트
+    path.resolve('./public/fonts/D2CodingBold-Ver1.3.2-20180524.ttf'), // D2 Coding 볼드
     '/System/Library/Fonts/AppleSDGothicNeo.ttc',       // macOS
     '/System/Library/Fonts/AppleGothic.ttf',           // macOS
     '/usr/share/fonts/truetype/nanum/NanumGothic.ttf', // Linux
@@ -23,7 +22,11 @@ try {
   let fontLoaded = false;
   for (const fontPath of fontPaths) {
     try {
-      registerFont(fontPath, { family: 'CustomFont' });
+      // D2 Coding 폰트는 한글에 최적화되어 있습니다
+      registerFont(fontPath, { 
+        family: 'KoreanFont',
+        weight: fontPath.includes('Bold') ? 'bold' : 'normal'
+      });
       console.log(`폰트 등록 성공: ${fontPath}`);
       fontLoaded = true;
       break; // 성공하면 중단
@@ -203,14 +206,14 @@ export async function GET(request: Request) {
     }
     
     // 이름 그리기 - 한글 폰트 사용
-    ctx.font = 'bold 24px "CustomFont", "AppleGothic", "Arial", sans-serif';
+    ctx.font = 'bold 24px "KoreanFont", "AppleGothic", "Arial", sans-serif';
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'left';
     ctx.fillText(name, 130, 35);
     
     // 사용자명 그리기
     if (username) {
-      ctx.font = '16px "CustomFont", "AppleGothic", "Arial", sans-serif';
+      ctx.font = '16px "KoreanFont", "AppleGothic", "Arial", sans-serif';
       ctx.fillStyle = rank.accentColor;
       ctx.fillText(`@${username}`, 130, 60);
     }
@@ -232,13 +235,13 @@ export async function GET(request: Request) {
     // 현재 날짜 그리기
     const now = new Date();
     const dateStr = `${now.getFullYear()}. ${now.getMonth() + 1}. ${now.getDate()}`;
-    ctx.font = '12px "CustomFont", "AppleGothic", "Arial", sans-serif';
+    ctx.font = '12px "KoreanFont", "AppleGothic", "Arial", sans-serif';
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'left';
     ctx.fillText(dateStr, 20, height - 15);
     
     // 크레딧 그리기
-    ctx.font = '12px "CustomFont", "AppleGothic", "Arial", sans-serif';
+    ctx.font = '12px "KoreanFont", "AppleGothic", "Arial", sans-serif';
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'right';
     ctx.fillText('created by Please Readme', width - 20, height - 15);
@@ -266,7 +269,7 @@ export async function GET(request: Request) {
       ctx.textAlign = 'left';
       
       // 자기소개 텍스트 - 한글 폰트 사용
-      ctx.font = '16px "CustomFont", "AppleGothic", "Arial", sans-serif';
+      ctx.font = '16px "KoreanFont", "AppleGothic", "Arial", sans-serif';
       ctx.fillStyle = textColor;
       wrapText(ctx, bio, width / 2, bioY + 50, width - 100, 20);
     }
@@ -286,13 +289,13 @@ export async function GET(request: Request) {
       roundRect(ctx, 20, skillsY, width - 40, skillsHeight, 8, false, true);
       
       // 스택 제목 - 한글 폰트 사용
-      ctx.font = 'bold 16px "CustomFont", "AppleGothic", "Arial", sans-serif';
+      ctx.font = 'bold 16px "KoreanFont", "AppleGothic", "Arial", sans-serif';
       ctx.fillStyle = rank.accentColor;
       ctx.textAlign = 'left';
       ctx.fillText('기술 스택', 40, skillsY + 30);
       
       // 스킬 배지 그리기
-      ctx.font = '12px "CustomFont", "AppleGothic", "Arial", sans-serif';
+      ctx.font = '12px "KoreanFont", "AppleGothic", "Arial", sans-serif';
       let skillX = 40;
       let skillY = skillsY + 60;
       
@@ -343,23 +346,23 @@ export async function GET(request: Request) {
     ctx.stroke();
     
     // 랭크 표시 - 한글 폰트 사용
-    ctx.font = 'bold 16px "CustomFont", "AppleGothic", "Arial", sans-serif';
+    ctx.font = 'bold 16px "KoreanFont", "AppleGothic", "Arial", sans-serif';
     ctx.fillStyle = rank.highlightColor;
     ctx.textAlign = 'left';
     ctx.fillText(`${rank.emoji} 랭크: ${rank.name}`, 40, rankY + 35);
     
     // 기여도 표시 - 한글 폰트 사용
-    ctx.font = '14px "CustomFont", "AppleGothic", "Arial", sans-serif';
+    ctx.font = '14px "KoreanFont", "AppleGothic", "Arial", sans-serif';
     ctx.fillStyle = textColor;
     ctx.textAlign = 'right';
     ctx.fillText(`기여도 | ${new Date().getFullYear()}: `, width - 100, rankY + 35);
     
-    ctx.font = 'bold 14px "CustomFont", "AppleGothic", "Arial", sans-serif';
+    ctx.font = 'bold 14px "KoreanFont", "AppleGothic", "Arial", sans-serif';
     ctx.fillStyle = rank.highlightColor;
     ctx.fillText(githubStats.contributions.toString(), width - 60, rankY + 35);
     
     // 현재 시간 캐시 버스팅용 쿼리 파라미터 추가
-    ctx.font = '10px "CustomFont", "AppleGothic", "Arial", sans-serif';
+    ctx.font = '10px "KoreanFont", "AppleGothic", "Arial", sans-serif';
     ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)';
     ctx.textAlign = 'left';
     ctx.fillText(`Updated: ${new Date().toISOString()}`, 20, height - 50);
@@ -488,13 +491,13 @@ function drawStatCard(
   ctx.stroke();
   
   // 레이블 - 한글 폰트 사용
-  ctx.font = '14px "CustomFont", "AppleGothic", "Arial", sans-serif';
+  ctx.font = '14px "KoreanFont", "AppleGothic", "Arial", sans-serif';
   ctx.fillStyle = textColor;
   ctx.textAlign = 'left';
   ctx.fillText(label, x + 20, y + 30);
   
   // 값 - 한글 폰트 사용
-  ctx.font = 'bold 18px "CustomFont", "AppleGothic", "Arial", sans-serif';
+  ctx.font = 'bold 18px "KoreanFont", "AppleGothic", "Arial", sans-serif';
   ctx.fillStyle = valueColor;
   ctx.textAlign = 'right';
   ctx.fillText(value, x + width - 20, y + 30);
