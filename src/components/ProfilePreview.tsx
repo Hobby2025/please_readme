@@ -250,7 +250,7 @@ export default function ProfilePreview({ profile, setProfile, onPreviewGenerated
               </div>
               
               {/* GithubCard 컴포넌트 사용 */}
-              <div className="w-full max-w-3xl mb-6 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg">
+              <div className="w-full max-w-3xl mb-6 overflow-hidden">
                 <GithubCard profile={profile} />
               </div>
               

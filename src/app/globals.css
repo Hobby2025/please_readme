@@ -2,14 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: "RIDIBatang";
-  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/RIDIBatang.woff") format("woff");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
   --foreground: #171717;
 }
@@ -27,21 +19,25 @@ body {
   background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--foreground);
-  font-family: "RIDIBatang", Arial, sans-serif;
+  font-family: var(--font-noto-sans-kr), Arial, sans-serif;
   min-height: 100vh;
 }
 
 /* 폰트 설정 클래스 */
+.font-noto {
+  font-family: var(--font-noto-sans-kr), Arial, sans-serif;
+}
+
 .font-ridi {
-  font-family: "RIDIBatang", Arial, sans-serif;
+  font-family: var(--font-noto-sans-kr), Arial, sans-serif;
 }
 
 .font-sans {
-  font-family: Arial, sans-serif;
+  font-family: var(--font-geist-sans), Arial, sans-serif;
 }
 
 .font-mono {
-  font-family: monospace;
+  font-family: var(--font-geist-mono), monospace;
 }
 
 /* 기본 레이아웃 스타일 */

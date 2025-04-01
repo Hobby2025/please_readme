@@ -41,6 +41,7 @@ export interface RankInfo {
   mainColor: string;
   accentColor: string;
   headerBg: string;
+  headerBgColor: string;
   highlightColor: string;
   percentile: number;
 }
@@ -81,88 +82,97 @@ export function calculateRank(stats: GitHubStats | undefined): RankInfo {
   const THRESHOLDS = [1, 12.5, 25, 37.5, 50, 62.5, 75, 87.5, 100];
   const rankIndex = THRESHOLDS.findIndex(t => percentile <= t);
   
-  // 무지개 색상에 맞는 등급별 설정
+  // 무지개 색상에 맞는 등급별 설정 (파스텔 톤으로 변경)
   const RANKS = [
     { 
       name: 'S', 
-      color: '#9400D3', 
+      color: '#D8B5FF', 
       emoji: '🔮',
-      mainColor: '#9400D3',
-      accentColor: '#8A2BE2',
-      headerBg: 'bg-[#8A2BE2]/50',
-      highlightColor: '#9400D3'
+      mainColor: '#D8B5FF',
+      accentColor: '#7B2CBF',
+      headerBg: 'bg-[#C9A3FF]/50',
+      headerBgColor: '#C9A3FF',
+      highlightColor: '#D8B5FF'
     },
     { 
       name: 'A+', 
-      color: '#4B0082', 
+      color: '#BDB2FF', 
       emoji: '👑',
-      mainColor: '#4B0082',
-      accentColor: '#483D8B',
-      headerBg: 'bg-[#483D8B]/50',
-      highlightColor: '#4B0082'
+      mainColor: '#BDB2FF',
+      accentColor: '#5A54C9',
+      headerBg: 'bg-[#A397E9]/50',
+      headerBgColor: '#A397E9',
+      highlightColor: '#BDB2FF'
     },
     { 
       name: 'A', 
-      color: '#0000FF', 
+      color: '#A0C4FF', 
       emoji: '🌊',
-      mainColor: '#0000FF',
-      accentColor: '#1E90FF',
-      headerBg: 'bg-[#1E90FF]/50',
-      highlightColor: '#0000FF'
+      mainColor: '#A0C4FF',
+      accentColor: '#3066BE',
+      headerBg: 'bg-[#89B1FF]/50',
+      headerBgColor: '#89B1FF',
+      highlightColor: '#A0C4FF'
     },
     { 
       name: 'A-', 
-      color: '#00FF00', 
+      color: '#CAFFBF', 
       emoji: '🌿',
-      mainColor: '#00FF00',
-      accentColor: '#32CD32',
-      headerBg: 'bg-[#32CD32]/50',
-      highlightColor: '#00FF00'
+      mainColor: '#CAFFBF',
+      accentColor: '#38B000',
+      headerBg: 'bg-[#A8F0A0]/50',
+      headerBgColor: '#A8F0A0',
+      highlightColor: '#CAFFBF'
     },
     { 
       name: 'B+', 
-      color: '#FFFF00', 
+      color: '#FDFFB6', 
       emoji: '⭐',
-      mainColor: '#FFFF00',
-      accentColor: '#FFD700',
-      headerBg: 'bg-[#FFD700]/50',
-      highlightColor: '#FFFF00'
+      mainColor: '#FDFFB6',
+      accentColor: '#F9C74F',
+      headerBg: 'bg-[#F9F59D]/50',
+      headerBgColor: '#F9F59D',
+      highlightColor: '#FDFFB6'
     },
     { 
       name: 'B', 
-      color: '#FFA500', 
+      color: '#FFD6A5', 
       emoji: '🔥',
-      mainColor: '#FFA500',
-      accentColor: '#FF8C00',
-      headerBg: 'bg-[#FF8C00]/50',
-      highlightColor: '#FFA500'
+      mainColor: '#FFD6A5',
+      accentColor: '#F3722C',
+      headerBg: 'bg-[#FFBF80]/50',
+      headerBgColor: '#FFBF80',
+      highlightColor: '#FFD6A5'
     },
     { 
       name: 'B-', 
-      color: '#FF4500', 
+      color: '#FFADAD', 
       emoji: '🚀',
-      mainColor: '#FF4500',
-      accentColor: '#FF6347',
-      headerBg: 'bg-[#FF6347]/50',
-      highlightColor: '#FF4500'
+      mainColor: '#FFADAD',
+      accentColor: '#F94144',
+      headerBg: 'bg-[#FF9A9A]/50',
+      headerBgColor: '#FF9A9A',
+      highlightColor: '#FFADAD'
     },
     { 
       name: 'C+', 
-      color: '#FF0000', 
+      color: '#FFC2CD', 
       emoji: '💫',
-      mainColor: '#FF0000',
-      accentColor: '#DC143C',
-      headerBg: 'bg-[#DC143C]/50',
-      highlightColor: '#FF0000'
+      mainColor: '#FFC2CD',
+      accentColor: '#D81159',
+      headerBg: 'bg-[#FFADBF]/50',
+      headerBgColor: '#FFADBF',
+      highlightColor: '#FFC2CD'
     },
     { 
       name: 'C', 
-      color: '#8B0000', 
+      color: '#E5C1CD', 
       emoji: '✨',
-      mainColor: '#8B0000',
-      accentColor: '#B22222',
-      headerBg: 'bg-[#B22222]/50',
-      highlightColor: '#8B0000'
+      mainColor: '#E5C1CD',
+      accentColor: '#9A348E',
+      headerBg: 'bg-[#D9A7B9]/50',
+      headerBgColor: '#D9A7B9',
+      highlightColor: '#E5C1CD'
     }
   ];
   

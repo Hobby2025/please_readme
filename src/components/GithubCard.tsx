@@ -47,7 +47,7 @@ export default function GithubCard({ profile }: GithubCardProps) {
       className={`w-full max-w-3xl mx-auto rounded-xl overflow-hidden shadow-lg relative ${isDark ? 'text-white' : 'text-gray-800'}`}
     >
       {/* 카드 헤더 */}
-      <div className={`w-full p-6 relative z-20 ${rank.headerBg} text-white`}>
+      <div className={`w-full p-6 relative text-white`} style={{backgroundColor: rank.headerBgColor}}>
         <div className="flex items-center space-x-4">
           {/* 아바타 */}
           <div className="relative">
@@ -183,28 +183,28 @@ export default function GithubCard({ profile }: GithubCardProps) {
             <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700/90 text-white' : 'bg-gray-100/90 text-gray-800'}`} style={{ borderLeft: `4px solid ${rank.mainColor}` }}>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Total Commits | {new Date().getFullYear()}</span>
-                <span className="font-bold text-xl" style={{ color: rank.highlightColor }}>{profile.githubStats?.currentYearCommits || 0}</span>
+                <span className="font-bold text-xl" style={{ color: rank.accentColor }}>{profile.githubStats?.currentYearCommits || 0}</span>
               </div>
             </div>
             
             <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700/90 text-white' : 'bg-gray-100/90 text-gray-800'}`} style={{ borderLeft: `4px solid ${rank.mainColor}` }}>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Total PRs</span>
-                <span className="font-bold text-xl" style={{ color: rank.highlightColor }}>{profile.githubStats?.prs || 0}</span>
+                <span className="font-bold text-xl" style={{ color: rank.accentColor }}>{profile.githubStats?.prs || 0}</span>
               </div>
             </div>
             
             <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700/90 text-white' : 'bg-gray-100/90 text-gray-800'}`} style={{ borderLeft: `4px solid ${rank.mainColor}` }}>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Total Issues</span>
-                <span className="font-bold text-xl" style={{ color: rank.highlightColor }}>{profile.githubStats?.issues || 0}</span>
+                <span className="font-bold text-xl" style={{ color: rank.accentColor }}>{profile.githubStats?.issues || 0}</span>
               </div>
             </div>
             
             <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700/90 text-white' : 'bg-gray-100/90 text-gray-800'}`} style={{ borderLeft: `4px solid ${rank.mainColor}` }}>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Total Stars</span>
-                <span className="font-bold text-xl" style={{ color: rank.highlightColor }}>{profile.githubStats?.stars || 0}</span>
+                <span className="font-bold text-xl" style={{ color: rank.accentColor }}>{profile.githubStats?.stars || 0}</span>
               </div>
             </div>
           </div>
@@ -214,10 +214,10 @@ export default function GithubCard({ profile }: GithubCardProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <span className="text-lg font-bold mr-2">{rank.emoji}</span>
-                <span className="font-medium" style={{ color: rank.highlightColor }}>Rank : {rank.name}</span>
+                <span className="font-medium" style={{ color: rank.accentColor }}>Rank : {rank.name}</span>
               </div>
               <div className="text-sm">
-                Contributions | {new Date().getFullYear()} : <span className="font-semibold" style={{ color: rank.highlightColor }}>{profile.githubStats?.contributions || 0}</span>
+                Contributions | {new Date().getFullYear()} : <span className="font-semibold" style={{ color: rank.accentColor }}>{profile.githubStats?.contributions || 0}</span>
               </div>
             </div>
           </div>
@@ -225,7 +225,7 @@ export default function GithubCard({ profile }: GithubCardProps) {
       </div>
       
       {/* 카드 푸터 */}
-      <div className={`flex justify-between px-6 py-4 relative z-20 ${rank.headerBg} text-white text-xs text-center`}>
+      <div className={`flex justify-between px-6 py-4 relative z-20 text-white text-xs text-center`} style={{backgroundColor: rank.headerBgColor}}>
         <span className="text-xs">{currentTime}</span>
         <span className="text-xs">created by Please Readme</span>
       </div>
