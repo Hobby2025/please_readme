@@ -32,14 +32,14 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'please-readme.vercel.app',
         port: '',
-        pathname: '/api/profile/**',
+        pathname: '/api/profile-og/**',
       },
     ],
   },
   async headers() {
     return [
       {
-        source: '/api/profile',
+        source: '/api/profile-og',
         headers: [
           {
             key: 'Access-Control-Allow-Origin',

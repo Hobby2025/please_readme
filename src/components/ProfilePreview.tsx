@@ -135,7 +135,7 @@ export default function ProfilePreview({ profile, setProfile, onPreviewGenerated
     if (profile.skills.length > 0) params.append('skills', profile.skills.join(','));
     if (profile.backgroundImageUrl) params.append('background_image_url', profile.backgroundImageUrl);
     
-    const apiUrl = `/api/profile?${params.toString()}`;
+    const apiUrl = `/api/profile-og?${params.toString()}`;
     
     // 마크다운 코드 생성
     const markdownCode = `![${profile.name || profile.username}'s GitHub Profile](${window.location.origin}${apiUrl})`;
