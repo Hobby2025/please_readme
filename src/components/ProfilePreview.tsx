@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import TechBadge from './TechBadge';
-import GithubCard from './GithubCard';
 import { toast } from 'react-hot-toast';
 import copy from 'copy-to-clipboard';
 import { fetchGitHubStatsClient } from '@/utils/github-client';
@@ -67,12 +66,9 @@ export default function ProfilePreview({ profile, setProfile, onPreviewGenerated
           console.warn('setProfile 함수가 제공되지 않아 GitHub 통계를 업데이트할 수 없습니다.');
         }
         
-        // 이미지 URL 생성
-        const skills = profile.skills.join(',');
-        
-        // 실제 이미지 경로 대신 GitHub 통계 정보를 사용하여 가상 URL 생성
-        const imageUrl = `/profile/${encodeURIComponent(trimmedUsername)}`;
-        setImageUrl(imageUrl);
+        // 이미지 URL 생성 - 새로운 github-card API 사용
+        const apiUrl = `/api/github-card?username=${encodeURIComponent(trimmedUsername)}&theme=${profile.theme || 'light'}&name=${encodeURIComponent(profile.name)}&bio=${encodeURIComponent(profile.bio)}`;
+        setImageUrl(apiUrl);
         setLoading(false);
         
         // 데이터 로드 완료 표시
@@ -82,21 +78,6 @@ export default function ProfilePreview({ profile, setProfile, onPreviewGenerated
         if (onPreviewGenerated) {
           onPreviewGenerated(true);
         }
-
-        // API 엔드포인트 확인 - 실제 이미지 API가 없어 성공적으로 이미지를 로드하지 못함
-        // 따라서 GitHub 프로필 이미지를 직접 표시
-        const githubProfileUrl = data.avatar_url || `https://github.com/${trimmedUsername}.png`;
-        const img = new window.Image();
-        img.onload = () => {
-          // GitHub 프로필 이미지가 로드되면 성공 처리
-          setLoading(false);
-        };
-        img.onerror = () => {
-          // 기본 이미지 URL 설정
-          console.warn('GitHub 프로필 이미지 로드 실패, 기본 이미지 사용');
-          setLoading(false);
-        };
-        img.src = githubProfileUrl;
       })
       .catch(err => {
         console.error('GitHub 통계 가져오기 실패:', err);
@@ -126,20 +107,11 @@ export default function ProfilePreview({ profile, setProfile, onPreviewGenerated
       return;
     }
     
-    // API URL 생성
-    const params = new URLSearchParams();
-    params.append('username', profile.username);
-    if (profile.name) params.append('name', profile.name);
-    if (profile.bio) params.append('bio', profile.bio);
-    params.append('theme', profile.theme);
-    if (profile.skills.length > 0) params.append('skills', profile.skills.join(','));
-    if (profile.backgroundImageUrl) params.append('background_image_url', profile.backgroundImageUrl);
+    // 새로운 github-card API URL 생성
+    const apiUrl = `https://please-readme.vercel.app/api/github-card?username=${encodeURIComponent(profile.username)}&theme=${encodeURIComponent(profile.theme)}&name=${encodeURIComponent(profile.name)}&bio=${encodeURIComponent(profile.bio)}&t=${Date.now()}`;
     
-    // 배포 URL 사용 (상대 경로 대신)
-    const apiUrl = `https://please-readme.vercel.app/api/profile-og?${params.toString()}`;
-    
-    // 마크다운 코드 생성
-    const markdownCode = `![${profile.name || profile.username}의 GitHub Profile](${apiUrl})`;
+    // 마크다운 코드 생성 - GitHub README와 호환되는 형식
+    const markdownCode = `![GitHub Profile](${apiUrl})`;
     
     // 클립보드에 복사
     copy(markdownCode);
@@ -250,9 +222,16 @@ export default function ProfilePreview({ profile, setProfile, onPreviewGenerated
                 </h3>
               </div>
               
-              {/* GithubCard 컴포넌트 사용 */}
-              <div className="w-full max-w-3xl mb-6 overflow-hidden">
-                <GithubCard profile={profile} />
+              {/* SVG 이미지 미리보기 */}
+              <div className="w-full max-w-4xl mb-6 overflow-hidden rounded-xl shadow-lg">
+                {imageUrl && (
+                  <iframe 
+                    src={imageUrl}
+                    className="w-full border-0"
+                    style={{ height: '500px', width: '600px', maxWidth: '100%', margin: '0 auto', display: 'block' }}
+                    title="GitHub Stats"
+                  />
+                )}
               </div>
               
               {/* 복사 버튼 */}

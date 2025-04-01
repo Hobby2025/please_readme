@@ -7,7 +7,22 @@
 import { GitHubStats, RankInfo } from '@/utils/github-stats';
 
 /**
- * 클라이언트에서 GitHub 통계 가져오기 (서버 API 엔드포인트 활용)
+ * 임시 기본 GitHub 통계 객체 생성
+ */
+function createDefaultStats(): GitHubStats {
+  return {
+    stars: 0,
+    commits: 0,
+    prs: 0,
+    issues: 0,
+    contributions: 0,
+    currentYearCommits: 0,
+    languages: {}
+  };
+}
+
+/**
+ * 클라이언트에서 GitHub 통계 가져오기 (기본값 반환, 서버 API가 삭제됨)
  */
 export async function fetchGitHubStatsClient(username: string): Promise<GitHubStats> {
   if (!username || username.trim() === '') {
@@ -15,30 +30,37 @@ export async function fetchGitHubStatsClient(username: string): Promise<GitHubSt
   }
   
   try {
-    // 내부 API 엔드포인트 호출 
-    const response = await fetch(`/api/github?username=${encodeURIComponent(username.trim())}`);
+    // 서버 컴포넌트에서 통계를 받아오므로 여기서는 기본 통계만 반환
+    // 실제 통계는 github-card API 엔드포인트에서 처리됨
     
-    if (!response.ok) {
-      // 오류 응답 처리
-      const errorData = await response.json().catch(() => null);
-      
-      if (errorData && errorData.error) {
-        throw new Error(errorData.error);
+    // GitHub 사용자 존재 여부 확인 (기본 API 호출)
+    const userResponse = await fetch(`https://api.github.com/users/${encodeURIComponent(username.trim())}`, {
+      headers: {
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'please-readme-client'
       }
-      
-      // 기본 HTTP 상태 오류 처리
-      if (response.status === 404) {
+    });
+    
+    if (!userResponse.ok) {
+      if (userResponse.status === 404) {
         throw new Error('GitHub 사용자를 찾을 수 없습니다.');
-      } else if (response.status === 429 || response.status === 403) {
+      } else if (userResponse.status === 403 || userResponse.status === 429) {
         throw new Error('GitHub API 요청 제한에 도달했습니다. 잠시 후 다시 시도해주세요.');
       } else {
-        throw new Error(`GitHub API 요청 실패: ${response.status}`);
+        throw new Error(`GitHub API 요청 실패: ${userResponse.status}`);
       }
     }
     
-    // 응답 데이터 파싱
-    const data = await response.json();
-    return data;
+    // 사용자 정보 파싱
+    const userData = await userResponse.json();
+    
+    // 기본 통계에 사용자 아바타 추가
+    const stats = createDefaultStats();
+    stats.avatar_url = userData.avatar_url;
+    
+    // 클라이언트에서는 이제 기본 통계 객체만 반환
+    // 실제 상세 통계는 서버 컴포넌트에서 처리됨
+    return stats;
   } catch (error) {
     console.error('GitHub 통계 가져오기 실패:', error);
     throw error;
