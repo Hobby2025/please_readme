@@ -11,15 +11,15 @@ export function generateMarkdown(profile: ProfileInfo): string {
   if (profile.useDarkLightMode) {
     markdown += `<div align="center">\n`;
     markdown += `  <picture>\n`;
-    markdown += `    <source media="(prefers-color-scheme: dark)" srcset="/api/profile-og?name=${encodeURIComponent(profile.name)}&bio=${encodeURIComponent(profile.bio)}&theme=${profile.darkTheme || 'dark'}">\n`;
-    markdown += `    <source media="(prefers-color-scheme: light)" srcset="/api/profile-og?name=${encodeURIComponent(profile.name)}&bio=${encodeURIComponent(profile.bio)}&theme=${profile.lightTheme || 'light'}">\n`;
-    markdown += `    <img alt="${profile.name}의 GitHub 프로필" src="/api/profile-og?name=${encodeURIComponent(profile.name)}&bio=${encodeURIComponent(profile.bio)}&theme=${profile.lightTheme || 'light'}">\n`;
+    markdown += `    <source media="(prefers-color-scheme: dark)" srcset="https://please-readme.vercel.app/api/profile-og?name=${encodeURIComponent(profile.name)}&bio=${encodeURIComponent(profile.bio)}&theme=${profile.darkTheme || 'dark'}&username=${encodeURIComponent(profile.username)}">\n`;
+    markdown += `    <source media="(prefers-color-scheme: light)" srcset="https://please-readme.vercel.app/api/profile-og?name=${encodeURIComponent(profile.name)}&bio=${encodeURIComponent(profile.bio)}&theme=${profile.lightTheme || 'light'}&username=${encodeURIComponent(profile.username)}">\n`;
+    markdown += `    <img alt="${profile.name}의 GitHub 프로필" src="https://please-readme.vercel.app/api/profile-og?name=${encodeURIComponent(profile.name)}&bio=${encodeURIComponent(profile.bio)}&theme=${profile.lightTheme || 'light'}&username=${encodeURIComponent(profile.username)}">\n`;
     markdown += `  </picture>\n`;
     markdown += `</div>\n\n`;
   } else {
     // 단일 테마
     markdown += `<div align="center">\n`;
-    markdown += `  <img src="/api/profile-og?name=${encodeURIComponent(profile.name)}&bio=${encodeURIComponent(profile.bio)}&theme=${profile.theme || 'default'}" alt="${profile.name}의 GitHub 프로필" />\n`;
+    markdown += `  <img src="https://please-readme.vercel.app/api/profile-og?name=${encodeURIComponent(profile.name)}&bio=${encodeURIComponent(profile.bio)}&theme=${profile.theme || 'default'}&username=${encodeURIComponent(profile.username)}" alt="${profile.name}의 GitHub 프로필" />\n`;
     markdown += `</div>\n\n`;
   }
 

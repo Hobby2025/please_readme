@@ -135,14 +135,15 @@ export default function ProfilePreview({ profile, setProfile, onPreviewGenerated
     if (profile.skills.length > 0) params.append('skills', profile.skills.join(','));
     if (profile.backgroundImageUrl) params.append('background_image_url', profile.backgroundImageUrl);
     
-    const apiUrl = `/api/profile-og?${params.toString()}`;
+    // 배포 URL 사용 (상대 경로 대신)
+    const apiUrl = `https://please-readme.vercel.app/api/profile-og?${params.toString()}`;
     
     // 마크다운 코드 생성
-    const markdownCode = `![${profile.name || profile.username}'s GitHub Profile](${window.location.origin}${apiUrl})`;
+    const markdownCode = `![${profile.name || profile.username}의 GitHub Profile](${apiUrl})`;
     
     // 클립보드에 복사
     copy(markdownCode);
-    setImageUrl(`${window.location.origin}${apiUrl}`);
+    setImageUrl(apiUrl);
     toast.success('마크다운 코드가 클립보드에 복사되었습니다!');
   };
   
