@@ -1,33 +1,61 @@
 import React, { useRef, useEffect } from 'react';
-import { ProfilePreviewProps } from '../../types/profile';
+import { ProfilePreviewProps, GitHubStats } from '../../types/profile';
 import { Button } from '../ui/Button';
 import { TechBadge } from '../ui/TechBadge';
 import { useImage } from '../../hooks/useImage';
 import { useProfile } from '../../hooks/useProfile';
+import { Rank } from '@/utils/rankUtils';
+
+const rankLevelColorMapping: Record<string, string> = {
+  'S': 'text-purple-600 dark:text-purple-400',
+  'A+': 'text-blue-600 dark:text-blue-400',
+  'A': 'text-blue-500 dark:text-blue-300',
+  'A-': 'text-sky-600 dark:text-sky-400',
+  'B+': 'text-green-600 dark:text-green-400',
+  'B': 'text-green-500 dark:text-green-300',
+  'B-': 'text-lime-600 dark:text-lime-400',
+  'C+': 'text-yellow-600 dark:text-yellow-400',
+  'C': 'text-yellow-500 dark:text-yellow-300',
+  '?': 'text-gray-500 dark:text-gray-400', 
+};
 
 export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
   profile,
-  setProfile,
   onPreviewGenerated,
   onResetPreview,
 }) => {
   const previewRef = useRef<HTMLDivElement>(null);
   const { generateImage, loading: imageLoading, error: imageError } = useImage();
-  const { fetchGitHubStats, loading: statsLoading, error: statsError } = useProfile();
+  const {
+    githubStats,
+    fetchGitHubStats,
+    loading: statsLoading,
+    error: statsError,
+    updateProfile,
+    resetProfile,
+  } = useProfile();
 
   useEffect(() => {
-    if (profile.username) {
-      fetchGitHubStats(profile.username);
+    if (profile.githubUsername) {
+      fetchGitHubStats();
     }
-  }, [profile.username, fetchGitHubStats]);
+  }, [profile.githubUsername, fetchGitHubStats]);
 
   const handleGenerateImage = async () => {
     if (!previewRef.current) return;
 
     try {
-      await generateImage(previewRef.current, {
+      const generatedImageBlob = await generateImage(previewRef.current, {
         backgroundColor: profile.theme === 'dark' ? '#1f2937' : '#ffffff',
       });
+      
+      if (generatedImageBlob instanceof Blob) { 
+          const imageUrl = URL.createObjectURL(generatedImageBlob);
+          updateProfile({ backgroundImageUrl: imageUrl });
+      } else {
+           console.warn('generateImage did not return a Blob as expected.');
+      }
+      
       onPreviewGenerated?.(true);
     } catch (error) {
       console.error('이미지 생성 실패:', error);
@@ -35,19 +63,21 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
   };
 
   const handleCopyCode = () => {
-    const apiUrl = `/api/github-card?username=${encodeURIComponent(profile.username)}&theme=${profile.theme}&name=${encodeURIComponent(profile.name)}&bio=${encodeURIComponent(profile.bio)}&backgroundImageUrl=${encodeURIComponent(profile.backgroundImageUrl || '')}`;
+    const apiUrl = `/api/github-card?username=${encodeURIComponent(profile.githubUsername)}&theme=${profile.theme}&name=${encodeURIComponent(profile.name)}&bio=${encodeURIComponent(profile.bio)}&backgroundImageUrl=${encodeURIComponent(profile.backgroundImageUrl || '')}`;
     const markdownCode = `![GitHub Profile](${apiUrl})`;
     
     navigator.clipboard.writeText(markdownCode)
       .then(() => {
-        // 성공 메시지 표시
+        alert('마크다운 코드가 복사되었습니다.');
       })
       .catch((error) => {
         console.error('코드 복사 실패:', error);
+        alert('코드 복사에 실패했습니다.');
       });
   };
 
   const handleReset = () => {
+    resetProfile();
     onResetPreview?.();
   };
 
@@ -95,11 +125,16 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
                 GitHub 통계를 가져오는 중...
               </p>
             </div>
+          ) : statsError ? (
+            <div className="flex flex-col items-center justify-center py-8 text-red-600">
+              <p>GitHub 통계 로딩 실패:</p>
+              <p className="text-sm">{statsError}</p>
+            </div>
           ) : (
             <div className="w-full max-w-2xl p-6 bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg">
               <div className="text-center mb-6">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  {profile.name || profile.username}
+                  {profile.name || profile.githubUsername}
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300">{profile.bio}</p>
               </div>
@@ -113,42 +148,51 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div className="text-center p-3 bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 rounded-lg">
                   <p className="text-2xl font-bold text-[#8B5CF6]">
-                    {profile.githubStats.stars}
+                    {githubStats.totalStars ?? '-'}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Stars</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">총 스타</p>
                 </div>
                 <div className="text-center p-3 bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 rounded-lg">
                   <p className="text-2xl font-bold text-[#8B5CF6]">
-                    {profile.githubStats.commits}
+                    {githubStats.currentYearCommits ?? '-'}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Commits</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">올해 커밋</p>
                 </div>
                 <div className="text-center p-3 bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 rounded-lg">
                   <p className="text-2xl font-bold text-[#8B5CF6]">
-                    {profile.githubStats.prs}
+                    {githubStats.totalPRs ?? '-'}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">PRs</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">총 PR</p>
                 </div>
                 <div className="text-center p-3 bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 rounded-lg">
                   <p className="text-2xl font-bold text-[#8B5CF6]">
-                    {profile.githubStats.issues}
+                    {githubStats.totalIssues ?? '-'}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Issues</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">총 이슈</p>
                 </div>
+              </div>
+
+              <div className="text-center mb-6">
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400 mr-2">랭크:</span>
+                {githubStats.rank && (
+                  <span className={`text-2xl font-bold ${rankLevelColorMapping[githubStats.rank.level] ?? 'text-gray-500 dark:text-gray-400'}`}>
+                    {githubStats.rank.level}
+                  </span>
+                )}
               </div>
 
               <div className="flex justify-center gap-4">
                 <Button
                   onClick={handleGenerateImage}
                   isLoading={imageLoading}
-                  disabled={!profile.username}
+                  disabled={!profile.githubUsername || imageLoading}
                 >
                   이미지 생성하기
                 </Button>
                 <Button
                   variant="secondary"
                   onClick={handleCopyCode}
-                  disabled={!profile.username}
+                  disabled={!profile.githubUsername}
                 >
                   코드 복사
                 </Button>

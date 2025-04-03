@@ -118,4 +118,36 @@ export interface GitHubRepo {
   forks: number;
   open_issues: number;
   watchers: number;
+}
+
+// GitHub GraphQL API 응답 타입을 정의합니다.
+export interface GitHubGraphQLResponse {
+  user: {
+    name: string | null;
+    login: string;
+    avatarUrl: string;
+    bio: string | null;
+    location: string | null;
+    company: string | null;
+    email: string | null;
+    websiteUrl: string | null;
+    repositories: {
+      totalCount: number;
+      nodes: {
+        stargazerCount: number;
+      }[];
+    };
+    contributionsCollection: {
+      totalCommitContributions: number;
+      restrictedContributionsCount: number;
+    };
+    pullRequests: {
+      totalCount: number;
+    };
+    issues: {
+      totalCount: number;
+    };
+    createdAt: string;
+    updatedAt: string;
+  } | null;
 } 

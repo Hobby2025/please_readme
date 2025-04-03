@@ -1,63 +1,28 @@
-import { useState, useRef } from 'react';
-import { Profile, GitHubStats } from '../types/profile';
+import { useRef } from 'react';
 import { ImageService } from '../services/image';
 import { ProfileForm } from '../components/form/ProfileForm';
 import ProfileCard from '../components/ProfileCard/ProfileCard';
 import { Button } from '../components/ui/Button';
-
-const defaultProfile: Profile = {
-  githubUsername: '',
-  name: '',
-  bio: '',
-  skills: [],
-  backgroundImageUrl: undefined,
-  theme: 'light',
-};
+import { useProfile } from '../hooks/useProfile';
 
 export default function Home() {
-  const [profile, setProfile] = useState<Profile>(defaultProfile);
-  const [stats, setStats] = useState<GitHubStats | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    profile,
+    githubStats,
+    loading,
+    error,
+    updateProfile,
+    fetchGitHubStats,
+    resetProfile,
+  } = useProfile();
+
   const profileCardRef = useRef<HTMLDivElement>(null);
 
-  const handleProfileChange = (newProfile: Profile) => {
-    setProfile(newProfile);
-    setError(null);
-  };
-
-  const handleFetchStats = async () => {
-    if (!profile.githubUsername) {
-      setError('GitHub 사용자명을 입력해주세요.');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(`/api/github/stats?username=${profile.githubUsername}`);
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message);
-      }
-      const stats = await response.json();
-      setStats(stats);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'GitHub 통계를 가져오는데 실패했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleGenerateImage = async () => {
-    if (!stats || !profileCardRef.current) {
-      setError('먼저 GitHub 통계를 가져와주세요.');
+    if (!githubStats || !githubStats.name || !profileCardRef.current) {
+      alert('먼저 GitHub 통계를 성공적으로 가져와주세요.');
       return;
     }
-
-    setLoading(true);
-    setError(null);
 
     try {
       const response = await fetch('/api/image/generate', {
@@ -65,24 +30,21 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ profile, stats }),
+        body: JSON.stringify({ profile, stats: githubStats }),
       });
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message);
+        throw new Error(data.message || '이미지 생성에 실패했습니다.');
       }
 
       const { imageUrl } = await response.json();
-      setProfile(prev => ({ ...prev, backgroundImageUrl: imageUrl }));
+      updateProfile({ backgroundImageUrl: imageUrl });
 
-      // 이미지 다운로드
       const imageService = ImageService.getInstance();
       await imageService.downloadImage(imageUrl, `${profile.githubUsername}-profile.png`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '이미지 생성에 실패했습니다.');
-    } finally {
-      setLoading(false);
+      alert(`이미지 생성 오류: ${err instanceof Error ? err.message : '알 수 없는 오류'}`);
     }
   };
 
@@ -98,7 +60,6 @@ export default function Home() {
           </p>
         </header>
 
-        {/* 사용 방법 */}
         <div className="bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg overflow-hidden mb-8">
           <div className="bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-lg font-medium text-[#8B5CF6] dark:text-[#A78BFA] flex items-center">
@@ -148,15 +109,15 @@ export default function Home() {
           <div className="space-y-6">
             <ProfileForm
               profile={profile}
-              setProfile={handleProfileChange}
+              setProfile={updateProfile}
               disabled={loading}
             />
 
             <div className="flex gap-4">
               <Button
-                onClick={handleFetchStats}
+                onClick={fetchGitHubStats}
                 isLoading={loading}
-                disabled={!profile.githubUsername}
+                disabled={!profile.githubUsername || loading}
               >
                 GitHub 통계 가져오기
               </Button>
@@ -164,7 +125,7 @@ export default function Home() {
               <Button
                 onClick={handleGenerateImage}
                 isLoading={loading}
-                disabled={!stats}
+                disabled={!githubStats || !githubStats.name || loading}
                 variant="secondary"
               >
                 이미지 생성하기
@@ -182,7 +143,7 @@ export default function Home() {
             <div ref={profileCardRef}>
               <ProfileCard
                 profile={profile}
-                stats={stats}
+                stats={githubStats}
                 loading={loading}
               />
             </div>

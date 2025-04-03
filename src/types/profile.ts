@@ -1,11 +1,9 @@
+import { Rank } from '@/utils/rankUtils';
+
 export type Theme = 'light' | 'dark';
 
 export interface GitHubStats {
-  followers: number;
-  following: number;
-  publicRepos: number;
   totalStars: number;
-  contributions: number;
   avatarUrl: string;
   name: string;
   bio: string;
@@ -16,6 +14,10 @@ export interface GitHubStats {
   email: string;
   createdAt: string;
   updatedAt: string;
+  currentYearCommits: number;
+  totalPRs: number;
+  totalIssues: number;
+  rank: Rank;
 }
 
 export interface Profile {
