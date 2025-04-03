@@ -138,14 +138,16 @@ export default function Home() {
               </div>
             )}
           </div>
-
-          <div className="space-y-6">
-            <div ref={profileCardRef}>
-              <ProfileCard
-                profile={profile}
-                stats={githubStats}
-                loading={loading}
-              />
+          
+          <div className='h-full flex shadow-lg bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-lg items-center justify-center'>
+            <div className="space-y-6">
+              <div ref={profileCardRef}>
+                <ProfileCard
+                  profile={profile}
+                  stats={githubStats}
+                  loading={loading}
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -34,12 +34,12 @@ export const TechBadge: FC<TechBadgeProps> = ({ tech }) => {
   return (
     <span
       className={cn(
-        'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium gap-1.5',
+        'flex items-center px-3 py-1 rounded-full text-sm font-medium gap-1.5',
         text
       )}
       style={{ backgroundColor: backgroundColor }}
     >
-      <Icon className="w-4 h-4" />
+      <Icon className="flex justify-center w-4 h-4 text-center" />
       {tech}
     </span>
   );
