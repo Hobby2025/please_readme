@@ -34,13 +34,15 @@ export const TechBadge: FC<TechBadgeProps> = ({ tech }) => {
   return (
     <span
       className={cn(
-        'flex items-center px-3 py-1 rounded-full text-sm font-medium gap-1.5',
+        'inline-grid grid-cols-[auto_1fr] items-center px-2 py-1 rounded-full text-xs font-medium gap-x-1',
         text
       )}
       style={{ backgroundColor: backgroundColor }}
     >
-      <Icon className="flex justify-center w-4 h-4 text-center" />
-      {tech}
+      <div className="flex items-center justify-center w-4 h-4">
+        <Icon className="flex-shrink-0 w-full h-full" />
+      </div>
+      <span className='text-center'>{tech}</span>
     </span>
   );
 }; 

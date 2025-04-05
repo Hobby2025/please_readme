@@ -133,23 +133,12 @@ export default function ProfileCard({ profile, stats, loading, onDownload }: Pro
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
   return (
-    <div className={`${design.background} rounded-lg overflow-hidden border-2 transition-all duration-300
+    <div className={`relative min-h-[600px] min-w-[500px] rounded-lg overflow-hidden border-2 transition-all duration-300
       ${design.border} ${design.shadow} ${design.glow}
       ${profile.theme === 'dark' ? 'dark' : ''}`}
     >
-      {profile.backgroundImageUrl && (
-        <div className="relative h-48">
-          <Image
-            src={profile.backgroundImageUrl}
-            alt="Background"
-            fill
-            className="object-cover"
-          />
-        </div>
-      )}
-
-      <div className="p-6">
-        <div className="flex items-center gap-4 mb-4">
+      <div className={`${design.background} p-6`}>
+        <div className="flex items-center gap-4">
           {stats?.avatarUrl && (
             <div className={`relative w-20 h-20 rounded-full overflow-hidden border-2 ${design.border} p-0.5 bg-white dark:bg-gray-800`}>
               <Image
@@ -166,91 +155,103 @@ export default function ProfileCard({ profile, stats, loading, onDownload }: Pro
             </h2>
             <p className="text-gray-600 dark:text-gray-400 flex items-center">
               @{profile.githubUsername}
-              {rankLevel && (
-                <span className={`ml-2 px-2 py-0.5 text-xs font-semibold rounded-full ${design.badge}`}>
-                  {rankLevel}
-                </span>
-              )}
             </p>
           </div>
         </div>
-
-        <p className="text-gray-700 dark:text-gray-300 mb-4">
-          {profile.bio || stats?.bio || '소개가 없습니다.'}
-        </p>
-
-        {profile.skills.length > 0 && (
-          <div className="grid grid-cols-4 gap-2 mb-4">
-            {profile.skills.map((skill) => (
-              <TechBadge key={skill} tech={skill} />
-            ))}
-          </div>
-        )}
-
-        {stats && (
-          <div className={`border-t ${design.border} pt-4 mt-4`}>
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className={`flex flex-row justify-center items-center gap-3 text-center p-3 rounded-lg ${design.statsBg}`}>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Commits | {currentYear}
-                </div>
-                <div className="text-xl font-bold text-gray-900 dark:text-white">
-                  {stats.currentYearCommits ?? '-'}
-                </div>
-              </div>
-              <div className={`flex flex-row justify-center items-center gap-3 text-center p-3 rounded-lg ${design.statsBg}`}>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Total Stars
-                </div>
-                <div className="text-xl font-bold text-gray-900 dark:text-white">
-                  {stats.totalStars ?? '-'}
-                </div>
-              </div>
-              <div className={`flex flex-row justify-center items-center gap-3 text-center p-3 rounded-lg ${design.statsBg}`}>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Total PRs
-                </div>
-                <div className="text-xl font-bold text-gray-900 dark:text-white">
-                  {stats.totalPRs ?? '-'}
-                </div>
-              </div>
-              <div className={`flex flex-row justify-center items-center gap-3 text-center p-3 rounded-lg ${design.statsBg}`}>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Total Issues
-                </div>
-                <div className="text-xl font-bold text-gray-900 dark:text-white">
-                  {stats.totalIssues ?? '-'}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 text-center">
-              <div className="inline-block px-6 py-3 rounded-lg bg-opacity-10 dark:bg-opacity-20"
-                   style={{backgroundColor: rankLevel === 'S' ? 'rgba(168,85,247,0.1)' : 
-                           rankLevel === 'A+' ? 'rgba(59,130,246,0.1)' : undefined}}>
-                <span className="text-sm font-medium text-gray-600 dark:text-gray-400 mr-2">Rank | {currentYear} :</span>
-                <span className={`text-3xl font-bold ${design.textColor}`}>
-                  {stats.rank && stats.rank.level}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
-      <div className={`p-6 flex justify-between items-center ${rankLevel === 'S' || rankLevel === 'A+' ? 'bg-gradient-to-r from-transparent via-gray-50/50 to-transparent dark:via-gray-700/30' : ''}`}>
-        {onDownload && (
-          <button
-            onClick={onDownload}
-            className={`text-white font-bold py-2 px-6 rounded-full transition-all duration-300 
-            ${rankLevel === 'S' ? 'bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 shadow-md shadow-purple-500/20' : 
-              rankLevel === 'A+' ? 'bg-gradient-to-r from-blue-500 to-sky-500 hover:from-blue-600 hover:to-sky-600 shadow-md shadow-blue-500/20' :
-              'bg-blue-600 hover:bg-blue-700'}`}
-            aria-label="다운로드"
-          >
-            다운로드
-          </button>
+      <div className="relative bg-white dark:bg-gray-800">
+        {profile.backgroundImageUrl && (
+          <div className="absolute inset-0 z-0 overflow-hidden">
+            <Image
+              src={profile.backgroundImageUrl}
+              alt="Body Background"
+              fill
+              className="object-cover opacity-15"
+            />
+            <div className="absolute inset-0 bg-white/50 dark:bg-gray-900/50"></div>
+          </div>
         )}
+
+        <div className="relative z-10 p-6">
+          <div className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">
+            소개
+          </div>
+          <p className="dark:text-gray-300 mb-4 p-2 rounded-lg shadow-sm bg-white/70 dark:bg-gray-800/70">
+            {profile.bio || stats?.bio || '소개가 없습니다.'}
+          </p>
+
+          {profile.skills.length > 0 && <div className="h-px my-4 bg-gradient-to-r from-transparent via-gray-400 dark:via-gray-500 to-transparent"></div>}
+
+          {profile.skills.length > 0 && (
+            <>
+              <div className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">
+                기술스택
+              </div>
+              <div className="grid grid-cols-4 gap-2 mb-6">
+                {profile.skills.map((skill) => (
+                  <TechBadge key={skill} tech={skill} />
+                ))}
+              </div>
+            </>
+          )}
+
+          {profile.skills.length > 0 && stats && <div className="h-px my-6 bg-gradient-to-r from-transparent via-gray-400 dark:via-gray-500 to-transparent"></div>}
+
+          {stats && (
+            <>
+              <div className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                GitHub 통계
+              </div>
+              <div className="grid grid-cols-2 gap-4 mb-4 mt-2">
+                <div className={`flex flex-row justify-center items-center gap-3 text-center p-3 rounded-lg bg-white/70 dark:bg-gray-800/60 shadow-sm`}>
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                    Commits | {currentYear}
+                  </div>
+                  <div className="text-xl font-bold text-gray-900 dark:text-white">
+                    {stats.currentYearCommits ?? '-'}
+                  </div>
+                </div>
+                <div className={`flex flex-row justify-center items-center gap-3 text-center p-3 rounded-lg bg-white/70 dark:bg-gray-800/60 shadow-sm`}>
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                    Total Stars
+                  </div>
+                  <div className="text-xl font-bold text-gray-900 dark:text-white">
+                    {stats.totalStars ?? '-'}
+                  </div>
+                </div>
+                <div className={`flex flex-row justify-center items-center gap-3 text-center p-3 rounded-lg bg-white/70 dark:bg-gray-800/60 shadow-sm`}>
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                    Total PRs
+                  </div>
+                  <div className="text-xl font-bold text-gray-900 dark:text-white">
+                    {stats.totalPRs ?? '-'}
+                  </div>
+                </div>
+                <div className={`flex flex-row justify-center items-center gap-3 text-center p-3 rounded-lg bg-white/70 dark:bg-gray-800/60 shadow-sm`}>
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                    Total Issues
+                  </div>
+                  <div className="text-xl font-bold text-gray-900 dark:text-white">
+                    {stats.totalIssues ?? '-'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 text-center">
+                <div className="inline-block px-6 py-3 rounded-lg bg-white/60 dark:bg-gray-800/50">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400 mr-2">Rank | {currentYear} :</span>
+                  <span className={`text-3xl font-bold ${design.textColor}`}>
+                    {stats.rank && stats.rank.level}
+                  </span>
+                </div>
+              </div>
+              <div className='flex justify-end mt-4'>
+                <span className='text-gray-500 dark:text-gray-400 text-sm'>created by Please Readme</span>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
