@@ -13,21 +13,41 @@ function isValidTheme(theme: string): theme is Theme {
 
 // 폰트 데이터 로드 함수 (예: Noto Sans KR)
 async function getFontData(): Promise<{ name: string; data: ArrayBuffer; weight: number; style: string }[]> {
-  const fontRegularUrl = 'https://fonts.gstatic.com/s/notosanskr/v27/pdcS_xqap1mcErQ7Hfk_kD1MWlg.woff2'; // Regular 400
-  const fontMediumUrl = 'https://fonts.gstatic.com/s/notosanskr/v27/pdCv_xqap1mcErQ7Hfk_kDBq5dU.woff2'; // Medium 500
-  const fontBoldUrl = 'https://fonts.gstatic.com/s/notosanskr/v27/pdCw_xqap1mcErQ7Hfk_kDWu8IE.woff2'; // Bold 700
-
-  const [regular, medium, bold] = await Promise.all([
-    fetch(fontRegularUrl).then((res) => res.arrayBuffer()),
-    fetch(fontMediumUrl).then((res) => res.arrayBuffer()),
-    fetch(fontBoldUrl).then((res) => res.arrayBuffer()),
-  ]);
-
-  return [
-    { name: 'Noto Sans KR', data: regular, weight: 400, style: 'normal' },
-    { name: 'Noto Sans KR', data: medium, weight: 500, style: 'normal' },
-    { name: 'Noto Sans KR', data: bold, weight: 700, style: 'normal' },
+  const fontUrls = [
+    { url: 'https://fonts.gstatic.com/s/notosanskr/v27/pdcS_xqap1mcErQ7Hfk_kD1MWlg.woff2', weight: 400 },
+    { url: 'https://fonts.gstatic.com/s/notosanskr/v27/pdCv_xqap1mcErQ7Hfk_kDBq5dU.woff2', weight: 500 },
+    { url: 'https://fonts.gstatic.com/s/notosanskr/v27/pdCw_xqap1mcErQ7Hfk_kDWu8IE.woff2', weight: 700 },
   ];
+
+  const fontDataPromises = fontUrls.map(async ({ url, weight }) => {
+    try {
+      const response = await fetch(url);
+      // 응답 상태 코드 확인
+      if (!response.ok) {
+        throw new Error(`Failed to fetch font ${url}: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.arrayBuffer();
+      return { name: 'Noto Sans KR', data, weight, style: 'normal' as 'normal' | 'italic' };
+    } catch (error) {
+      console.error(`Error loading font ${url}:`, error);
+      return null; // 오류 발생 시 null 반환
+    }
+  });
+
+  const settledFontData = await Promise.all(fontDataPromises);
+  
+  // null이 아닌 유효한 폰트 데이터만 필터링하여 반환
+  const validFontData = settledFontData.filter(data => data !== null) as { name: string; data: ArrayBuffer; weight: number; style: 'normal' | 'italic' }[];
+  
+  // 필수 폰트(예: Regular) 로딩 실패 시 에러 처리 또는 기본값 반환 가능
+  if (validFontData.length === 0) {
+     console.error('Failed to load any fonts.');
+     // 에러를 던지거나, 기본 시스템 폰트를 사용하도록 빈 배열 반환
+     // throw new Error('Required fonts could not be loaded.'); 
+     return []; // 빈 배열 반환 시 @vercel/og는 기본 폰트 사용 시도
+  }
+  
+  return validFontData;
 }
 
 // API 핸들러 런타임 설정 (Edge 권장)
