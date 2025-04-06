@@ -22,11 +22,12 @@ export interface GitHubStats {
 
 export interface Profile {
   githubUsername: string;
-  name: string;
-  bio: string;
+  name?: string;
+  bio?: string;
   skills: string[];
-  backgroundImageUrl?: string;
   theme: Theme;
+  backgroundImageUrl?: string;
+  backgroundOpacity?: number;
 }
 
 export interface ProfileFormProps {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Profile, GitHubStats, ProfileCardProps, Theme } from '../../types/profile';
 
-// 단순화된 TechBadge 컴포넌트 (@vercel/og 호환)
+// 단순화된 TechBadge 컴포넌트 (@vercel/og 호환) - 아이콘 없음
 const SimpleTechBadge = ({ tech }: { tech: string }) => {
   const bgColors: Record<string, string> = {
     'React': '#61DAFB', 'TypeScript': '#3178C6', 'JavaScript': '#F7DF1E', 'Next.js': '#000000',
@@ -21,7 +21,6 @@ const SimpleTechBadge = ({ tech }: { tech: string }) => {
     'default': '#FFFFFF' // 기본값 흰색
   };
 
-  // 아이콘을 직접 렌더링하는 대신, 색상만 사용하거나 매우 단순한 SVG만 사용
   const bgColor = bgColors[tech] || bgColors['default'];
   const textColor = textColors[tech] || textColors['default'];
 
@@ -32,16 +31,16 @@ const SimpleTechBadge = ({ tech }: { tech: string }) => {
         alignItems: 'center',
         backgroundColor: bgColor,
         color: textColor,
-        padding: '3px 8px',
-        borderRadius: '9999px',
-        fontSize: '11px',
+        padding: '5px 10px',
+        borderRadius: '8px',
+        fontSize: '13px',
         fontWeight: 500,
         lineHeight: '1.2',
         whiteSpace: 'nowrap',
-        margin: '2px', // 뱃지 간 간격
+        boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
       }}
     >
-      {/* 아이콘은 @vercel/og에서 외부 URL 로드가 불안정할 수 있어 제거하거나 data URI 사용 */}
+      {/* 아이콘 렌더링 로직 없음 확인 */} 
       {tech}
     </div>
   );
@@ -156,7 +155,8 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
   const getRankStyle = (rankLevel: string, theme: Theme) => {
     const isDark = theme === 'dark';
     const styles: { [key: string]: any } = {
-      headerBg: '', headerBorderColor: '', cardShadow: '', rankTextColor: '',
+      headerBg: isDark ? 'rgba(31, 41, 55, 0.7)' : 'rgba(255, 255, 255, 0.9)', // 기본 헤더 배경
+      headerBorderColor: '', cardShadow: '', rankTextColor: '',
       statsBg: isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(243, 244, 246, 0.7)',
       badgeBg: isDark ? '#6B7280' : '#9CA3AF', badgeText: '#FFFFFF',
       cardBg: isDark ? 'rgb(17, 24, 39)' : '#ffffff',
@@ -171,6 +171,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
          styles.statsBg = isDark ? 'rgba(91, 33, 182, 0.2)' : 'rgba(245, 243, 255, 1)';
          styles.badgeBg = 'linear-gradient(to right, #a855f7, #6366f1)';
          styles.badgeText = '#FFFFFF';
+         styles.headerBg = isDark ? 'rgba(91, 33, 182, 0.3)' : 'rgba(245, 243, 255, 0.8)';
          break;
        case 'A+':
          styles.headerBorderColor = isDark ? '#60a5fa' : '#3b82f6';
@@ -178,6 +179,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
          styles.statsBg = isDark ? 'rgba(30, 64, 175, 0.2)' : 'rgba(239, 246, 255, 1)';
          styles.badgeBg = 'linear-gradient(to right, #3b82f6, #0ea5e9)';
          styles.badgeText = '#FFFFFF';
+         styles.headerBg = isDark ? 'rgba(30, 64, 175, 0.3)' : 'rgba(239, 246, 255, 0.8)';
          break;
        case 'A':
           styles.headerBorderColor = isDark ? '#93c5fd' : '#60a5fa';
@@ -185,6 +187,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
           styles.statsBg = isDark ? 'rgba(59, 130, 246, 0.15)' : 'rgba(219, 234, 254, 1)';
           styles.badgeBg = '#60a5fa';
           styles.badgeText = '#FFFFFF';
+          styles.headerBg = isDark ? 'rgba(59, 130, 246, 0.2)' : 'rgba(219, 234, 254, 0.8)';
           break;
        case 'A-':
           styles.headerBorderColor = isDark ? '#7dd3fc' : '#38bdf8';
@@ -192,6 +195,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
           styles.statsBg = isDark ? 'rgba(14, 165, 233, 0.15)' : 'rgba(224, 242, 254, 1)';
           styles.badgeBg = '#38bdf8';
           styles.badgeText = '#FFFFFF';
+          styles.headerBg = isDark ? 'rgba(14, 165, 233, 0.2)' : 'rgba(224, 242, 254, 0.8)';
           break;
        case 'B+':
           styles.headerBorderColor = isDark ? '#4ade80' : '#22c55e';
@@ -199,36 +203,42 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
           styles.statsBg = isDark ? 'rgba(22, 163, 74, 0.15)' : 'rgba(240, 253, 244, 1)';
           styles.badgeBg = '#22c55e';
           styles.badgeText = '#FFFFFF';
+          styles.headerBg = isDark ? 'rgba(22, 163, 74, 0.2)' : 'rgba(240, 253, 244, 0.8)';
           break;
        case 'B':
           styles.headerBorderColor = isDark ? '#86efac' : '#4ade80';
           styles.rankTextColor = isDark ? '#bbf7d0' : '#22c55e';
           styles.badgeBg = '#4ade80';
           styles.badgeText = '#166534';
+          styles.headerBg = isDark ? 'rgba(22, 163, 74, 0.15)' : 'rgba(240, 253, 244, 0.7)';
           break;
        case 'B-':
           styles.headerBorderColor = isDark ? '#bef264' : '#a3e635';
           styles.rankTextColor = isDark ? '#d9f99d' : '#84cc16';
           styles.badgeBg = '#a3e635';
           styles.badgeText = '#3f6212';
+          styles.headerBg = isDark ? 'rgba(132, 204, 22, 0.15)' : 'rgba(247, 254, 231, 0.7)';
           break;
        case 'C+':
           styles.headerBorderColor = isDark ? '#fde047' : '#facc15';
           styles.rankTextColor = isDark ? '#fef08a' : '#eab308';
           styles.badgeBg = '#facc15';
           styles.badgeText = '#713f12';
+          styles.headerBg = isDark ? 'rgba(234, 179, 8, 0.15)' : 'rgba(254, 249, 195, 0.7)';
           break;
        case 'C':
           styles.headerBorderColor = isDark ? '#fef08a' : '#fde047';
           styles.rankTextColor = isDark ? '#fef9c3' : '#facc15';
           styles.badgeBg = '#fde047';
           styles.badgeText = '#854d0e';
+          styles.headerBg = isDark ? 'rgba(234, 179, 8, 0.1)' : 'rgba(254, 249, 195, 0.6)';
           break;
        default:
          styles.headerBorderColor = isDark ? '#6b7280' : '#d1d5db';
          styles.rankTextColor = isDark ? '#9ca3af' : '#6b7280';
          styles.badgeBg = isDark ? '#4b5563' : '#9ca3af';
          styles.badgeText = '#FFFFFF';
+         styles.headerBg = isDark ? 'rgba(75, 85, 99, 0.1)' : 'rgba(229, 231, 235, 0.6)';
          break;
      }
     return styles;
@@ -246,7 +256,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
         display: 'flex',
         flexDirection: 'column',
         width: '600px',
-        height: '700px',
+        minHeight: '770px', // 추가: 최소 높이 설정
         fontFamily: '"BookkMyungjo", serif',
         borderRadius: '8px',
         border: `2px solid ${rankStyle.headerBorderColor}`,
@@ -258,11 +268,12 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
       {/* --- 헤더 영역 (ProfileCard.tsx 상단 부분) --- */}
       <div
         style={{
-          padding: '24px', // p-6
+          padding: '20px 24px', // 상하 패딩 조정
           display: 'flex',
           alignItems: 'center',
           gap: '16px', // gap-4
           borderBottom: `1px solid ${rankStyle.headerBorderColor}`, // 헤더 구분선 추가
+          backgroundColor: rankStyle.headerBg, // 랭크에 맞는 배경색 추가
         }}
       >
         {stats?.avatarUrl && (
@@ -308,67 +319,102 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
       </div>
 
       {/* --- 본문 영역 --- */}
-      <div style={{ position: 'relative', display: 'flex', flexGrow: 1 }}>
-        {/* 배경 이미지는 완전히 제거하고 단순화 */}
+      <div style={{ 
+        position: 'relative', 
+        display: 'flex', 
+        flexGrow: 1, // 본문 영역이 남은 공간 채우도록 유지
+        backgroundColor: isDark ? '#111827' : '#f3f4f6', // 기본 배경색 추가
+      }}>
+        {/* 배경 이미지와 오버레이 - 단순화 */}
+        {profile.backgroundImageUrl && (
+          <img 
+            src={profile.backgroundImageUrl}
+            alt="Background"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              opacity: profile.backgroundOpacity !== undefined ? profile.backgroundOpacity : 0.5,
+            }}
+          />
+        )}
         
         {/* 실제 콘텐츠 */}
         <div style={{ 
           position: 'relative', 
-          padding: '24px', 
+          padding: '28px 32px', 
           display: 'flex', 
           flexDirection: 'column', 
-          flexGrow: 1, 
-          backgroundColor: isDark ? 'rgba(17, 24, 39, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+          flexGrow: 1, // 실제 콘텐츠 영역이 남은 공간 채우도록 유지
+          backgroundColor: 'transparent',
           borderRadius: '0 0 8px 8px',
-          overflow: 'hidden', // auto에서 hidden으로 변경
+          overflow: 'hidden', // 다시 추가: 콘텐츠 넘침 방지
         }}>
           {/* 소개 섹션 */}
           <div style={{ 
-            fontSize: '18px', 
+            fontSize: '20px', 
             fontWeight: 600, 
-            marginBottom: '8px', 
-            color: isDark ? '#E5E7EB' : '#1F2937', 
+            marginBottom: '12px', // 조금 더 여백 추가
+            color: isDark ? '#F3F4F6' : '#111827', 
             display: 'flex',
-            justifyContent: 'flex-start'
+            alignItems: 'center',
+            textShadow: profile.backgroundImageUrl ? '0 1px 2px rgba(0,0,0,0.4)' : 'none',
+            padding: '0 0 4px 0',
           }}>
-            소개
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginRight: '6px' }}>
+              <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" 
+                fill={isDark ? '#F3F4F6' : '#111827'} />
+            </svg>
+            About
           </div>
           <div style={{
             fontSize: '14px', 
             color: rankStyle.textColor, 
-            marginBottom: '16px', 
-            padding: '8px',
+            marginBottom: '28px', // 섹션 간 간격 증가
+            padding: '16px', // 패딩 증가
             borderRadius: '8px', 
-            backgroundColor: isDark ? 'rgba(31, 41, 55, 0.7)' : 'rgba(255, 255, 255, 0.7)',
+            backgroundColor: isDark ? 'rgba(17, 24, 39, 0.85)' : 'rgba(255, 255, 255, 0.85)',
             lineHeight: 1.5,
             display: 'flex',
-            justifyContent: 'flex-start'
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            justifyContent: 'flex-start',
+            border: `1px solid ${rankStyle.headerBorderColor}`,
+            width: '100%', // 추가: 너비 100% 설정
           }}>
-            {profile.bio || stats?.bio || '소개가 없습니다.'}
+            {profile.bio || stats?.bio || 'No description available.'}
           </div>
 
-          {/* 구분선 - 여백 축소 */}
-          <div style={{ 
-            height: '1px', 
-            margin: '12px 0', // 여백 축소
-            background: `linear-gradient(to right, transparent, ${isDark ? '#4B5563' : '#D1D5DB'} 50%, transparent)`,
-            display: 'flex' 
-          }} />
-
-          {/* 기술 스택 섹션 - 여백 축소 */}
+          {/* 기술 스택 섹션 */}
           {profile.skills && profile.skills.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '28px', width: '100%' }}> {/* width: 100% 추가 */}
               <div style={{ 
-                fontSize: '18px', 
+                fontSize: '20px', 
                 fontWeight: 600, 
-                marginBottom: '6px', // 여백 축소
-                color: isDark ? '#E5E7EB' : '#1F2937', 
+                marginBottom: '12px', // 조금 더 여백 추가
+                color: isDark ? '#F3F4F6' : '#111827', 
                 display: 'flex',
-                justifyContent: 'flex-start'
+                alignItems: 'center',
+                textShadow: profile.backgroundImageUrl ? '0 1px 2px rgba(0,0,0,0.4)' : 'none',
+                padding: '0 0 4px 0',
               }}>
-                기술스택
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginRight: '6px' }}>
+                  <path d="M15.22 4.97a.75.75 0 0 1 1.06 0l6.5 6.5a.75.75 0 0 1 0 1.06l-6.5 6.5a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734L21.19 12l-5.97-5.97a.75.75 0 0 1 0-1.06Zm-6.44 0a.75.75 0 0 1 0 1.06L2.81 12l5.97 5.97a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215l-6.5-6.5a.75.75 0 0 1 0-1.06l6.5-6.5a.75.75 0 0 1 1.06 0Z" 
+                  fill={isDark ? '#F3F4F6' : '#111827'} />
+                </svg>
+                Skills
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}> {/* 여백 축소 */}
+              <div style={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                gap: '10px', // 뱃지 간 간격 조금 더 늘림
+                padding: '18px 24px', // 패딩 증가
+                borderRadius: '8px',
+                backgroundColor: isDark ? 'rgba(17, 24, 39, 0.85)' : 'rgba(255, 255, 255, 0.85)',
+                border: `1px solid ${rankStyle.headerBorderColor}`,
+              }}> 
                 {profile.skills.slice(0, 15).map((skill, index) => (
                   <SimpleTechBadge key={index} tech={skill} />
                 ))}
@@ -376,29 +422,31 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
             </div>
           )}
 
-          {/* 구분선 - 여백 축소 */}
+          {/* 통계 섹션 */}
           <div style={{ 
-            height: '1px', 
-            margin: '12px 0', // 여백 축소
-            background: `linear-gradient(to right, transparent, ${isDark ? '#4B5563' : '#D1D5DB'} 50%, transparent)`,
-            display: 'flex' 
-          }} />
-
-          {/* 통계 섹션 - 여백 축소 */}
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            display: 'flex', 
+            flexDirection: 'column',
+            width: '100%', // 추가: 너비 100% 설정
+          }}>
             <div style={{ 
-              fontSize: '18px', 
+              fontSize: '20px', 
               fontWeight: 600, 
-              color: isDark ? '#E5E7EB' : '#1F2937', 
-              marginBottom: '12px', // 여백 축소
+              color: isDark ? '#F3F4F6' : '#111827', 
+              marginBottom: '12px', // 조금 더 여백 추가
               display: 'flex',
-              justifyContent: 'flex-start'
+              alignItems: 'center',
+              textShadow: profile.backgroundImageUrl ? '0 1px 2px rgba(0,0,0,0.4)' : 'none',
+              padding: '0 0 4px 0',
             }}>
-              GitHub 통계
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginRight: '6px' }}>
+                <path d="M12 0C5.37 0 0 5.37 0 12C0 17.31 3.435 21.795 8.205 23.385C8.805 23.49 9.03 23.13 9.03 22.815C9.03 22.53 9.015 21.585 9.015 20.58C6 21.135 5.22 19.845 4.98 19.17C4.845 18.825 4.26 17.76 3.75 17.475C3.33 17.25 2.73 16.695 3.735 16.68C4.68 16.665 5.355 17.55 5.58 17.91C6.66 19.725 8.385 19.215 9.075 18.9C9.18 18.12 9.495 17.595 9.84 17.295C7.17 16.995 4.38 15.96 4.38 11.37C4.38 10.065 4.845 8.985 5.61 8.145C5.49 7.845 5.07 6.615 5.73 4.965C5.73 4.965 6.735 4.65 9.03 6.195C9.99 5.925 11.01 5.79 12.03 5.79C13.05 5.79 14.07 5.925 15.03 6.195C17.325 4.635 18.33 4.965 18.33 4.965C18.99 6.615 18.57 7.845 18.45 8.145C19.215 8.985 19.68 10.05 19.68 11.37C19.68 15.975 16.875 16.995 14.205 17.295C14.64 17.67 15.015 18.39 15.015 19.515C15.015 21.12 15 22.41 15 22.815C15 23.13 15.225 23.505 15.825 23.385C18.2072 22.5807 20.2772 21.0497 21.7437 19.0074C23.2101 16.965 23.9993 14.5143 24 12C24 5.37 18.63 0 12 0Z" 
+                fill={isDark ? '#F3F4F6' : '#111827'} />
+              </svg>
+              GitHub Stats
             </div>
             
-            {/* 통계 항목들 - 여백 축소 */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}> {/* 여백 축소 */}
+            {/* 통계 항목들 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '28px' }}> 
               <div style={{ display: 'flex', gap: '16px' }}>
                 {/* Commits */}
                 <div style={{ 
@@ -406,14 +454,16 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                   flexDirection: 'column', 
                   justifyContent: 'center', 
                   alignItems: 'center', 
-                  gap: '4px', 
+                  gap: '6px',
                   flex: 1, 
-                  padding: '12px',
+                  padding: '18px 12px',
                   borderRadius: '8px',
-                  backgroundColor: isDark ? 'rgba(31, 41, 55, 0.6)' : 'rgba(255, 255, 255, 0.7)'
+                  backgroundColor: isDark ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  border: `1px solid ${rankStyle.headerBorderColor}`,
                 }}>
                   <div style={{ 
-                    fontSize: '20px', 
+                    fontSize: '24px', 
                     fontWeight: 700, 
                     color: rankStyle.titleColor,
                     display: 'flex'
@@ -421,7 +471,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                     {stats?.currentYearCommits ?? '-'}
                   </div>
                   <div style={{ 
-                    fontSize: '12px', 
+                    fontSize: '13px', 
                     color: isDark ? '#D1D5DB' : '#4B5563',
                     display: 'flex'
                   }}>
@@ -435,14 +485,16 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                   flexDirection: 'column', 
                   justifyContent: 'center', 
                   alignItems: 'center', 
-                  gap: '4px', 
+                  gap: '6px',
                   flex: 1, 
-                  padding: '12px',
+                  padding: '18px 12px',
                   borderRadius: '8px',
-                  backgroundColor: isDark ? 'rgba(31, 41, 55, 0.6)' : 'rgba(255, 255, 255, 0.7)'
+                  backgroundColor: isDark ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  border: `1px solid ${rankStyle.headerBorderColor}`,
                 }}>
                   <div style={{ 
-                    fontSize: '20px', 
+                    fontSize: '24px', 
                     fontWeight: 700, 
                     color: rankStyle.titleColor,
                     display: 'flex'
@@ -450,7 +502,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                     {stats?.totalStars ?? '-'}
                   </div>
                   <div style={{ 
-                    fontSize: '12px', 
+                    fontSize: '13px', 
                     color: isDark ? '#D1D5DB' : '#4B5563',
                     display: 'flex'
                   }}>
@@ -466,14 +518,16 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                   flexDirection: 'column', 
                   justifyContent: 'center', 
                   alignItems: 'center', 
-                  gap: '4px', 
+                  gap: '6px',
                   flex: 1, 
-                  padding: '12px',
+                  padding: '18px 12px',
                   borderRadius: '8px',
-                  backgroundColor: isDark ? 'rgba(31, 41, 55, 0.6)' : 'rgba(255, 255, 255, 0.7)'
+                  backgroundColor: isDark ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  border: `1px solid ${rankStyle.headerBorderColor}`,
                 }}>
                   <div style={{ 
-                    fontSize: '20px', 
+                    fontSize: '24px', 
                     fontWeight: 700, 
                     color: rankStyle.titleColor,
                     display: 'flex'
@@ -481,7 +535,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                     {stats?.totalPRs ?? '-'}
                   </div>
                   <div style={{ 
-                    fontSize: '12px', 
+                    fontSize: '13px', 
                     color: isDark ? '#D1D5DB' : '#4B5563',
                     display: 'flex'
                   }}>
@@ -495,14 +549,16 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                   flexDirection: 'column', 
                   justifyContent: 'center', 
                   alignItems: 'center', 
-                  gap: '4px', 
+                  gap: '6px',
                   flex: 1, 
-                  padding: '12px',
+                  padding: '18px 12px',
                   borderRadius: '8px',
-                  backgroundColor: isDark ? 'rgba(31, 41, 55, 0.6)' : 'rgba(255, 255, 255, 0.7)'
+                  backgroundColor: isDark ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  border: `1px solid ${rankStyle.headerBorderColor}`,
                 }}>
                   <div style={{ 
-                    fontSize: '20px', 
+                    fontSize: '24px', 
                     fontWeight: 700, 
                     color: rankStyle.titleColor,
                     display: 'flex'
@@ -510,7 +566,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                     {stats?.totalIssues ?? '-'}
                   </div>
                   <div style={{ 
-                    fontSize: '12px', 
+                    fontSize: '13px', 
                     color: isDark ? '#D1D5DB' : '#4B5563',
                     display: 'flex'
                   }}>
@@ -521,13 +577,15 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
             </div>
 
             {/* 하단 랭크 표시 */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
               <div style={{
                 display: 'flex',
                 padding: '12px 24px',
                 borderRadius: '8px',
-                backgroundColor: isDark ? 'rgba(31, 41, 55, 0.5)' : 'rgba(255, 255, 255, 0.6)',
-                alignItems: 'center'
+                backgroundColor: isDark ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                alignItems: 'center',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                border: `1px solid ${rankStyle.headerBorderColor}`
               }}>
                 <div style={{ 
                   fontSize: '14px', 
@@ -549,12 +607,17 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
               </div>
             </div>
 
-            {/* 크레딧 */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+            {/* 크레딧 - 카드 최하단으로 이동 */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'flex-end', 
+              paddingTop: '8px',
+            }}>
               <div style={{ 
                 fontSize: '12px', 
-                color: isDark ? '#6B7280' : '#9CA3AF',
-                display: 'flex'
+                color: isDark ? 'rgba(156, 163, 175, 0.8)' : 'rgba(107, 114, 128, 0.8)',
+                display: 'flex',
+                textShadow: profile.backgroundImageUrl ? '0 1px 1px rgba(0,0,0,0.2)' : 'none',
               }}>
                 created by Please Readme
               </div>
