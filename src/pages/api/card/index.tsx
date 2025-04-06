@@ -6,6 +6,7 @@ import ProfileCardStatic from '@/components/ProfileCard/ProfileCardStatic';
 import fs from 'fs/promises';
 import path from 'path';
 import React from 'react';
+import { getImageUrl } from '@/utils/imageUtils';
 
 const CACHE_TTL_SECONDS = 6 * 60 * 60; // 6 hours cache TTL
 
@@ -34,28 +35,58 @@ async function getImageAsBase64(url: string): Promise<string | null> {
         let imageUrl = url;
         
         if (isVercel) {
-          // Vercel 환경에서는 공개 URL 사용
-          const vercelUrl = process.env.NEXT_PUBLIC_VERCEL_URL || '';
-          const protocol = vercelUrl.startsWith('localhost') ? 'http://' : 'https://';
-          imageUrl = `${protocol}${vercelUrl}${url}`;
-          console.log(`Vercel 환경: 이미지 URL 변환 -> ${imageUrl}`);
+          // 유틸리티 함수를 사용하여 환경에 맞는 URL 생성
+          imageUrl = getImageUrl(url);
+          console.log(`최종 이미지 URL: ${imageUrl}`);
           
-          // 변환된 URL로 fetch 요청
-          const response = await fetch(imageUrl);
-          
-          if (!response.ok) {
-            console.error(`Failed to fetch image: ${response.status} ${response.statusText}`);
-            return null;
+          try {
+            // 상대 경로로 접근 시도
+            console.log('Vercel 환경에서 상대 경로로 접근 시도');
+            const imagePath = path.join(process.cwd(), 'public', url);
+            console.log(`Vercel 파일 경로: ${imagePath}`);
+            
+            const imageBuffer = await fs.readFile(imagePath);
+            
+            // 파일 확장자에 따라 MIME 타입 결정
+            let contentType = 'image/png';
+            if (url.endsWith('.jpeg') || url.endsWith('.jpg')) {
+              contentType = 'image/jpeg';
+            } else if (url.endsWith('.webp')) {
+              contentType = 'image/webp';
+            } else if (url.endsWith('.svg')) {
+              contentType = 'image/svg+xml';
+            }
+            
+            const base64 = imageBuffer.toString('base64');
+            console.log(`Vercel: 파일 시스템에서 이미지 로드 완료, 크기: ${imageBuffer.length} 바이트`);
+            
+            return `data:${contentType};base64,${base64}`;
+          } catch (fsError) {
+            console.log('파일 시스템 접근 실패, Vercel 환경에서는 예상된 오류입니다:', fsError);
+            console.log('공개 URL로 접근 재시도');
+            
+            // 직접 URL 구성으로 시도
+            // URL 형식: https://{project-name}.vercel.app
+            const domain = process.env.NEXT_PUBLIC_VERCEL_URL || `${process.env.VERCEL_URL || ''}.vercel.app`;
+            const directUrl = `https://${domain}${url}`;
+            console.log(`직접 URL 접근 시도: ${directUrl}`);
+            
+            const response = await fetch(directUrl);
+            
+            if (!response.ok) {
+              console.error(`직접 URL 접근 실패: ${response.status} ${response.statusText}`);
+              return null;
+            }
+            
+            const arrayBuffer = await response.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            const contentType = response.headers.get('content-type') || 'image/png';
+            
+            const base64 = buffer.toString('base64');
+            console.log(`Vercel: URL 접근으로 이미지 로드 완료, 크기: ${buffer.length} 바이트`);
+            
+            return `data:${contentType};base64,${base64}`;
           }
-          
-          const arrayBuffer = await response.arrayBuffer();
-          const buffer = Buffer.from(arrayBuffer);
-          const contentType = response.headers.get('content-type') || 'image/png';
-          
-          const base64 = buffer.toString('base64');
-          console.log(`Vercel: 이미지 로드 완료, 크기: ${buffer.length} 바이트, 타입: ${contentType}`);
-          
-          return `data:${contentType};base64,${base64}`;
         } else {
           // 로컬 개발 환경에서는 파일 시스템 사용
           const imagePath = path.join(process.cwd(), 'public', url);
