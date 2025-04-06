@@ -143,7 +143,7 @@ export default function ProfileCard({ profile, stats, loading, onDownload }: Pro
             <div className={`relative w-20 h-20 rounded-full overflow-hidden border-2 ${design.border} p-0.5 bg-white dark:bg-gray-800`}>
               <Image
                 src={stats.avatarUrl}
-                alt={profile.name}
+                alt={profile.name || profile.githubUsername || "Profile image"}
                 fill
                 className="object-cover rounded-full"
               />
