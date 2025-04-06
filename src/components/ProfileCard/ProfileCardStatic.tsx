@@ -324,42 +324,22 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
         display: 'flex', 
         flexGrow: 1, // 본문 영역이 남은 공간 채우도록 유지
         backgroundColor: isDark ? '#111827' : '#f3f4f6', // 기본 배경색 추가
-        overflow: 'hidden', // 오버플로우 처리 추가
       }}>
-        {/* 배경 이미지 레이어 */}
+        {/* 배경 이미지 */}
         {profile.backgroundImageUrl && (
-          <>
-            {/* 배경 이미지 */}
-            <div 
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                backgroundImage: `url(${profile.backgroundImageUrl})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                opacity: profile.backgroundOpacity !== undefined ? profile.backgroundOpacity : 0.5,
-              }}
-            />
-            
-            {/* 백업 오버레이 레이어 - 이미지 로드 실패 시 대체 */}
-            <div 
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                backgroundColor: isDark ? 'rgba(17, 24, 39, 0.4)' : 'rgba(243, 244, 246, 0.4)',
-                backgroundImage: 'radial-gradient(circle at 10px 10px, rgba(255,255,255,0.15) 2px, transparent 0)',
-                backgroundSize: '20px 20px',
-                opacity: profile.backgroundOpacity !== undefined ? profile.backgroundOpacity + 0.2 : 0.7,
-                mixBlendMode: 'multiply',
-              }}
-            />
-          </>
+          <div 
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              backgroundImage: `url(${profile.backgroundImageUrl})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              opacity: profile.backgroundOpacity !== undefined ? profile.backgroundOpacity : 0.5,
+            }}
+          />
         )}
         
         {/* 실제 콘텐츠 */}
