@@ -27,6 +27,7 @@ export default function Home() {
     bio?: string;
     name?: string;
     backgroundImageUrl?: string;
+    backgroundOpacity?: number;
   } | null>(null);
 
   const handleImageLoadSuccess = () => {
@@ -51,6 +52,7 @@ export default function Home() {
         bio: profile.bio,
         name: profile.name,
         backgroundImageUrl: profile.backgroundImageUrl,
+        backgroundOpacity: profile.backgroundOpacity,
       });
       
     } catch (err) {
@@ -68,6 +70,9 @@ export default function Home() {
     if (previewParams.bio) params.set('bio', previewParams.bio);
     if (previewParams.name) params.set('name', previewParams.name);
     if (previewParams.backgroundImageUrl) params.set('bg', previewParams.backgroundImageUrl);
+    if (previewParams.backgroundOpacity !== undefined) {
+      params.set('opacity', previewParams.backgroundOpacity.toString());
+    }
 
     // 환경 변수에서 API 기본 URL 가져오기 (fallback 추가)
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';

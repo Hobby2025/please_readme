@@ -33,7 +33,20 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
     if (previewParams.skills.length > 0) params.set('skills', previewParams.skills.join(','));
     if (previewParams.bio) params.set('bio', previewParams.bio);
     if (previewParams.name) params.set('name', previewParams.name);
-    if (previewParams.backgroundImageUrl) params.set('bg', previewParams.backgroundImageUrl);
+    
+    // 배경 이미지 URL 파라미터 설정 - bg-image로 시작하는 경우 그대로 전달
+    if (previewParams.backgroundImageUrl) {
+      // 로컬 이미지 경로는 그대로 전달
+      params.set('bg', previewParams.backgroundImageUrl);
+      console.log('배경 이미지 경로 설정:', previewParams.backgroundImageUrl);
+      
+      // 배경 투명도 파라미터 설정
+      if (previewParams.backgroundOpacity !== undefined) {
+        params.set('opacity', previewParams.backgroundOpacity.toString());
+        console.log('배경 투명도 설정:', previewParams.backgroundOpacity);
+      }
+    }
+    
     params.set('t', Date.now().toString());
 
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';

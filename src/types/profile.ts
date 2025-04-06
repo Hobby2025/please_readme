@@ -54,6 +54,7 @@ export interface ProfilePreviewProps {
     bio?: string;
     name?: string;
     backgroundImageUrl?: string;
+    backgroundOpacity?: number;
   } | null;
   githubStats: GitHubStats | null;
   statsLoading: boolean;

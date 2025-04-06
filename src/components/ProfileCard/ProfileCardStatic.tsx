@@ -256,7 +256,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
         display: 'flex',
         flexDirection: 'column',
         width: '600px',
-        minHeight: '800px', // 추가: 최소 높이 설정
+        minHeight: '780px', // 추가: 최소 높이 설정
         fontFamily: '"BookkMyungjo", serif',
         borderRadius: '8px',
         border: `2px solid ${rankStyle.headerBorderColor}`,
@@ -325,18 +325,18 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
         flexGrow: 1, // 본문 영역이 남은 공간 채우도록 유지
         backgroundColor: isDark ? '#111827' : '#f3f4f6', // 기본 배경색 추가
       }}>
-        {/* 배경 이미지와 오버레이 - 단순화 */}
+        {/* 배경 이미지와 오버레이 - 더 안정적인 방식으로 변경 */}
         {profile.backgroundImageUrl && (
-          <img 
-            src={profile.backgroundImageUrl}
-            alt="Background"
+          <div 
             style={{
               position: 'absolute',
               top: 0,
               left: 0,
               width: '100%',
               height: '100%',
-              objectFit: 'cover',
+              backgroundImage: `url(${profile.backgroundImageUrl})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
               opacity: profile.backgroundOpacity !== undefined ? profile.backgroundOpacity : 0.5,
             }}
           />
@@ -615,7 +615,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
             }}>
               <div style={{ 
                 fontSize: '12px', 
-                color: isDark ? 'rgba(156, 163, 175, 0.8)' : 'rgba(107, 114, 128, 0.8)',
+                color: isDark ? '#F3F4F6' : '#111827',
                 display: 'flex',
                 textShadow: profile.backgroundImageUrl ? '0 1px 1px rgba(0,0,0,0.2)' : 'none',
               }}>

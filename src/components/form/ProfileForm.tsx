@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from '../ui/Input';
 import { TechBadge } from '../ui/TechBadge';
 import { Profile, ProfileFormProps } from '../../types/profile';
@@ -15,6 +15,14 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   onGeneratePreview,
 }) => {
   const router = useRouter();
+  const [selectedImageName, setSelectedImageName] = useState<string>(() => {
+    if (profile.backgroundImageUrl && profile.backgroundImageUrl.startsWith('/bg-image/')) {
+      return profile.backgroundImageUrl.split('/').pop() || '';
+    }
+    return '';
+  });
+  
+  const [opacity, setOpacity] = useState<number>(profile.backgroundOpacity || 0.5);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -38,6 +46,18 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 
   const handleClearSkills = () => {
     setProfile({ ...profile, skills: [] });
+  };
+
+  const handleBackgroundImageSelect = (imageName: string) => {
+    const imageUrl = `/bg-image/${imageName}`;
+    setProfile({ ...profile, backgroundImageUrl: imageUrl });
+    setSelectedImageName(imageName);
+  };
+  
+  const handleOpacityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newOpacity = parseFloat(e.target.value);
+    setOpacity(newOpacity);
+    setProfile({ ...profile, backgroundOpacity: newOpacity });
   };
 
   return (
@@ -131,17 +151,92 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             </div>
 
             <div>
-              <label htmlFor="backgroundImageUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                배경 이미지 URL (선택)
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                배경 이미지 선택
               </label>
-              <Input
-                id="backgroundImageUrl"
-                name="backgroundImageUrl"
-                value={profile.backgroundImageUrl || ''}
-                onChange={handleInputChange}
-                disabled={disabled}
-                placeholder="https://..."
-              />
+              <div className="relative w-full overflow-hidden">
+                <div className="flex overflow-x-auto pb-2 space-x-3" style={{ scrollbarWidth: 'thin' }}>
+                  <div 
+                    className={`flex-shrink-0 w-20 h-20 cursor-pointer border-2 rounded-md overflow-hidden flex items-center justify-center ${!profile.backgroundImageUrl ? 'border-[#8B5CF6] bg-gray-100 dark:bg-gray-700' : 'border-gray-200 dark:border-gray-700'}`}
+                    onClick={() => handleBackgroundImageSelect('')}
+                  >
+                    <span className="text-xs text-gray-500 dark:text-gray-400">없음</span>
+                  </div>
+                  <div 
+                    className={`flex-shrink-0 w-20 h-20 cursor-pointer border-2 rounded-md overflow-hidden ${selectedImageName === 'cat.png' ? 'border-[#8B5CF6]' : 'border-gray-200 dark:border-gray-700'}`}
+                    onClick={() => handleBackgroundImageSelect('cat.png')}
+                  >
+                    <img src="/bg-image/cat.png" alt="Cat" className="w-full h-full object-cover" />
+                  </div>
+                  <div 
+                    className={`flex-shrink-0 w-20 h-20 cursor-pointer border-2 rounded-md overflow-hidden ${selectedImageName === 'stars.png' ? 'border-[#8B5CF6]' : 'border-gray-200 dark:border-gray-700'}`}
+                    onClick={() => handleBackgroundImageSelect('stars.png')}
+                  >
+                    <img src="/bg-image/stars.png" alt="Stars" className="w-full h-full object-cover" />
+                  </div>
+                  <div 
+                    className={`flex-shrink-0 w-20 h-20 cursor-pointer border-2 rounded-md overflow-hidden ${selectedImageName === 'polygon.png' ? 'border-[#8B5CF6]' : 'border-gray-200 dark:border-gray-700'}`}
+                    onClick={() => handleBackgroundImageSelect('polygon.png')}
+                  >
+                    <img src="/bg-image/polygon.png" alt="Polygon" className="w-full h-full object-cover" />
+                  </div>
+                  <div 
+                    className={`flex-shrink-0 w-20 h-20 cursor-pointer border-2 rounded-md overflow-hidden ${selectedImageName === 'paw.png' ? 'border-[#8B5CF6]' : 'border-gray-200 dark:border-gray-700'}`}
+                    onClick={() => handleBackgroundImageSelect('paw.png')}
+                  >
+                    <img src="/bg-image/paw.png" alt="Paw" className="w-full h-full object-cover" />
+                  </div>
+                  <div 
+                    className={`flex-shrink-0 w-20 h-20 cursor-pointer border-2 rounded-md overflow-hidden ${selectedImageName === 'leaf.png' ? 'border-[#8B5CF6]' : 'border-gray-200 dark:border-gray-700'}`}
+                    onClick={() => handleBackgroundImageSelect('leaf.png')}
+                  >
+                    <img src="/bg-image/leaf.png" alt="Leaf" className="w-full h-full object-cover" />
+                  </div>
+                  <div 
+                    className={`flex-shrink-0 w-20 h-20 cursor-pointer border-2 rounded-md overflow-hidden ${selectedImageName === 'memphis.png' ? 'border-[#8B5CF6]' : 'border-gray-200 dark:border-gray-700'}`}
+                    onClick={() => handleBackgroundImageSelect('memphis.png')}
+                  >
+                    <img src="/bg-image/memphis.png" alt="Memphis" className="w-full h-full object-cover" />
+                  </div>
+                </div>
+                <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white dark:from-gray-800 to-transparent pointer-events-none"></div>
+              </div>
+              {selectedImageName ? (
+                <div className="mt-2 text-xs text-gray-600 dark:text-gray-400 flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-[#8B5CF6] mr-1.5"></div>
+                  <span>선택: {selectedImageName === '' ? '배경 없음' : selectedImageName}</span>
+                </div>
+              ) : (
+                <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                  <span>← 좌우로 스크롤하여 더 많은 배경 이미지를 확인하세요</span>
+                </div>
+              )}
+              
+              {profile.backgroundImageUrl && (
+                <div className="mt-4">
+                  <div className="flex justify-between items-center mb-1">
+                    <label htmlFor="opacity" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      배경 투명도
+                    </label>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{Math.round(opacity * 100)}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    id="opacity"
+                    min="0.1"
+                    max="1"
+                    step="0.05"
+                    value={opacity}
+                    onChange={handleOpacityChange}
+                    disabled={disabled}
+                    className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <span>투명</span>
+                    <span>불투명</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

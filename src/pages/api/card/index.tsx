@@ -24,7 +24,67 @@ async function getImageAsBase64(url: string): Promise<string | null> {
       return url;
     }
     
-    // 직접 요청 - Node.js 서버 환경에서는 CORS 제한이 없음
+    // 로컬 이미지 파일 처리 (/bg-image/ 경로인 경우)
+    if (url.startsWith('/bg-image/')) {
+      try {
+        console.log(`로컬 이미지 파일 경로: ${url}`);
+        
+        // Vercel 배포 환경에서는 절대 URL로 변환
+        const isVercel = process.env.VERCEL === '1';
+        let imageUrl = url;
+        
+        if (isVercel) {
+          // Vercel 환경에서는 공개 URL 사용
+          const vercelUrl = process.env.NEXT_PUBLIC_VERCEL_URL || '';
+          const protocol = vercelUrl.startsWith('localhost') ? 'http://' : 'https://';
+          imageUrl = `${protocol}${vercelUrl}${url}`;
+          console.log(`Vercel 환경: 이미지 URL 변환 -> ${imageUrl}`);
+          
+          // 변환된 URL로 fetch 요청
+          const response = await fetch(imageUrl);
+          
+          if (!response.ok) {
+            console.error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+            return null;
+          }
+          
+          const arrayBuffer = await response.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
+          const contentType = response.headers.get('content-type') || 'image/png';
+          
+          const base64 = buffer.toString('base64');
+          console.log(`Vercel: 이미지 로드 완료, 크기: ${buffer.length} 바이트, 타입: ${contentType}`);
+          
+          return `data:${contentType};base64,${base64}`;
+        } else {
+          // 로컬 개발 환경에서는 파일 시스템 사용
+          const imagePath = path.join(process.cwd(), 'public', url);
+          console.log(`파일 시스템 경로: ${imagePath}`);
+          
+          const imageBuffer = await fs.readFile(imagePath);
+          
+          // 파일 확장자에 따라 MIME 타입 결정 - PNG 우선 처리
+          let contentType = 'image/png';
+          if (url.endsWith('.jpeg') || url.endsWith('.jpg')) {
+            contentType = 'image/jpeg';
+          } else if (url.endsWith('.webp')) {
+            contentType = 'image/webp';
+          } else if (url.endsWith('.svg')) {
+            contentType = 'image/svg+xml';
+          }
+          
+          const base64 = imageBuffer.toString('base64');
+          console.log(`로컬: 이미지 로드 완료, 크기: ${imageBuffer.length} 바이트, 타입: ${contentType}`);
+          
+          return `data:${contentType};base64,${base64}`;
+        }
+      } catch (error) {
+        console.error(`이미지 파일 로드 실패: ${url}`, error);
+        return null;
+      }
+    }
+    
+    // 외부 URL 이미지 처리 (기존 코드)
     console.log(`직접 이미지 URL 요청: ${url}`);
     
     const response = await fetch(url, {
@@ -242,7 +302,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ),
       {
         width: 600,
-        height: 800,
+        height: 780,
         fonts: fontData.map(font => ({
           name: font.name,
           data: font.data,
