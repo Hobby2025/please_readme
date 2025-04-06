@@ -66,19 +66,31 @@ export default function Home() {
     const params = new URLSearchParams();
     params.set('username', previewParams.username);
     params.set('theme', previewParams.theme);
+    
+    // 필수 아닌 매개변수는 값이 있을 때만 추가
     if (previewParams.skills.length > 0) params.set('skills', previewParams.skills.join(','));
-    if (previewParams.bio) params.set('bio', previewParams.bio);
-    if (previewParams.name) params.set('name', previewParams.name);
-    if (previewParams.backgroundImageUrl) params.set('bg', previewParams.backgroundImageUrl);
-    if (previewParams.backgroundOpacity !== undefined) {
-      params.set('opacity', previewParams.backgroundOpacity.toString());
+    if (previewParams.bio && previewParams.bio.trim() !== '') params.set('bio', previewParams.bio);
+    if (previewParams.name && previewParams.name.trim() !== '') params.set('name', previewParams.name);
+    
+    // 배경 이미지가 선택된 경우만 추가
+    if (previewParams.backgroundImageUrl && 
+        previewParams.backgroundImageUrl.trim() !== '' && 
+        previewParams.backgroundImageUrl !== '/bg-image/' && 
+        previewParams.backgroundImageUrl !== '/bg-image') {
+      params.set('bg', previewParams.backgroundImageUrl);
+      
+      // 투명도가 기본값(0.5)이 아닌 경우만 추가
+      if (previewParams.backgroundOpacity !== undefined && 
+          previewParams.backgroundOpacity !== 0.5) {
+        params.set('opacity', previewParams.backgroundOpacity.toString());
+      }
     }
 
     // 환경 변수에서 API 기본 URL 가져오기 (fallback 추가)
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
-    const apiUrl = `${baseUrl}/api/card?${params.toString()}`;
+    const url = `${baseUrl}/api/card?${params.toString()}`;
     
-    const markdownCode = `![${previewParams.name || previewParams.username}'s GitHub Profile](${apiUrl})`;
+    const markdownCode = `![${previewParams.name || previewParams.username}'s GitHub Profile](${url})`;
     
     navigator.clipboard.writeText(markdownCode)
       .then(() => {

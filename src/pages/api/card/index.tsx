@@ -25,6 +25,12 @@ async function getImageAsBase64(url: string): Promise<string | null> {
       return url;
     }
     
+    // 슬래시로 끝나는 디렉토리 경로인 경우 처리
+    if (url.endsWith('/') || url === '/bg-image') {
+      console.log('이미지 파일이 아닌 디렉토리 경로가 전달되었습니다:', url);
+      return null;
+    }
+    
     // 로컬 이미지 파일 처리 (/bg-image/ 경로인 경우)
     if (url.startsWith('/bg-image/')) {
       try {
@@ -258,21 +264,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 배경 이미지 처리
     let backgroundImageUrl: string | undefined = undefined;
     if (customBgUrl && typeof customBgUrl === 'string') {
-      console.log('처리할 배경 이미지 URL:', customBgUrl);
-      // 이미지 URL을 Base64로 변환
-      const base64Image = await getImageAsBase64(customBgUrl);
-      backgroundImageUrl = base64Image || undefined;
-      console.log(`Background image processed: ${base64Image ? 'success' : 'failed'}`);
-      if (base64Image) {
-        console.log('Base64 이미지 시작 부분:', base64Image.substring(0, 50) + '...');
-        
-        // base64 이미지가 너무 크면 @vercel/og에서 처리에 문제가 있을 수 있으므로 경고
-        if (base64Image.length > 1024 * 1024) { // 1MB 이상인 경우
-          console.warn(`경고: 배경 이미지가 매우 큽니다 (${Math.round(base64Image.length / 1024)}KB). @vercel/og에서 처리하지 못할 수 있습니다.`);
-          console.warn('작은 이미지를 대신 사용합니다.');
+      // 디렉토리 경로만 전달된 경우
+      if (customBgUrl === '/bg-image/' || customBgUrl === '/bg-image') {
+        console.log('디렉토리 경로만 전달되어 배경 이미지를 적용하지 않습니다.');
+        backgroundImageUrl = undefined;
+      } else {
+        console.log('처리할 배경 이미지 URL:', customBgUrl);
+        // 이미지 URL을 Base64로 변환
+        const base64Image = await getImageAsBase64(customBgUrl);
+        backgroundImageUrl = base64Image || undefined;
+        console.log(`Background image processed: ${base64Image ? 'success' : 'failed'}`);
+        if (base64Image) {
+          console.log('Base64 이미지 시작 부분:', base64Image.substring(0, 50) + '...');
           
-          // 기본 그라데이션 배경을 사용 (이미지가 매우 클 경우)
-          backgroundImageUrl = undefined;
+          // base64 이미지가 너무 크면 @vercel/og에서 처리에 문제가 있을 수 있으므로 경고
+          if (base64Image.length > 1024 * 1024) { // 1MB 이상인 경우
+            console.warn(`경고: 배경 이미지가 매우 큽니다 (${Math.round(base64Image.length / 1024)}KB). @vercel/og에서 처리하지 못할 수 있습니다.`);
+            console.warn('작은 이미지를 대신 사용합니다.');
+            
+            // 기본 그라데이션 배경을 사용 (이미지가 매우 클 경우)
+            backgroundImageUrl = undefined;
+          }
         }
       }
     } else {

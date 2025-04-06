@@ -49,9 +49,16 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   };
 
   const handleBackgroundImageSelect = (imageName: string) => {
-    const imageUrl = `/bg-image/${imageName}`;
-    setProfile({ ...profile, backgroundImageUrl: imageUrl });
-    setSelectedImageName(imageName);
+    if (!imageName) {
+      // 이미지 선택 해제
+      setProfile({ ...profile, backgroundImageUrl: '' });
+      setSelectedImageName('');
+    } else {
+      // 이미지 선택
+      const imageUrl = `/bg-image/${imageName}`;
+      setProfile({ ...profile, backgroundImageUrl: imageUrl });
+      setSelectedImageName(imageName);
+    }
   };
   
   const handleOpacityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
