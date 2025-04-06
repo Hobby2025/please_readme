@@ -13,23 +13,20 @@ function isValidTheme(theme: string): theme is Theme {
   return theme === 'light' || theme === 'dark';
 }
 
-// 로컬 폰트 데이터 로드 함수 (Pretendard 사용)
-async function getFontData(): Promise<{ name: string; data: ArrayBuffer; weight: number; style: 'normal' | 'italic' }[]> {
+// 로컬 폰트 데이터 로드 함수 (BookkMyungjo TTF 사용)
+async function getFontData(): Promise<{ name: string; data: Buffer; weight: number; style: 'normal' | 'italic' }[]> {
   const fontDirectory = path.join(process.cwd(), 'public', 'fonts');
 
   const fontFiles = [
-    { file: 'Pretendard-Regular.woff2', weight: 400 },
-    { file: 'Pretendard-Medium.woff2', weight: 500 },
-    { file: 'Pretendard-Bold.woff2', weight: 700 },
-    // 필요하다면 ExtraBold 등 다른 weight 추가
-    // { file: 'Pretendard-ExtraBold.woff2', weight: 800 }, 
+    { file: 'BookkMyungjo_Light.ttf', weight: 300 }, // Light weight
+    { file: 'BookkMyungjo_Bold.ttf', weight: 700 },  // Bold weight
   ];
 
   const fontDataPromises = fontFiles.map(async ({ file, weight }) => {
     try {
       const filePath = path.join(fontDirectory, file);
       const data = await fs.readFile(filePath);
-      return { name: 'Pretendard', data: data.buffer, weight, style: 'normal' as 'normal' | 'italic' };
+      return { name: 'BookkMyungjo', data: data, weight, style: 'normal' as 'normal' | 'italic' }; // 폰트 이름 변경
     } catch (error) {
       console.error(`Error loading font ${file}:`, error);
       return null; // 오류 발생 시 null 반환
@@ -38,7 +35,7 @@ async function getFontData(): Promise<{ name: string; data: ArrayBuffer; weight:
 
   const settledFontData = await Promise.all(fontDataPromises);
   
-  const validFontData = settledFontData.filter(data => data !== null) as { name: string; data: ArrayBuffer; weight: number; style: 'normal' | 'italic' }[];
+  const validFontData = settledFontData.filter(data => data !== null) as { name: string; data: Buffer; weight: number; style: 'normal' | 'italic' }[];
   
   if (validFontData.length === 0) {
      console.error('Failed to load any local fonts.');
@@ -136,8 +133,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         />
       ),
       {
-        width: 500,
-        height: 280,
+        width: 600,
+        height: 700,
         fonts: fontData.map(font => ({
           name: font.name,
           data: font.data,
