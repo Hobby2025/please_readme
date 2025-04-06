@@ -14,8 +14,6 @@ const nextConfig = {
     NEXT_PUBLIC_VERCEL_URL: process.env.VERCEL_URL || 'localhost:3000',
     VERCEL_URL: process.env.VERCEL_URL || 'localhost:3000',
   },
-  // 에셋 접두사 설정 (Vercel 환경에서 이미지 경로 문제 해결)
-  assetPrefix: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
 };
 
 module.exports = nextConfig; 
