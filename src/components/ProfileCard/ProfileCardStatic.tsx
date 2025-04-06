@@ -256,7 +256,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
         display: 'flex',
         flexDirection: 'column',
         width: '600px',
-        minHeight: '780px', // 추가: 최소 높이 설정
+        minHeight: '800px', // 추가: 최소 높이 설정
         fontFamily: '"BookkMyungjo", serif',
         borderRadius: '8px',
         border: `2px solid ${rankStyle.headerBorderColor}`,

@@ -242,7 +242,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ),
       {
         width: 600,
-        height: 780,
+        height: 800,
         fonts: fontData.map(font => ({
           name: font.name,
           data: font.data,
