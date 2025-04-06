@@ -36,7 +36,7 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
     if (previewParams.backgroundImageUrl) params.set('bg', previewParams.backgroundImageUrl);
     params.set('t', Date.now().toString());
 
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
     const url = `${baseUrl}/api/card?${params.toString()}`;
     
     setImageUrl(url);

@@ -69,7 +69,8 @@ export default function Home() {
     if (previewParams.name) params.set('name', previewParams.name);
     if (previewParams.backgroundImageUrl) params.set('bg', previewParams.backgroundImageUrl);
 
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    // 환경 변수에서 API 기본 URL 가져오기 (fallback 추가)
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
     const apiUrl = `${baseUrl}/api/card?${params.toString()}`;
     
     const markdownCode = `![${previewParams.name || previewParams.username}'s GitHub Profile](${apiUrl})`;
