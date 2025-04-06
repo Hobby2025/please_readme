@@ -1,22 +1,24 @@
 # GitHub 프로필 카드 생성기
 
-GitHub 프로필을 멋진 이미지로 만들어주는 웹 애플리케이션입니다.
+GitHub 프로필 정보와 활동 통계를 기반으로 커스터마이징 가능한 이미지 카드를 생성하는 웹 애플리케이션입니다. Vercel OG Image Generation을 사용하여 서버사이드에서 이미지를 생성합니다.
 
 ## 기능
 
-- GitHub 사용자 정보 가져오기
-- 프로필 정보 커스터마이징
-- 기술 스택 추가
+- GitHub 사용자 정보 및 활동 통계 (커밋, 스타, PR, 이슈) 표시
+- 프로필 정보 (이름, 소개) 커스터마이징
+- 기술 스택 목록 표시
 - 테마 선택 (라이트/다크)
-- 이미지 생성 및 다운로드
-- 마크다운 코드 복사
+- 배경 이미지 및 투명도 커스터마이징
+- API 엔드포인트를 통한 프로필 카드 이미지 생성 (`/api/card?username=...`)
+- 생성된 이미지 미리보기 및 URL 제공
 
 ## 기술 스택
 
 - Next.js
+- React
 - TypeScript
 - Tailwind CSS
-- html2canvas
+- `@vercel/og` (Satori) for Image Generation
 - GitHub API
 
 ## 시작하기
