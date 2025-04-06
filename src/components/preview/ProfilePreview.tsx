@@ -1,89 +1,64 @@
-import React, { useRef, useEffect } from 'react';
-import { ProfilePreviewProps, GitHubStats } from '../../types/profile';
+import React, { useRef, useEffect, useState } from 'react';
+import { ProfilePreviewProps, Profile, Theme } from '../../types/profile';
 import { Button } from '../ui/Button';
-import { TechBadge } from '../ui/TechBadge';
-import { useImage } from '../../hooks/useImage';
-import { useProfile } from '../../hooks/useProfile';
-import { Rank } from '@/utils/rankUtils';
-
-const rankLevelColorMapping: Record<string, string> = {
-  'S': 'text-purple-600 dark:text-purple-400',
-  'A+': 'text-blue-600 dark:text-blue-400',
-  'A': 'text-blue-500 dark:text-blue-300',
-  'A-': 'text-sky-600 dark:text-sky-400',
-  'B+': 'text-green-600 dark:text-green-400',
-  'B': 'text-green-500 dark:text-green-300',
-  'B-': 'text-lime-600 dark:text-lime-400',
-  'C+': 'text-yellow-600 dark:text-yellow-400',
-  'C': 'text-yellow-500 dark:text-yellow-300',
-  '?': 'text-gray-500 dark:text-gray-400', 
-};
+import { FaMarkdown } from 'react-icons/fa';
+import { Loading } from '../ui/Loading';
+import { ErrorMessage } from '../ui/ErrorMessage';
 
 export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
-  profile,
-  onPreviewGenerated,
-  onResetPreview,
+  profileForFallback,
+  previewParams,
+  githubStats,
+  statsLoading,
+  statsError,
+  onImageLoadSuccess,
+  isImageLoaded,
+  onCopyMarkdown,
 }) => {
-  const previewRef = useRef<HTMLDivElement>(null);
-  const { generateImage, loading: imageLoading, error: imageError } = useImage();
-  const {
-    githubStats,
-    fetchGitHubStats,
-    loading: statsLoading,
-    error: statsError,
-    updateProfile,
-    resetProfile,
-  } = useProfile();
+  const [imageUrl, setImageUrl] = useState('');
+  const [isImageLoading, setIsImageLoading] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (profile.githubUsername) {
-      fetchGitHubStats();
+    if (!previewParams || statsLoading || statsError) {
+      setImageUrl('');
+      setIsImageLoading(false);
+      setImageError(null);
+      return;
     }
-  }, [profile.githubUsername, fetchGitHubStats]);
 
-  const handleGenerateImage = async () => {
-    if (!previewRef.current) return;
+    const params = new URLSearchParams();
+    params.set('username', previewParams.username);
+    params.set('theme', previewParams.theme);
+    if (previewParams.skills.length > 0) params.set('skills', previewParams.skills.join(','));
+    if (previewParams.bio) params.set('bio', previewParams.bio);
+    if (previewParams.name) params.set('name', previewParams.name);
+    if (previewParams.backgroundImageUrl) params.set('bg', previewParams.backgroundImageUrl);
+    params.set('t', Date.now().toString());
 
-    try {
-      const generatedImageBlob = await generateImage(previewRef.current, {
-        backgroundColor: profile.theme === 'dark' ? '#1f2937' : '#ffffff',
-      });
-      
-      if (generatedImageBlob instanceof Blob) { 
-          const imageUrl = URL.createObjectURL(generatedImageBlob);
-          updateProfile({ backgroundImageUrl: imageUrl });
-      } else {
-           console.warn('generateImage did not return a Blob as expected.');
-      }
-      
-      onPreviewGenerated?.(true);
-    } catch (error) {
-      console.error('이미지 생성 실패:', error);
-    }
-  };
-
-  const handleCopyCode = () => {
-    const apiUrl = `/api/github-card?username=${encodeURIComponent(profile.githubUsername)}&theme=${profile.theme}&name=${encodeURIComponent(profile.name)}&bio=${encodeURIComponent(profile.bio)}&backgroundImageUrl=${encodeURIComponent(profile.backgroundImageUrl || '')}`;
-    const markdownCode = `![GitHub Profile](${apiUrl})`;
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const url = `${baseUrl}/api/card?${params.toString()}`;
     
-    navigator.clipboard.writeText(markdownCode)
-      .then(() => {
-        alert('마크다운 코드가 복사되었습니다.');
-      })
-      .catch((error) => {
-        console.error('코드 복사 실패:', error);
-        alert('코드 복사에 실패했습니다.');
-      });
+    setImageUrl(url);
+    setIsImageLoading(true);
+    setImageError(null);
+
+  }, [previewParams, statsLoading, statsError]);
+
+  const handleImageLoad = () => {
+    setIsImageLoading(false);
+    setImageError(null);
+    onImageLoadSuccess?.();
   };
 
-  const handleReset = () => {
-    resetProfile();
-    onResetPreview?.();
+  const handleImageError = () => {
+    setIsImageLoading(false);
+    setImageError('미리보기 이미지를 불러오는데 실패했습니다. API 서버 상태를 확인하거나 잠시 후 다시 시도해주세요.');
   };
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="border-b border-gray-200 dark:border-gray-700 bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 px-6 py-4 flex items-center justify-between rounded-t-xl">
+    <div className="h-full flex flex-col bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg overflow-hidden">
+      <div className="border-b border-gray-200 dark:border-gray-700 bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 px-6 py-4 flex items-center justify-between">
         <h2 className="text-xl font-medium text-[#8B5CF6] dark:text-[#A78BFA] flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -101,112 +76,55 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
           </svg>
           프로필 이미지 미리보기
         </h2>
+        {isImageLoaded && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onCopyMarkdown}
+            disabled={!previewParams?.username}
+          >
+            <FaMarkdown className="mr-2" />
+            마크다운 복사
+          </Button>
+        )}
       </div>
 
-      <div className="flex-1 p-6 flex flex-col">
-        <div
-          ref={previewRef}
-          className={`flex-1 flex flex-col items-center justify-center p-4 bg-[#8B5CF6]/5 dark:bg-[#8B5CF6]/10 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden ${
-            profile.backgroundImageUrl ? 'bg-cover bg-center' : ''
-          }`}
-          style={
-            profile.backgroundImageUrl
-              ? { backgroundImage: `url(${profile.backgroundImageUrl})` }
-              : undefined
-          }
-        >
-          {statsLoading ? (
-            <div className="flex flex-col items-center justify-center py-8">
-              <div className="relative">
-                <div className="w-16 h-16 border-4 border-[#8B5CF6]/10 dark:border-[#8B5CF6]/20 rounded-full"></div>
-                <div className="absolute top-0 left-0 w-16 h-16 border-4 border-t-[#8B5CF6] dark:border-t-[#A78BFA] rounded-full animate-spin"></div>
-              </div>
-              <p className="mt-4 text-gray-700 dark:text-gray-300 font-medium">
-                GitHub 통계를 가져오는 중...
-              </p>
-            </div>
-          ) : statsError ? (
-            <div className="flex flex-col items-center justify-center py-8 text-red-600">
-              <p>GitHub 통계 로딩 실패:</p>
-              <p className="text-sm">{statsError}</p>
-            </div>
-          ) : (
-            <div className="w-full max-w-2xl p-6 bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg">
-              <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  {profile.name || profile.githubUsername}
-                </h1>
-                <p className="text-gray-600 dark:text-gray-300">{profile.bio}</p>
-              </div>
+      <div className="flex-1 p-6 flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-b-xl min-h-[300px]">
+        {statsLoading && (
+          <div className="text-center">
+            <Loading size="lg" className="mb-2" />
+            <p className="text-gray-600 dark:text-gray-300">GitHub 통계 로딩 중...</p>
+          </div>
+        )}
+        {statsError && !statsLoading && (
+           <ErrorMessage message={`GitHub 통계 로딩 실패: ${statsError}`} />
+        )}
 
-              <div className="flex flex-wrap gap-2 justify-center mb-6">
-                {profile.skills.map((skill) => (
-                  <TechBadge key={skill} tech={skill} />
-                ))}
+        {!statsLoading && !statsError && imageUrl && (
+          <div className="w-full flex flex-col items-center justify-center">
+            {isImageLoading && (
+              <div className="text-center">
+                <Loading size="lg" className="mb-2" />
+                <p className="text-gray-600 dark:text-gray-300">미리보기 이미지 로딩 중...</p>
               </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="text-center p-3 bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 rounded-lg">
-                  <p className="text-2xl font-bold text-[#8B5CF6]">
-                    {githubStats.totalStars ?? '-'}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">총 스타</p>
-                </div>
-                <div className="text-center p-3 bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 rounded-lg">
-                  <p className="text-2xl font-bold text-[#8B5CF6]">
-                    {githubStats.currentYearCommits ?? '-'}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">올해 커밋</p>
-                </div>
-                <div className="text-center p-3 bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 rounded-lg">
-                  <p className="text-2xl font-bold text-[#8B5CF6]">
-                    {githubStats.totalPRs ?? '-'}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">총 PR</p>
-                </div>
-                <div className="text-center p-3 bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 rounded-lg">
-                  <p className="text-2xl font-bold text-[#8B5CF6]">
-                    {githubStats.totalIssues ?? '-'}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">총 이슈</p>
-                </div>
-              </div>
-
-              <div className="text-center mb-6">
-                <span className="text-sm font-medium text-gray-600 dark:text-gray-400 mr-2">랭크:</span>
-                {githubStats.rank && (
-                  <span className={`text-2xl font-bold ${rankLevelColorMapping[githubStats.rank.level] ?? 'text-gray-500 dark:text-gray-400'}`}>
-                    {githubStats.rank.level}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex justify-center gap-4">
-                <Button
-                  onClick={handleGenerateImage}
-                  isLoading={imageLoading}
-                  disabled={!profile.githubUsername || imageLoading}
-                >
-                  이미지 생성하기
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={handleCopyCode}
-                  disabled={!profile.githubUsername}
-                >
-                  코드 복사
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={handleReset}
-                  size="sm"
-                >
-                  새로 만들기
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+            {imageError && !isImageLoading && (
+               <ErrorMessage message={imageError} />
+            )}
+            <img 
+              src={imageUrl} 
+              alt={`${previewParams?.username || '...'}'s Profile Card Preview`}
+              onLoad={handleImageLoad} 
+              onError={handleImageError} 
+              className={`max-w-full h-auto rounded-lg shadow-md ${isImageLoading || imageError ? 'hidden' : 'block'}`}
+            />
+          </div>
+        )}
+        {!previewParams && !statsLoading && !statsError && (
+          <p className="text-gray-500 dark:text-gray-400 text-center">
+            왼쪽 폼에 정보를 입력하고<br/>'카드 생성 / 업데이트' 버튼을 눌러<br/>미리보기를 확인하세요.
+          </p>
+        )}
       </div>
     </div>
   );

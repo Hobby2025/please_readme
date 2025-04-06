@@ -6,12 +6,12 @@ export interface GitHubStats {
   totalStars: number;
   avatarUrl: string;
   name: string;
-  bio: string;
-  location: string;
-  company: string;
-  twitterUsername: string;
+  bio: string | null;
+  location: string | null;
+  company: string | null;
+  twitterUsername: string | null;
   blog: string;
-  email: string;
+  email: string | null;
   createdAt: string;
   updatedAt: string;
   currentYearCommits: number;
@@ -33,6 +33,7 @@ export interface ProfileFormProps {
   profile: Profile;
   setProfile: (profile: Profile) => void;
   disabled?: boolean;
+  onGeneratePreview: () => void;
 }
 
 export interface ProfileCardProps {
@@ -40,13 +41,26 @@ export interface ProfileCardProps {
   stats: GitHubStats | null;
   loading: boolean;
   onDownload?: () => void;
+  currentYear?: number;
 }
 
 export interface ProfilePreviewProps {
-  profile: Profile;
-  setProfile: (profile: Profile) => void;
-  onPreviewGenerated?: (generated: boolean) => void;
-  onResetPreview?: () => void;
+  profileForFallback?: Profile;
+  previewParams: {
+    username: string;
+    theme: Theme;
+    skills: string[];
+    bio?: string;
+    name?: string;
+    backgroundImageUrl?: string;
+  } | null;
+  githubStats: GitHubStats | null;
+  statsLoading: boolean;
+  statsError: string | null;
+  onImageLoadSuccess?: () => void;
+  setProfile?: (profile: Profile) => void;
+  isImageLoaded: boolean;
+  onCopyMarkdown: () => void;
 }
 
 export interface ImageGenerationOptions {
@@ -55,4 +69,10 @@ export interface ImageGenerationOptions {
   scale: number;
   backgroundColor: string;
   textColor: string;
+}
+
+export interface ThemeOption {
+  label: string;
+  value: Theme;
+  icon: React.ComponentType<any>;
 } 

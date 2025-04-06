@@ -1,23 +1,21 @@
 import React from 'react';
 import { Input } from '../ui/Input';
 import { TechBadge } from '../ui/TechBadge';
-import { Profile } from '../../types/profile';
+import { Profile, ProfileFormProps } from '../../types/profile';
 import { availableTechStacks } from '../../constants/techStacks';
 import { Button } from '../ui/Button';
 import { cn } from '../../utils/cn';
-import { FaSun, FaMoon, FaPencilAlt } from 'react-icons/fa';
-
-interface ProfileFormProps {
-  profile: Profile;
-  setProfile: (profile: Profile) => void;
-  disabled?: boolean;
-}
+import { FaSun, FaMoon, FaPencilAlt, FaImage } from 'react-icons/fa';
+import { useRouter } from 'next/router';
 
 export const ProfileForm: React.FC<ProfileFormProps> = ({
   profile,
   setProfile,
   disabled = false,
+  onGeneratePreview,
 }) => {
+  const router = useRouter();
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setProfile({ ...profile, [name]: value });
@@ -43,7 +41,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   };
 
   return (
-    <div className="bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg overflow-hidden">
+    <div className="h-full bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg overflow-hidden flex flex-col">
       <div className="bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <h2 className="text-lg font-medium text-[#8B5CF6] dark:text-[#A78BFA] flex items-center">
           <FaPencilAlt className="h-5 w-5 mr-2" />
@@ -51,7 +49,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
         </h2>
       </div>
 
-      <div className="p-6">
+      <div className="flex-1 p-6 overflow-auto">
         <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
           <div className='mb-4'>
             <div className="inline-flex rounded-md gap-3" role="group">
@@ -189,6 +187,18 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
                 </label>
               ))}
             </div>
+          </div>
+
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              type="button"
+              onClick={onGeneratePreview}
+              disabled={!profile.githubUsername || disabled}
+              className="w-full"
+            >
+              <FaImage className="w-4 h-4 mr-2" />
+              카드 생성 / 업데이트
+            </Button>
           </div>
         </form>
       </div>
