@@ -74,3 +74,5 @@ GITHUB_TOKEN=your_github_token
 ## 라이선스
 
 MIT
+
+현재 깃허브 camo 이슈로 잠정 중단중
