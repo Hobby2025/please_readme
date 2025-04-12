@@ -6,161 +6,14 @@ import ProfileCardStatic from '@/components/ProfileCard/ProfileCardStatic';
 import fs from 'fs/promises';
 import path from 'path';
 import React from 'react';
-import { getImageUrl } from '@/utils/imageUtils';
+import { optimizeImage, getImageUrl } from '@/utils/imageUtils';
+import { getCachedData, setCachedData } from '@/utils/cache';
 
+// 캐시 TTL 설정
 const CACHE_TTL_SECONDS = 6 * 60 * 60; // 6 hours cache TTL
 
 function isValidTheme(theme: string): theme is Theme {
   return theme === 'light' || theme === 'dark';
-}
-
-// 이미지 URL을 Base64로 변환하는 함수
-async function getImageAsBase64(url: string): Promise<string | null> {
-  try {
-    console.log(`이미지 가져오기 시작: ${url}`);
-    
-    // URL이 이미 base64 데이터인 경우 그대로 반환
-    if (url.startsWith('data:')) {
-      console.log('이미 Base64 형식의 URL입니다.');
-      return url;
-    }
-    
-    // 슬래시로 끝나는 디렉토리 경로인 경우 처리
-    if (url.endsWith('/') || url === '/bg-image') {
-      console.log('이미지 파일이 아닌 디렉토리 경로가 전달되었습니다:', url);
-      return null;
-    }
-    
-    // 로컬 이미지 파일 처리 (/bg-image/ 경로인 경우)
-    if (url.startsWith('/bg-image/')) {
-      try {
-        console.log(`로컬 이미지 파일 경로: ${url}`);
-        
-        // Vercel 배포 환경에서는 절대 URL로 변환
-        const isVercel = process.env.VERCEL === '1';
-        let imageUrl = url;
-        
-        if (isVercel) {
-          // 유틸리티 함수를 사용하여 환경에 맞는 URL 생성
-          imageUrl = getImageUrl(url);
-          console.log(`최종 이미지 URL: ${imageUrl}`);
-          
-          try {
-            // 상대 경로로 접근 시도
-            console.log('Vercel 환경에서 상대 경로로 접근 시도');
-            const imagePath = path.join(process.cwd(), 'public', url);
-            console.log(`Vercel 파일 경로: ${imagePath}`);
-            
-            const imageBuffer = await fs.readFile(imagePath);
-            
-            // 파일 확장자에 따라 MIME 타입 결정
-            let contentType = 'image/png';
-            if (url.endsWith('.jpeg') || url.endsWith('.jpg')) {
-              contentType = 'image/jpeg';
-            } else if (url.endsWith('.webp')) {
-              contentType = 'image/webp';
-            } else if (url.endsWith('.svg')) {
-              contentType = 'image/svg+xml';
-            }
-            
-            const base64 = imageBuffer.toString('base64');
-            console.log(`Vercel: 파일 시스템에서 이미지 로드 완료, 크기: ${imageBuffer.length} 바이트`);
-            
-            return `data:${contentType};base64,${base64}`;
-          } catch (fsError) {
-            console.log('파일 시스템 접근 실패, Vercel 환경에서는 예상된 오류입니다:', fsError);
-            console.log('공개 URL로 접근 재시도');
-            
-            // 직접 URL 구성으로 시도
-            // URL 형식: https://{project-name}.vercel.app
-            const domain = process.env.NEXT_PUBLIC_VERCEL_URL || `${process.env.VERCEL_URL || ''}.vercel.app`;
-            const directUrl = `https://${domain}${url}`;
-            console.log(`직접 URL 접근 시도: ${directUrl}`);
-            
-            const response = await fetch(directUrl);
-            
-            if (!response.ok) {
-              console.error(`직접 URL 접근 실패: ${response.status} ${response.statusText}`);
-              return null;
-            }
-            
-            const arrayBuffer = await response.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
-            const contentType = response.headers.get('content-type') || 'image/png';
-            
-            const base64 = buffer.toString('base64');
-            console.log(`Vercel: URL 접근으로 이미지 로드 완료, 크기: ${buffer.length} 바이트`);
-            
-            return `data:${contentType};base64,${base64}`;
-          }
-        } else {
-          // 로컬 개발 환경에서는 파일 시스템 사용
-          const imagePath = path.join(process.cwd(), 'public', url);
-          console.log(`파일 시스템 경로: ${imagePath}`);
-          
-          const imageBuffer = await fs.readFile(imagePath);
-          
-          // 파일 확장자에 따라 MIME 타입 결정 - PNG 우선 처리
-          let contentType = 'image/png';
-          if (url.endsWith('.jpeg') || url.endsWith('.jpg')) {
-            contentType = 'image/jpeg';
-          } else if (url.endsWith('.webp')) {
-            contentType = 'image/webp';
-          } else if (url.endsWith('.svg')) {
-            contentType = 'image/svg+xml';
-          }
-          
-          const base64 = imageBuffer.toString('base64');
-          console.log(`로컬: 이미지 로드 완료, 크기: ${imageBuffer.length} 바이트, 타입: ${contentType}`);
-          
-          return `data:${contentType};base64,${base64}`;
-        }
-      } catch (error) {
-        console.error(`이미지 파일 로드 실패: ${url}`, error);
-        return null;
-      }
-    }
-    
-    // 외부 URL 이미지 처리 (기존 코드)
-    console.log(`직접 이미지 URL 요청: ${url}`);
-    
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8'
-      }
-    });
-    
-    if (!response.ok) {
-      console.error(`Failed to fetch image: ${response.status} ${response.statusText}`);
-      return null;
-    }
-    
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const contentType = response.headers.get('content-type') || 'image/jpeg';
-    
-    // 이미지 크기가 너무 큰 경우 JPEG 또는 webp로 변환
-    let base64 = buffer.toString('base64');
-    
-    // 이미지가 100KB를 초과하면 경고 메시지 출력
-    if (base64.length > 100 * 1024) {
-      console.warn(`이미지 크기가 커서 @vercel/og에서 문제가 발생할 수 있습니다: ${Math.round(base64.length/1024)}KB`);
-      console.warn('배경이 적용되지 않으면 더 작은 이미지를 사용하세요 (100KB 미만 권장)');
-    }
-    
-    console.log(`이미지 변환 완료: ${contentType}, 크기: ${buffer.length} 바이트`);
-    console.log(`변환된 Base64 문자열 길이: ${base64.length}`);
-    
-    // 최종 데이터 URL 생성
-    const dataUrl = `data:${contentType};base64,${base64}`;
-    console.log(`최종 Data URL 길이: ${dataUrl.length}, 시작: ${dataUrl.substring(0, 30)}...`);
-    
-    return dataUrl;
-  } catch (error) {
-    console.error('Error converting image to base64:', error);
-    return null;
-  }
 }
 
 // 로컬 폰트 데이터 로드 함수 (BookkMyungjo TTF 사용)
@@ -176,7 +29,7 @@ async function getFontData(): Promise<{ name: string; data: Buffer; weight: numb
     try {
       const filePath = path.join(fontDirectory, file);
       const data = await fs.readFile(filePath);
-      return { name: 'BookkMyungjo', data: data, weight, style: 'normal' as 'normal' | 'italic' }; // 폰트 이름 변경
+      return { name: 'BookkMyungjo', data: data, weight, style: 'normal' as 'normal' | 'italic' };
     } catch (error) {
       console.error(`Error loading font ${file}:`, error);
       return null; // 오류 발생 시 null 반환
@@ -201,13 +54,11 @@ async function getFontData(): Promise<{ name: string; data: Buffer; weight: numb
 // };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Node.js 런타임 방식으로 GET 메서드 확인 복원
   if (req.method !== 'GET') {
     return res.status(405).json({ message: '허용되지 않는 메서드입니다.' });
   }
 
   try {
-    // req.query 사용 복원 (Node.js 런타임)
     const { 
       username, 
       theme: themeParam, 
@@ -226,145 +77,98 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ? themeParam 
       : 'light';
     
-    console.log(`Processing request for user: ${username}, theme: ${theme}`);
-    console.log(`Additional params: name=${customName || 'default'}, bio=${Boolean(customBio)}, bg=${Boolean(customBgUrl)}, skills=${skillsParam || 'none'}`);
-
-    let stats: GitHubStats | null = null;
-    try {
-      console.log(`Fetching GitHub stats for ${username}...`);
-      stats = await GitHubService.getInstance().getUserStats(username);
-      
-      // 아바타 URL을 Base64로 변환
-      if (stats.avatarUrl) {
-        try {
-          const base64Avatar = await getImageAsBase64(stats.avatarUrl);
-          if (base64Avatar) {
-            stats.avatarUrl = base64Avatar;
-            console.log('Avatar image converted to base64 successfully');
-          } else {
-            console.error('Failed to convert avatar image to base64');
-          }
-        } catch (avatarError) {
-          console.error('Error converting avatar to base64:', avatarError);
-        }
-      }
-      
-      console.log(`Successfully fetched stats for ${username}`);
-    } catch (error) {
-      console.error(`Error fetching GitHub stats for ${username}:`, error);
-      return res.status(500).json({ 
-        message: `GitHub 통계를 가져오는데 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}` 
-      });
-    }
-
-    const skills = typeof skillsParam === 'string' && skillsParam.trim() !== '' 
-      ? skillsParam.split(',').map(skill => skill.trim())
-      : [];
-
-    // 배경 이미지 처리
-    let backgroundImageUrl: string | undefined = undefined;
-    if (customBgUrl && typeof customBgUrl === 'string') {
-      // 디렉토리 경로만 전달된 경우
-      if (customBgUrl === '/bg-image/' || customBgUrl === '/bg-image') {
-        console.log('디렉토리 경로만 전달되어 배경 이미지를 적용하지 않습니다.');
-        backgroundImageUrl = undefined;
-      } else {
-        console.log('처리할 배경 이미지 URL:', customBgUrl);
-        // 이미지 URL을 Base64로 변환
-        const base64Image = await getImageAsBase64(customBgUrl);
-        backgroundImageUrl = base64Image || undefined;
-        console.log(`Background image processed: ${base64Image ? 'success' : 'failed'}`);
-        if (base64Image) {
-          console.log('Base64 이미지 시작 부분:', base64Image.substring(0, 50) + '...');
-          
-          // base64 이미지가 너무 크면 @vercel/og에서 처리에 문제가 있을 수 있으므로 경고
-          if (base64Image.length > 1024 * 1024) { // 1MB 이상인 경우
-            console.warn(`경고: 배경 이미지가 매우 큽니다 (${Math.round(base64Image.length / 1024)}KB). @vercel/og에서 처리하지 못할 수 있습니다.`);
-            console.warn('작은 이미지를 대신 사용합니다.');
-            
-            // 기본 그라데이션 배경을 사용 (이미지가 매우 클 경우)
-            backgroundImageUrl = undefined;
-          }
-        }
-      }
-    } else {
-      console.log('배경 이미지 URL이 제공되지 않았습니다.');
-    }
-
-    // 투명도 값 처리 (기본값: 0.5)
-    let opacity = 0.5;
-    if (opacityParam && typeof opacityParam === 'string') {
-      const parsedOpacity = parseFloat(opacityParam);
-      if (!isNaN(parsedOpacity) && parsedOpacity >= 0 && parsedOpacity <= 1) {
-        opacity = parsedOpacity;
-        console.log(`배경 이미지 투명도 설정: ${opacity}`);
-      } else {
-        console.warn(`올바르지 않은 투명도 값: ${opacityParam}, 기본값 0.5 사용`);
-      }
-    }
-
-    const profile: Profile = {
-        githubUsername: username,
-        name: (typeof customName === 'string' && customName.trim() !== '') 
-          ? customName 
-          : (stats?.name || username),
-        bio: (typeof customBio === 'string' && customBio.trim() !== '') 
-          ? customBio 
-          : (stats?.bio || 'Bio not available.'),
-        skills: skills,
-        theme: theme,
-        backgroundImageUrl: backgroundImageUrl,
-        backgroundOpacity: opacity, // 투명도 값 추가
-    };
-    console.log('Prepared profile data:', { 
-      username, 
-      name: profile.name,
-      skillsCount: skills.length,
-      skillsList: skills.join(', '), 
-      bio: customBio || 'default',
-      bg: customBgUrl || 'none'
-    });
-
-    const fontData = await getFontData();
+    // 캐싱을 위한 키 생성 (모든 파라미터 포함)
+    const cacheKey = `card:${username}:${theme}:${customBgUrl || ''}:${customBio || ''}:${skillsParam || ''}:${customName || ''}:${opacityParam || ''}`;
     
-    // 모든 필수 폰트 로딩 실패 시 에러 응답
-    if (fontData.length === 0) {
-      return res.status(500).json({ message: '이미지 생성에 필요한 폰트를 로드할 수 없습니다.' });
+    // 캐시 확인
+    const cachedCard = await getCachedData<Buffer>(cacheKey);
+    if (cachedCard) {
+      // 캐시된 이미지가 있으면 Content-Type 설정하고 반환
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Cache-Control', `public, max-age=${CACHE_TTL_SECONDS}`);
+      return res.status(200).send(Buffer.from(cachedCard));
     }
-
-    // ImageResponse 생성 및 응답 처리 (Node.js 런타임)
-    console.log('Generating image with @vercel/og...');
-    console.log('배경 이미지 설정 여부:', Boolean(profile.backgroundImageUrl));
+    
+    // 병렬로 처리할 수 있는 작업 동시 실행
+    const [stats, fonts] = await Promise.all([
+      GitHubService.getInstance().getUserStats(username),
+      getFontData()
+    ]);
+    
+    // 아바타 이미지와 배경 이미지를 병렬로 처리
+    const [optimizedAvatar, optimizedBgImage] = await Promise.all([
+      stats.avatarUrl ? optimizeImage(stats.avatarUrl) : null,
+      customBgUrl && typeof customBgUrl === 'string' ? optimizeImage(customBgUrl) : null
+    ]);
+    
+    // 최적화된 아바타 적용
+    if (optimizedAvatar) {
+      stats.avatarUrl = optimizedAvatar;
+    }
+    
+    // 스킬 배열 파싱
+    const skills = skillsParam && typeof skillsParam === 'string'
+      ? skillsParam.split(',').map(skill => skill.trim()).filter(Boolean)
+      : [];
+    
+    // 배경 불투명도 파싱
+    const opacity = opacityParam && typeof opacityParam === 'string'
+      ? parseFloat(opacityParam)
+      : 0.1;
+    
+    // 프로필 객체 구성
+    const profile: Profile = {
+      githubUsername: username,
+      name: customName && typeof customName === 'string' ? customName : undefined,
+      bio: customBio && typeof customBio === 'string' ? customBio : undefined,
+      skills,
+      theme,
+      backgroundImageUrl: optimizedBgImage || undefined,
+      backgroundOpacity: opacity,
+    };
+    
+    // 이미지 생성에 필요한 옵션
+    const options = {
+      width: 1200,
+      height: 630,
+      fonts: fonts.map(font => ({
+        name: font.name,
+        data: font.data,
+        weight: font.weight as (100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900),
+        style: font.style as ('normal' | 'italic'),
+      })),
+    };
+    
+    // 이미지 응답 생성
     const imageResponse = new ImageResponse(
       (
         <ProfileCardStatic
           profile={profile}
           stats={stats}
           loading={false}
+          currentYear={new Date().getFullYear()}
         />
       ),
-      {
-        width: 600,
-        height: 780,
-        fonts: fontData.map(font => ({
-          name: font.name,
-          data: font.data,
-          weight: font.weight as (100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900),
-          style: font.style as ('normal' | 'italic'),
-        })),
-      }
+      options
     );
-
+    
+    // 이미지 버퍼 얻기
+    const imgBuffer = await imageResponse.arrayBuffer();
+    const buffer = Buffer.from(imgBuffer);
+    
+    // 캐시에 저장
+    await setCachedData(cacheKey, buffer, CACHE_TTL_SECONDS);
+    
     // 응답 헤더 설정
     res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Cache-Control', `public, max-age=${CACHE_TTL_SECONDS}, s-maxage=${CACHE_TTL_SECONDS}, stale-while-revalidate=3600`);
-
-    // 생성된 이미지 스트림을 응답으로 전송
-    const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
-    return res.status(200).send(imageBuffer);
-
+    res.setHeader('Cache-Control', `public, max-age=${CACHE_TTL_SECONDS}`);
+    return res.status(200).send(buffer);
+    
   } catch (error) {
-    console.error('Error generating profile card image:', error);
-    return res.status(500).json({ message: `이미지 생성 중 오류 발생: ${error instanceof Error ? error.message : '알 수 없는 오류'}` });
+    console.error('카드 생성 실패:', error);
+    return res.status(500).json({ 
+      message: '카드 생성에 실패했습니다.', 
+      error: error instanceof Error ? error.message : '알 수 없는 오류' 
+    });
   }
 } 
