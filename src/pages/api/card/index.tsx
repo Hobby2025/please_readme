@@ -14,7 +14,7 @@ const CACHE_TTL_SECONDS = 24 * 60 * 60; // 24시간으로 증가 (1일)
 const GITHUB_DATA_TTL_SECONDS = 12 * 60 * 60; // GitHub 데이터 12시간 캐싱
 
 function isValidTheme(theme: string): theme is Theme {
-  return theme === 'light' || theme === 'dark';
+  return theme === 'dark';
 }
 
 // 로컬 폰트 데이터 로드 함수 (BookkMyungjo TTF 사용)
@@ -57,30 +57,17 @@ async function getFontData(): Promise<{ name: string; data: Buffer; weight: numb
 // 이미지 처리 성능 최적화
 async function optimizeImageProcessing(
   stats: GitHubStats, 
-  customBgUrl: string | string[] | undefined, 
   fonts: any[]
 ): Promise<{ 
   optimizedStats: GitHubStats, 
-  optimizedBgImage: string | null,
   processingTime: number
 }> {
   const startTime = Date.now();
   console.log(`[카드 API] 이미지 최적화 시작`);
 
   try {
-    // 아바타와 배경 이미지 병렬 처리
-    const [avatarPromise, bgPromise] = [
-      stats.avatarUrl ? optimizeImage(stats.avatarUrl) : Promise.resolve(null),
-      customBgUrl && typeof customBgUrl === 'string' 
-        ? optimizeImage(customBgUrl) 
-        : Promise.resolve(null)
-    ];
-
-    // Promise.all로 병렬 처리
-    const [optimizedAvatar, optimizedBgImage] = await Promise.all([
-      avatarPromise,
-      bgPromise
-    ]);
+    // 아바타 이미지만 최적화
+    const optimizedAvatar = stats.avatarUrl ? await optimizeImage(stats.avatarUrl) : null;
 
     // 최적화된 아바타 적용
     const optimizedStats = {
@@ -88,21 +75,11 @@ async function optimizeImageProcessing(
       avatarUrl: optimizedAvatar || stats.avatarUrl
     };
 
-    // 배경 이미지 처리 결과 로깅
-    if (customBgUrl) {
-      if (optimizedBgImage) {
-        console.log(`배경 이미지 처리 성공: ${typeof customBgUrl === 'string' ? customBgUrl : 'unknown'}`);
-      } else {
-        console.log(`배경 이미지 처리 실패: ${typeof customBgUrl === 'string' ? customBgUrl : 'unknown'}`);
-      }
-    }
-
     const processingTime = (Date.now() - startTime) / 1000;
     console.log(`[카드 API] 이미지 최적화 완료: ${processingTime.toFixed(2)}초`);
 
     return {
       optimizedStats,
-      optimizedBgImage,
       processingTime
     };
   } catch (error) {
@@ -112,7 +89,6 @@ async function optimizeImageProcessing(
     // 오류 발생 시 원본 데이터 반환
     return {
       optimizedStats: stats,
-      optimizedBgImage: null,
       processingTime
     };
   }
@@ -163,9 +139,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'GitHub 사용자명(username)이 필요합니다.' });
     }
     
-    const theme: Theme = (typeof themeParam === 'string' && isValidTheme(themeParam)) 
-      ? themeParam 
-      : 'light';
+    // 테마는 항상 다크로 설정
+    const theme: Theme = 'dark';
     
     // 캐싱을 위한 키 생성 (모든 파라미터 포함)
     const cacheKey = `card:${username}:${theme}:${customBgUrl || ''}:${customBio || ''}:${skillsParam || ''}:${customName || ''}:${opacityParam || ''}`;
@@ -211,9 +186,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 이미지 최적화 처리
     const { 
       optimizedStats, 
-      optimizedBgImage, 
       processingTime: imageOptTime 
-    } = await optimizeImageProcessing(stats, customBgUrl, fonts);
+    } = await optimizeImageProcessing(stats, fonts);
     
     // 스킬 배열 파싱
     const skills = skillsParam && typeof skillsParam === 'string'
@@ -232,8 +206,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       bio: customBio && typeof customBio === 'string' ? customBio : undefined,
       skills,
       theme,
-      backgroundImageUrl: optimizedBgImage || undefined,
-      backgroundOpacity: opacity,
+      backgroundImageUrl: undefined,
+      backgroundOpacity: undefined,
     };
     
     // 이미지 생성에 필요한 옵션

@@ -18,13 +18,13 @@ export const Loading: React.FC<LoadingProps> = ({ size = 'md', className }) => {
       <div className="relative">
         <div
           className={cn(
-            'border-4 border-primary/10 dark:border-primary/20 rounded-full',
+            'border-4 border-purple-300/30 dark:border-purple-900/30 rounded-full',
             sizeClasses[size]
           )}
         />
         <div
           className={cn(
-            'absolute top-0 left-0 border-4 border-t-primary dark:border-t-primary-400 rounded-full animate-spin',
+            'absolute top-0 left-0 border-4 border-t-purple-600 dark:border-t-purple-300 rounded-full animate-spin',
             sizeClasses[size]
           )}
         />

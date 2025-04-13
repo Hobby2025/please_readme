@@ -35,7 +35,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               'block w-full rounded-lg shadow-sm sm:text-sm',
               'bg-gray-100 border-gray-400',
               'dark:bg-gray-800 dark:border-gray-600 dark:text-white',
-              'focus:ring-blue-500 focus:border-blue-500 focus:ring-1',
+              'focus:ring-purple-600 focus:border-purple-600 focus:ring-1',
               leftIcon && 'pl-10',
               rightIcon && 'pr-10',
               error && 'border-red-500 focus:ring-red-500 focus:border-red-500',

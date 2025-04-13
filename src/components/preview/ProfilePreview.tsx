@@ -34,19 +34,6 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
     if (previewParams.bio) params.set('bio', previewParams.bio);
     if (previewParams.name) params.set('name', previewParams.name);
     
-    // 배경 이미지 URL 파라미터 설정 - bg-image로 시작하는 경우 그대로 전달
-    if (previewParams.backgroundImageUrl) {
-      // 로컬 이미지 경로는 그대로 전달
-      params.set('bg', previewParams.backgroundImageUrl);
-      console.log('배경 이미지 경로 설정:', previewParams.backgroundImageUrl);
-      
-      // 배경 투명도 파라미터 설정
-      if (previewParams.backgroundOpacity !== undefined) {
-        params.set('opacity', previewParams.backgroundOpacity.toString());
-        console.log('배경 투명도 설정:', previewParams.backgroundOpacity);
-      }
-    }
-    
     params.set('t', Date.now().toString());
 
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
@@ -70,12 +57,12 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg overflow-hidden">
-      <div className="border-b border-gray-200 dark:border-gray-700 bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20 px-6 py-4 flex items-center justify-between">
-        <h2 className="text-xl font-medium text-[#8B5CF6] dark:text-[#A78BFA] flex items-center">
+    <div className="h-full flex flex-col bg-[#F2F2F2]/80 rounded-xl shadow-lg overflow-hidden border border-[#F2DAAC]">
+      <div className="border-b border-[#F2D479] bg-[#F2DAAC] px-6 py-4 flex items-center justify-between">
+        <h2 className="text-xl font-medium text-[#F29F05] flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-2 text-[#8B5CF6]"
+            className="h-5 w-5 mr-2 text-[#F2B705]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -91,10 +78,10 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
         </h2>
         {isImageLoaded && (
           <Button 
-            variant="outline" 
             size="sm" 
             onClick={onCopyMarkdown}
             disabled={!previewParams?.username}
+            className="bg-[#F2B705] text-white hover:bg-[#F29F05]"
           >
             <FaMarkdown className="mr-2" />
             마크다운 복사
@@ -102,39 +89,41 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
         )}
       </div>
 
-      <div className="flex-1 p-6 flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-b-xl min-h-[300px]">
+      <div className="flex-1 p-6 flex flex-col items-center justify-center bg-white/50 border border-[#F2DAAC]/50 rounded-b-xl min-h-[300px]">
         {statsLoading && (
           <div className="text-center">
-            <Loading size="lg" className="mb-2" />
-            <p className="text-gray-600 dark:text-gray-300">GitHub 통계 로딩 중...</p>
+            <Loading size="lg" className="mb-2 text-[#F2B705]" />
+            <p className="text-[#F29F05]">GitHub 통계 로딩 중...</p>
           </div>
         )}
         {statsError && !statsLoading && (
-           <ErrorMessage message={`GitHub 통계 로딩 실패: ${statsError}`} />
+           <ErrorMessage message={`GitHub 통계 로딩 실패: ${statsError}`} className="text-red-700" />
         )}
 
         {!statsLoading && !statsError && imageUrl && (
-          <div className="w-full flex flex-col items-center justify-center">
+          <div className="overflow-hidden rounded-lg shadow-md bg-white/70 border border-[#F2D479] m-auto">
             {isImageLoading && (
-              <div className="text-center">
-                <Loading size="lg" className="mb-2" />
-                <p className="text-gray-600 dark:text-gray-300">미리보기 이미지 로딩 중...</p>
+              <div className="text-center p-10 min-h-[200px] flex flex-col justify-center items-center">
+                <Loading size="lg" className="mb-2 text-[#F2B705]" />
+                <p className="text-[#F29F05]">미리보기 이미지 로딩 중...</p>
               </div>
             )}
             {imageError && !isImageLoading && (
-               <ErrorMessage message={imageError} />
+               <div className="p-10 min-h-[200px] flex flex-col justify-center items-center">
+                 <ErrorMessage message={imageError} className="text-red-700" />
+               </div>
             )}
             <img 
               src={imageUrl} 
               alt={`${previewParams?.username || '...'}'s Profile Card Preview`}
               onLoad={handleImageLoad} 
               onError={handleImageError} 
-              className={`max-w-full h-auto rounded-lg shadow-md ${isImageLoading || imageError ? 'hidden' : 'block'}`}
+              className={`max-w-full h-auto ${isImageLoading || imageError ? 'hidden' : 'block'}`}
             />
           </div>
         )}
         {!previewParams && !statsLoading && !statsError && (
-          <p className="text-gray-500 dark:text-gray-400 text-center">
+          <p className="text-[#F29F05] text-center">
             왼쪽 폼에 정보를 입력하고<br/>'카드 생성 / 업데이트' 버튼을 눌러<br/>미리보기를 확인하세요.
           </p>
         )}

@@ -26,7 +26,7 @@ const initialProfile: Profile = {
   name: '',
   bio: '',
   skills: [],
-  theme: 'light',
+  theme: 'dark',
 };
 
 export function useProfile() {
