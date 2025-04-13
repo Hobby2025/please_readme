@@ -3,6 +3,8 @@
  */
 
 import { getCachedData, setCachedData } from './cache';
+import path from 'path';
+import fs from 'fs/promises';
 
 const IMAGE_CACHE_TTL = 24 * 60 * 60; // 24시간 캐시
 
@@ -26,36 +28,80 @@ export async function optimizeImage(url: string): Promise<string | null> {
       return url;
     }
     
-    // 이미지 다운로드
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    // 로컬 이미지 파일 처리 (/bg-image/ 경로인 경우)
+    if (url.startsWith('/bg-image/')) {
+      try {
+        const imagePath = path.join(process.cwd(), 'public', url);
+        console.log(`로컬 이미지 파일 경로: ${imagePath}`);
+        
+        // 파일 존재 여부 확인
+        const imageBuffer = await fs.readFile(imagePath);
+        
+        // 파일 확장자에 따라 MIME 타입 결정
+        let contentType = 'image/png';
+        if (url.endsWith('.jpeg') || url.endsWith('.jpg')) {
+          contentType = 'image/jpeg';
+        } else if (url.endsWith('.webp')) {
+          contentType = 'image/webp';
+        } else if (url.endsWith('.svg')) {
+          contentType = 'image/svg+xml';
+        }
+        
+        // Base64로 인코딩
+        const base64 = imageBuffer.toString('base64');
+        const dataUrl = `data:${contentType};base64,${base64}`;
+        
+        // 캐시에 저장
+        await setCachedData(cacheKey, dataUrl, IMAGE_CACHE_TTL);
+        
+        return dataUrl;
+      } catch (error) {
+        console.error(`로컬 이미지 파일 로드 실패: ${url}`, error);
+        return null;
       }
-    });
+    }
     
-    if (!response.ok) {
+    // 외부 URL 이미지 처리 - http나 https로 시작하는 경우만 fetch 사용
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      console.error(`외부 URL 처리를 위해서는 http:// 또는 https://로 시작하는 URL이 필요합니다: ${url}`);
       return null;
     }
     
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    
-    // 원본 콘텐츠 타입 사용
-    const contentType = response.headers.get('content-type') || 'image/jpeg';
-    
-    // Base64로 인코딩
-    const base64 = buffer.toString('base64');
-    const dataUrl = `data:${contentType};base64,${base64}`;
-    
-    // 이미지가 너무 크면 경고만 출력 (5MB 이상)
-    if (buffer.length > 5 * 1024 * 1024) {
-      console.warn(`이미지 크기가 큽니다: ${(buffer.length / (1024 * 1024)).toFixed(2)}MB`);
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        }
+      });
+      
+      if (!response.ok) {
+        console.error(`이미지를 가져오지 못했습니다: ${response.status} ${response.statusText}`);
+        return null;
+      }
+      
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      
+      // 원본 콘텐츠 타입 사용
+      const contentType = response.headers.get('content-type') || 'image/jpeg';
+      
+      // Base64로 인코딩
+      const base64 = buffer.toString('base64');
+      const dataUrl = `data:${contentType};base64,${base64}`;
+      
+      // 이미지가 너무 크면 경고만 출력 (5MB 이상)
+      if (buffer.length > 5 * 1024 * 1024) {
+        console.warn(`이미지 크기가 큽니다: ${(buffer.length / (1024 * 1024)).toFixed(2)}MB`);
+      }
+      
+      // 캐시에 저장
+      await setCachedData(cacheKey, dataUrl, IMAGE_CACHE_TTL);
+      
+      return dataUrl;
+    } catch (error) {
+      console.error(`외부 URL에서 이미지를 가져오는 중 오류가 발생했습니다: ${url}`, error);
+      return null;
     }
-    
-    // 캐시에 저장
-    await setCachedData(cacheKey, dataUrl, IMAGE_CACHE_TTL);
-    
-    return dataUrl;
   } catch (error) {
     console.error('이미지 처리 실패:', error);
     return null;

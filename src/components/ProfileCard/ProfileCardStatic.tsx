@@ -246,6 +246,10 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
   // --- 함수 정의 끝 --- 
 
   const rankLevel = stats?.rank?.level ?? '?';
+  console.log('[ProfileCardStatic] stats:', stats);
+  console.log('[ProfileCardStatic] 랭크 정보:', stats?.rank);
+  console.log('[ProfileCardStatic] 랭크 레벨:', rankLevel);
+  
   const currentYear = new Date().getFullYear();
   const rankStyle = getRankStyle(rankLevel, profile.theme);
   const isDark = profile.theme === 'dark';
@@ -577,30 +581,33 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
             </div>
 
             {/* 하단 랭크 표시 */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px', marginTop: '8px' }}>
               <div style={{
                 display: 'flex',
-                padding: '12px 24px',
-                borderRadius: '8px',
-                backgroundColor: isDark ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.9)',
-                alignItems: 'center',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                border: `1px solid ${rankStyle.headerBorderColor}`
+                padding: '16px 32px',
+                borderRadius: '12px',
+                backgroundColor: isDark ? 'rgba(17, 24, 39, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                alignItems: 'center', 
+                justifyContent: 'center',
+                boxShadow: `0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 2px ${rankStyle.headerBorderColor}`,
+                border: `2px solid ${rankStyle.headerBorderColor}`,
+                minWidth: '150px',
               }}>
                 <div style={{ 
-                  fontSize: '14px', 
-                  fontWeight: 500, 
-                  color: isDark ? '#9CA3AF' : '#6B7280', 
-                  marginRight: '8px',
+                  fontSize: '16px', 
+                  fontWeight: 600, 
+                  color: isDark ? '#E5E7EB' : '#4B5563', 
+                  marginRight: '12px',
                   display: 'flex'
                 }}>
-                  Rank | {currentYear} :
+                  RANK:
                 </div>
                 <div style={{ 
-                  fontSize: '30px', 
-                  fontWeight: 700, 
+                  fontSize: '42px', 
+                  fontWeight: 800, 
                   color: rankStyle.rankTextColor,
-                  display: 'flex'
+                  display: 'flex',
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.15)'
                 }}>
                   {stats?.rank?.level ?? '?'}
                 </div>

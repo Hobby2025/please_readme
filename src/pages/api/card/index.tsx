@@ -7,7 +7,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import React from 'react';
 import { optimizeImage, getImageUrl } from '@/utils/imageUtils';
-import { getCachedData, setCachedData } from '@/utils/cache';
+import { getCachedData, setCachedData, deleteCachedData } from '@/utils/cache';
 
 // 캐시 TTL 설정
 const CACHE_TTL_SECONDS = 6 * 60 * 60; // 6 hours cache TTL
@@ -66,7 +66,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       bio: customBio, 
       skills: skillsParam,
       name: customName,
-      opacity: opacityParam
+      opacity: opacityParam,
+      nocache
     } = req.query;
     
     if (!username || typeof username !== 'string') {
@@ -80,10 +81,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 캐싱을 위한 키 생성 (모든 파라미터 포함)
     const cacheKey = `card:${username}:${theme}:${customBgUrl || ''}:${customBio || ''}:${skillsParam || ''}:${customName || ''}:${opacityParam || ''}`;
     
+    // nocache 파라미터가 있으면 캐시 강제 삭제
+    if (nocache) {
+      console.log(`[카드 API] 캐시 강제 삭제: ${cacheKey}`);
+      await deleteCachedData(cacheKey);
+      
+      // GitHub 통계 캐시도 삭제
+      const statsKey = `github:stats:${username}`;
+      await deleteCachedData(statsKey);
+    }
+    
     // 캐시 확인
     const cachedCard = await getCachedData<Buffer>(cacheKey);
     if (cachedCard) {
       // 캐시된 이미지가 있으면 Content-Type 설정하고 반환
+      console.log(`[카드 API] 캐시 사용: ${cacheKey}`);
       res.setHeader('Content-Type', 'image/png');
       res.setHeader('Cache-Control', `public, max-age=${CACHE_TTL_SECONDS}`);
       return res.status(200).send(Buffer.from(cachedCard));
@@ -104,6 +116,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 최적화된 아바타 적용
     if (optimizedAvatar) {
       stats.avatarUrl = optimizedAvatar;
+    }
+    
+    // 배경 이미지 처리 결과 로깅
+    if (customBgUrl) {
+      if (optimizedBgImage) {
+        console.log(`배경 이미지 처리 성공: ${typeof customBgUrl === 'string' ? customBgUrl : 'unknown'}`);
+      } else {
+        console.log(`배경 이미지 처리 실패: ${typeof customBgUrl === 'string' ? customBgUrl : 'unknown'}`);
+      }
     }
     
     // 스킬 배열 파싱
@@ -130,7 +151,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 이미지 생성에 필요한 옵션
     const options = {
       width: 1200,
-      height: 630,
+      height: 800,
       fonts: fonts.map(font => ({
         name: font.name,
         data: font.data,

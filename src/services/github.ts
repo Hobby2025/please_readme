@@ -121,6 +121,7 @@ export class GitHubService {
     // 캐시 확인
     const cachedStats = await getCachedData<GitHubStats>(cacheKey);
     if (cachedStats) {
+      console.log(`[캐시 사용] ${username}의 데이터 캐시에서 로드됨, 랭크:`, cachedStats.rank);
       return cachedStats;
     }
     
@@ -153,7 +154,9 @@ export class GitHubService {
         stars: totalStars,
       };
 
+      console.log(`[랭크 계산 전] ${username}의 통계:`, rankParams);
       const rankResult = calculateRank(rankParams);
+      console.log(`[랭크 계산 후] ${username}의 랭크:`, rankResult);
 
       // 최종 반환 객체 구성
       const finalStats: GitHubStats = {
