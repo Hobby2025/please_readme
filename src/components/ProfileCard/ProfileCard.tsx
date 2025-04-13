@@ -133,7 +133,7 @@ export default function ProfileCard({ profile, stats, loading, onDownload }: Pro
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
   return (
-    <div className={`relative min-h-[600px] min-w-[500px] rounded-lg overflow-hidden border-2 transition-all duration-300
+    <div className={`relative w-full md:w-[480px] h-[600px] rounded-lg overflow-hidden border-2 transition-all duration-300
       ${design.border} ${design.shadow} ${design.glow}
       dark`}
     >
@@ -160,8 +160,8 @@ export default function ProfileCard({ profile, stats, loading, onDownload }: Pro
         </div>
       </div>
 
-      <div className={`relative ${design.background} min-h-[500px] flex-grow`}>
-        <div className="relative z-10 p-6 h-full flex flex-col">
+      <div className={`relative ${design.background} min-h-[500px]`}>
+        <div className="relative z-10 p-4 h-full flex flex-col">
           <div className="text-lg font-semibold mb-2 text-gray-200">
             소개
           </div>

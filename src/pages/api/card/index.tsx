@@ -212,8 +212,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     // 이미지 생성에 필요한 옵션
     const options = {
-      width: 1200,
-      height: 800,
+      width: 600,
+      height: 790,
       fonts: fonts.map(font => ({
         name: font.name,
         data: font.data,

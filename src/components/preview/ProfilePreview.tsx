@@ -89,19 +89,21 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
         )}
       </div>
 
-      <div className="flex-1 p-6 flex flex-col items-center justify-center bg-white/50 border border-[#F2DAAC]/50 rounded-b-xl min-h-[300px]">
+      <div className="flex-1 h-full w-full p-2 flex flex-col justify-center bg-white/50 border border-[#F2DAAC]/50 rounded-b-xl">
         {statsLoading && (
-          <div className="text-center">
+          <div className="text-center mx-auto">
             <Loading size="lg" className="mb-2 text-[#F2B705]" />
             <p className="text-[#F29F05]">GitHub 통계 로딩 중...</p>
           </div>
         )}
         {statsError && !statsLoading && (
-           <ErrorMessage message={`GitHub 통계 로딩 실패: ${statsError}`} className="text-red-700" />
+           <div className="mx-auto">
+             <ErrorMessage message={`GitHub 통계 로딩 실패: ${statsError}`} className="text-red-700" />
+           </div>
         )}
 
         {!statsLoading && !statsError && imageUrl && (
-          <div className="overflow-hidden rounded-lg shadow-md bg-white/70 border border-[#F2D479] m-auto">
+          <div className="flex justify-center items-center h-full w-full">
             {isImageLoading && (
               <div className="text-center p-10 min-h-[200px] flex flex-col justify-center items-center">
                 <Loading size="lg" className="mb-2 text-[#F2B705]" />
@@ -113,17 +115,19 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
                  <ErrorMessage message={imageError} className="text-red-700" />
                </div>
             )}
-            <img 
-              src={imageUrl} 
-              alt={`${previewParams?.username || '...'}'s Profile Card Preview`}
-              onLoad={handleImageLoad} 
-              onError={handleImageError} 
-              className={`max-w-full h-auto ${isImageLoading || imageError ? 'hidden' : 'block'}`}
-            />
+            <div className="aspect-[10/8] relative">
+              <img 
+                src={imageUrl} 
+                alt={`${previewParams?.username || '...'}'s Profile Card Preview`}
+                onLoad={handleImageLoad} 
+                onError={handleImageError} 
+                className={`w-full h-full object-contain ${isImageLoading || imageError ? 'hidden' : 'block'}`}
+              />
+            </div>
           </div>
         )}
         {!previewParams && !statsLoading && !statsError && (
-          <p className="text-[#F29F05] text-center">
+          <p className="text-[#F29F05] text-center mx-auto">
             왼쪽 폼에 정보를 입력하고<br/>'카드 생성 / 업데이트' 버튼을 눌러<br/>미리보기를 확인하세요.
           </p>
         )}
