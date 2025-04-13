@@ -1,117 +1,124 @@
 // src/utils/rankUtils.ts
 
-function calcExponentialCDF(x: number): number {
-  // Handle potential division by zero or negative inputs if necessary
-  if (x <= 0) return 0;
-  
-  // 2의 음수 제곱으로 지수 분포 CDF 계산
-  const result = 1 - Math.pow(2, -x);
-  return result;
-}
-
-function calcLogNormalCDF(x: number): number {
-  // Handle potential division by zero or negative inputs if necessary
-  if (x <= 0) return 0;
-  
-  // 로그 정규 분포 계산 - 단순화된 접근
-  const result = x / (1 + x);
-  return result;
-}
-
-function formatScore(score: number): number {
-  // Ensure score is a number and handle potential NaN
-  if (isNaN(score)) return 0;
-  if (score % 1 === 0) {
-    return Math.floor(score);
-  }
-  // Round to one decimal place as in the original logic
-  return parseFloat(score.toFixed(1));
-}
-
-export type Rank = { level: string; percentile: number; score: number };
-
-// Adjusted RankParams for available data
-type RankParams = {
-  commits: number; // Represents currentYearCommits
-  prs: number;     // Represents totalPRs
-  issues: number;  // Represents totalIssues
-  stars: number;   // Represents totalStars
+// 랭크 타입 정의
+export type Rank = {
+  level: string;
+  percentile: number;
+  score: number;
 };
 
-export function calculateRank({ commits, prs, issues, stars }: RankParams): Rank {
-  console.log(`[calculateRank] 입력 - commits: ${commits}, prs: ${prs}, issues: ${issues}, stars: ${stars}`);
+// 중앙값과 가중치 상수 정의
+const COMMITS_MEDIAN = 250;  // 연간 커밋 중앙값
+const PRS_MEDIAN = 50;       // PR 중앙값
+const ISSUES_MEDIAN = 25;    // 이슈 중앙값
+const STARS_MEDIAN = 50;     // 스타 중앙값
+
+// 가중치 설정 - 기여도에 따른 상대적 중요성
+const COMMITS_WEIGHT = 2;
+const PRS_WEIGHT = 3;
+const ISSUES_WEIGHT = 1;
+const STARS_WEIGHT = 4;
+
+// 전체 가중치 합계 (나중에 평균 계산에 사용)
+const TOTAL_WEIGHT = COMMITS_WEIGHT + PRS_WEIGHT + ISSUES_WEIGHT + STARS_WEIGHT;
+
+// 랭크 점수 임계값 정의 - 각 등급의 최소 점수
+const THRESHOLDS = {
+  'S': 90,
+  'A+': 80,
+  'A': 70,
+  'A-': 60,
+  'B+': 50,
+  'B': 40,
+  'B-': 30,
+  'C+': 20,
+  'C': 10,
+  // C 미만은 'C'로 표시
+};
+
+// 정규화 함수: 값을 0-10 범위로 변환
+function normalize(value: number, median: number): number {
+  if (value === 0) return 0;
   
-  // 데이터 정규화를 위한 중간값 설정
-  const COMMITS_MEDIAN = 250;
-  const COMMITS_WEIGHT = 2;
-  const PRS_MEDIAN = 50;
-  const PRS_WEIGHT = 3;
-  const ISSUES_MEDIAN = 25;
-  const ISSUES_WEIGHT = 1;
-  const STARS_MEDIAN = 50;
-  const STARS_WEIGHT = 4;
+  // log 스케일로 정규화 (0~10점 범위)
+  // Math.log는 자연로그이므로 값이 median일 때 log(value/median) = 0
+  // 5를 더해서 중앙값이 5점이 되도록 함
+  const normalizedValue = Math.max(0, Math.min(10, 5 + Math.log(value / median) / Math.log(2)));
+  
+  return parseFloat(normalizedValue.toFixed(2)); // 소수점 둘째 자리까지만
+}
 
-  // 총 가중치 계산
-  const TOTAL_WEIGHT = COMMITS_WEIGHT + PRS_WEIGHT + ISSUES_WEIGHT + STARS_WEIGHT;
-
-  // 가중치가 0인 경우 처리
-  if (TOTAL_WEIGHT === 0) {
-    console.log(`[calculateRank] 가중치 합계가 0입니다`);
-    return { level: '?', percentile: 0, score: 0 };
+// 랭크 결정 함수
+function getRankLevel(score: number): string {
+  // 내림차순 정렬된 임계값 키 배열
+  const levels = Object.keys(THRESHOLDS).sort(
+    (a, b) => THRESHOLDS[b as keyof typeof THRESHOLDS] - THRESHOLDS[a as keyof typeof THRESHOLDS]
+  );
+  
+  // 점수에 해당하는 첫 번째 레벨 찾기
+  for (const level of levels) {
+    if (score >= THRESHOLDS[level as keyof typeof THRESHOLDS]) {
+      return level;
+    }
   }
+  
+  // 기본값 반환
+  return 'C';
+}
 
-  // 등급 분류 경계값
-  const THRESHOLDS = [1, 12.5, 25, 37.5, 50, 62.5, 75, 87.5, 100];
-  const LEVELS = ['S', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C'];
-
+// 최적화된 랭크 계산 함수
+export function calculateRank({ commits, prs, issues, stars }: { 
+  commits: number; 
+  prs: number; 
+  issues: number; 
+  stars: number; 
+}): Rank {
+  // 디버깅 정보 출력
+  console.log(`[calculateRank] 입력 - commits: ${commits}, prs: ${prs}, issues: ${issues}, stars: ${stars}`);
   console.log(`[calculateRank] 중간값 - COMMITS_MEDIAN: ${COMMITS_MEDIAN}, PRS_MEDIAN: ${PRS_MEDIAN}, ISSUES_MEDIAN: ${ISSUES_MEDIAN}, STARS_MEDIAN: ${STARS_MEDIAN}`);
   console.log(`[calculateRank] 가중치 - COMMITS_WEIGHT: ${COMMITS_WEIGHT}, PRS_WEIGHT: ${PRS_WEIGHT}, ISSUES_WEIGHT: ${ISSUES_WEIGHT}, STARS_WEIGHT: ${STARS_WEIGHT}`);
   
-  // 정규화된 값 계산
-  const normalizedCommits = commits / COMMITS_MEDIAN;
-  const normalizedPRs = prs / PRS_MEDIAN;
-  const normalizedIssues = issues / ISSUES_MEDIAN;
-  const normalizedStars = stars / STARS_MEDIAN;
+  // 각 지표를 정규화 (0-10 범위)
+  const normalizedCommits = normalize(commits, COMMITS_MEDIAN);
+  const normalizedPRs = normalize(prs, PRS_MEDIAN);
+  const normalizedIssues = normalize(issues, ISSUES_MEDIAN);
+  const normalizedStars = normalize(stars, STARS_MEDIAN);
   
-  console.log(`[calculateRank] 정규화 값 - commits: ${normalizedCommits.toFixed(2)}, prs: ${normalizedPRs.toFixed(2)}, issues: ${normalizedIssues.toFixed(2)}, stars: ${normalizedStars.toFixed(2)}`);
+  console.log(`[calculateRank] 정규화 값 - commits: ${normalizedCommits}, prs: ${normalizedPRs}, issues: ${normalizedIssues}, stars: ${normalizedStars}`);
   
-  // 각 항목별 점수 계산
-  const commitsScore = COMMITS_WEIGHT * calcExponentialCDF(normalizedCommits);
-  const prsScore = PRS_WEIGHT * calcExponentialCDF(normalizedPRs);
-  const issuesScore = ISSUES_WEIGHT * calcExponentialCDF(normalizedIssues);
-  const starsScore = STARS_WEIGHT * calcLogNormalCDF(normalizedStars);
+  // 가중치 적용된 점수 계산
+  const weightedCommits = normalizedCommits * COMMITS_WEIGHT;
+  const weightedPRs = normalizedPRs * PRS_WEIGHT;
+  const weightedIssues = normalizedIssues * ISSUES_WEIGHT;
+  const weightedStars = normalizedStars * STARS_WEIGHT;
   
-  console.log(`[calculateRank] 각 항목 점수 - commits: ${commitsScore.toFixed(2)}, prs: ${prsScore.toFixed(2)}, issues: ${issuesScore.toFixed(2)}, stars: ${starsScore.toFixed(2)}`);
+  console.log(`[calculateRank] 각 항목 점수 - commits: ${weightedCommits.toFixed(2)}, prs: ${weightedPRs.toFixed(2)}, issues: ${weightedIssues.toFixed(2)}, stars: ${weightedStars.toFixed(2)}`);
   
-  // 가중 평균 최종 점수 계산
-  const totalScore = commitsScore + prsScore + issuesScore + starsScore;
-  const score = totalScore / TOTAL_WEIGHT;
+  // 총점 계산 (모든 가중치 적용 점수의 합)
+  const totalScore = weightedCommits + weightedPRs + weightedIssues + weightedStars;
   
-  console.log(`[calculateRank] 총점: ${totalScore.toFixed(2)}, 평균 점수: ${score.toFixed(2)}`);
-
-  // 점수 값 범위 조정 (0~1 사이)
-  const clampedScore = Math.max(0, Math.min(1, score));
+  // 평균 점수 계산 (0-10 범위)
+  const avgScore = totalScore / TOTAL_WEIGHT;
   
-  // 백분위 계산 (낮은 점수 = 높은 백분위)
-  const percentile = (1 - clampedScore) * 100;
+  console.log(`[calculateRank] 총점: ${totalScore.toFixed(2)}, 평균 점수: ${avgScore.toFixed(2)}`);
   
-  console.log(`[calculateRank] 조정된 점수: ${clampedScore.toFixed(2)}, 백분위: ${percentile.toFixed(2)}`);
-
-  // 등급 결정
-  let level = LEVELS[LEVELS.length - 1]; // 기본값은 가장 낮은 등급
-  for (let i = 0; i < THRESHOLDS.length; i++) {
-    if (percentile <= THRESHOLDS[i]) {
-      level = LEVELS[i];
-      console.log(`[calculateRank] 임계값 ${THRESHOLDS[i]}보다 낮음, 레벨: ${LEVELS[i]}`);
-      break;
-    }
-  }
-
-  // 최종 결과 생성
-  const result = {
+  // 백분위 점수로 변환 (0-100 범위)
+  const percentileScore = avgScore * 10;
+  
+  // 최종 랭크 레벨 결정
+  const level = getRankLevel(percentileScore);
+  
+  // 계산 과정 로깅
+  const adjustedScore = Math.max(0, Math.min(100, percentileScore));
+  
+  console.log(`[calculateRank] 조정된 점수: ${adjustedScore.toFixed(2)}, 백분위: ${percentileScore.toFixed(2)}`);
+  console.log(`[calculateRank] 임계값 ${THRESHOLDS[level as keyof typeof THRESHOLDS]}${percentileScore < THRESHOLDS[level as keyof typeof THRESHOLDS] ? '보다 낮음' : '보다 높음'}, 레벨: ${level}`);
+  
+  // 최종 결과 반환 (점수는 소수점 한 자리까지만)
+  const result: Rank = {
     level,
-    percentile: parseFloat((100 - percentile).toFixed(1)),
-    score: formatScore(clampedScore * 100),
+    score: parseFloat(adjustedScore.toFixed(1)),
+    percentile: parseFloat(percentileScore.toFixed(1))
   };
   
   console.log(`[calculateRank] 최종 결과:`, result);
