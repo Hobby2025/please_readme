@@ -13,12 +13,12 @@ GitHub 프로필 정보와 활동 통계를 기반으로 커스터마이징 가�
 
 ## 기술 스택
 
-- Next.js
-- React
-- TypeScript
-- Tailwind CSS
+- `Next.js`
+- `React`
+- `TypeScript`
+- `Tailwind CSS`
 - `@vercel/og` (Satori) for Image Generation
-- GitHub API
+- `GitHub API`
 
 ## 시작하기
 
@@ -88,6 +88,9 @@ NEXT_PUBLIC_API_BASE_URL=your_deployment_url (e.g., http://localhost:3000 for de
 
 4. **버전 업데이트 제외**
    - 커밋 메시지에 `#noversion` 포함
+
+## 알려진 이슈
+- 프로필 폼에서 선택한 기술 스택중 일부가 표시 안되는 현상상 (수정 예정입니다.)
 
 ## 라이선스
 
