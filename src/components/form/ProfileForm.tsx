@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Input } from '../ui/Input';
 import { TechBadge } from '../ui/TechBadge';
 import { Profile, ProfileFormProps } from '../../types/profile';
@@ -15,13 +15,6 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   onGeneratePreview,
 }) => {
   const router = useRouter();
-  const [availableTechStacks, setAvailableTechStacks] = useState<string[]>([
-    'React', 'TypeScript', 'JavaScript', 'Python', 'Java', 'C++', 'Go', 'Rust',
-    'Node.js', 'Express', 'Next.js', 'Django', 'Flask', 'Spring', 'Docker', 'Kubernetes',
-    'AWS', 'GCP', 'Azure', 'MongoDB', 'PostgreSQL', 'MySQL', 'Redis', 'GraphQL',
-    'TailwindCSS', 'Bootstrap', 'Sass', 'HTML', 'CSS', 'Vue.js', 'Angular', 'Svelte',
-    'Redux', 'MobX', 'Jest', 'Cypress', 'Git', 'GitHub', 'GitLab', 'Jira'
-  ]);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

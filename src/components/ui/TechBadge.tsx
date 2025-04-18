@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import { cn } from '../../utils/cn';
 import { techMap, TechInfo } from '../../constants/techStacks';
+import { FaQuestionCircle } from 'react-icons/fa';
 
 interface TechBadgeProps {
   tech: string;
@@ -25,7 +26,12 @@ export const TechBadge: FC<TechBadgeProps> = ({ tech }) => {
   // techInfo 또는 아이콘이 유효하지 않은 경우 처리
   if (!techInfo || !techInfo.icon) {
     console.error(`[TechBadge] Invalid tech info or icon found for tech: ${tech}`, techInfo);
-    return null; // 또는 기본 뱃지 반환 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium gap-1.5 bg-gray-400 text-white"><FaQuestionCircle className="w-4 h-4" /> {tech}</span>
+    return (
+      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium gap-1.5 bg-gray-400 text-white">
+        <FaQuestionCircle className="w-4 h-4 mr-1" />
+        {tech}
+      </span>
+    );
   }
 
   const { icon: Icon, bg, text } = techInfo;
