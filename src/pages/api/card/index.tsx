@@ -13,6 +13,16 @@ import { getCachedData, setCachedData, deleteCachedData } from '@/utils/cache';
 const CACHE_TTL_SECONDS = 24 * 60 * 60; // 24시간으로 증가 (1일)
 const GITHUB_DATA_TTL_SECONDS = 12 * 60 * 60; // GitHub 데이터 12시간 캐싱
 
+// 기술 스택 개수에 따른 카드 높이 계산 함수
+const calculateCardHeight = (skillsCount: number): number => {
+  const SKILLS_PER_ROW = 4;
+  const BASE_HEIGHT = 780;
+  const ROW_HEIGHT = 40;
+  
+  const skillRows = Math.ceil(skillsCount / SKILLS_PER_ROW);
+  return BASE_HEIGHT + (Math.max(0, skillRows - 1) * ROW_HEIGHT);
+};
+
 function isValidTheme(theme: string): theme is Theme {
   return theme === 'dark';
 }
@@ -194,6 +204,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ? skillsParam.split(',').map(skill => skill.trim()).filter(Boolean)
       : [];
     
+    // 기술 스택 개수에 따른 카드 높이 계산
+    const cardHeight = calculateCardHeight(skills.length);
+    console.log(`[카드 API] 기술 스택 개수: ${skills.length}, 계산된 카드 높이: ${cardHeight}px`);
+    
     // 배경 불투명도 파싱
     const opacity = opacityParam && typeof opacityParam === 'string'
       ? parseFloat(opacityParam)
@@ -213,7 +227,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 이미지 생성에 필요한 옵션
     const options = {
       width: 600,
-      height: 790,
+      height: cardHeight, // 동적으로 계산된 높이 사용
       fonts: fonts.map(font => ({
         name: font.name,
         data: font.data,

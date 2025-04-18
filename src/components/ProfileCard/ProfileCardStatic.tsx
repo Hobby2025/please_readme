@@ -78,15 +78,19 @@ const SimpleTechBadge = ({ tech }: { tech: string }) => {
       style={{
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'center',
         backgroundColor: bgColor,
         color: textColor,
-        padding: '5px 10px',
+        padding: '5px 8px',
         borderRadius: '8px',
         fontSize: '13px',
         fontWeight: 500,
         lineHeight: '1.2',
         whiteSpace: 'nowrap',
         boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+        margin: '0 auto',
+        textAlign: 'center',
+        maxWidth: '100%', // 너비 제한
       }}
     >
       {tech}
@@ -297,6 +301,21 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
   console.log('[ProfileCardStatic] 랭크 정보:', stats?.rank);
   console.log('[ProfileCardStatic] 랭크 레벨:', rankLevel);
   
+  // 기술 스택 줄 수 계산 (한 줄에 4개 제한)
+  const SKILLS_PER_ROW = 4;
+  const skillsCount = profile.skills?.length || 0;
+  const skillRows = Math.ceil(skillsCount / SKILLS_PER_ROW);
+  console.log('[ProfileCardStatic] 기술 스택 줄 수:', skillRows);
+  
+  // 기본 높이 + 추가 줄 수에 따른 높이 계산 (줄당 40px 추가)
+  const BASE_HEIGHT = 780;
+  const ROW_HEIGHT = 40;
+  const cardHeight = BASE_HEIGHT + (Math.max(0, skillRows - 1) * ROW_HEIGHT);
+  console.log('[ProfileCardStatic] 계산된 카드 높이:', cardHeight);
+  
+  // 기술 스택 간격 조정을 위한 상수 (정확한 값으로 수정)
+  const BADGE_WIDTH = 110; // 고정 뱃지 너비
+
   const currentYear = new Date().getFullYear();
   const rankStyle = getRankStyle(rankLevel, profile.theme);
 
@@ -306,10 +325,10 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
         display: 'flex',
         flexDirection: 'column',
         width: '600px',
-        minHeight: '780px', // 추가: 최소 높이 설정
+        height: `${cardHeight}px`,
         fontFamily: '"BookkMyungjo", serif',
-        borderRadius: '8px',
-        border: `2px solid ${rankStyle.headerBorderColor}`,
+        borderRadius: '0',
+        border: 'none',
         backgroundColor: rankStyle.cardBg,
         position: 'relative',
         color: rankStyle.textColor,
@@ -318,24 +337,25 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
       {/* --- 헤더 영역 (ProfileCard.tsx 상단 부분) --- */}
       <div
         style={{
-          padding: '20px 24px', // 상하 패딩 조정
+          padding: '20px 24px',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px', // gap-4
-          borderBottom: `1px solid ${rankStyle.headerBorderColor}`, // 헤더 구분선 추가
-          backgroundColor: rankStyle.headerBg, // 랭크에 맞는 배경색 추가
+          gap: '16px',
+          borderBottom: `1px solid ${rankStyle.headerBorderColor}`,
+          backgroundColor: rankStyle.headerBg,
+          borderRadius: '0',
         }}
       >
         {stats?.avatarUrl && (
           // 아바타 + 테두리 효과 (div로 감싸서 표현)
           <div style={{
-            width: '80px', height: '80px', // w-20 h-20
-            borderRadius: '9999px', // rounded-full
-            border: `2px solid ${rankStyle.headerBorderColor}`, // border-2
-            padding: '2px', // p-0.5 느낌
-            backgroundColor: 'rgb(17, 24, 39)', // dark:bg-gray-800
+            width: '80px', height: '80px',
+            borderRadius: '9999px',
+            border: `2px solid ${rankStyle.headerBorderColor}`,
+            padding: '2px',
+            backgroundColor: 'rgb(17, 24, 39)',
             overflow: 'hidden',
-            display: 'flex', // 추가
+            display: 'flex',
           }}>
             <img
               src={stats.avatarUrl}
@@ -344,23 +364,23 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
           </div>
         )}
         <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-          <h2 style={{ // text-2xl font-bold text-gray-900 dark:text-white
+          <h2 style={{
             fontSize: '24px',
             fontWeight: 700,
-            color: rankStyle.titleColor, // titleColor 사용
+            color: rankStyle.titleColor,
             margin: 0,
             lineHeight: 1.3,
-            display: 'flex', // 추가
+            display: 'flex',
           }}>
             {profile.name || stats?.name || '이름 없음'}
           </h2>
           {/* GitHub 사용자 이름 표시 (원래 디자인 참고) */}
-          <p style={{ // text-gray-600 dark:text-gray-400
-            fontSize: '14px', // text-base 정도
-            color: rankStyle.textColor, // 기본 textColor 사용
+          <p style={{
+            fontSize: '14px',
+            color: rankStyle.textColor,
             margin: '4px 0 0 0',
             lineHeight: 1.4,
-            display: 'flex', // 추가
+            display: 'flex',
           }}>
             @{profile.githubUsername}
           </p>
@@ -372,9 +392,10 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
       <div style={{ 
         position: 'relative', 
         display: 'flex', 
-        flexGrow: 1, // 본문 영역이 남은 공간 채우도록 유지
-        backgroundColor: '#111827', // 다크 테마 배경색
+        flexGrow: 1,
+        backgroundColor: '#111827',
         background: `linear-gradient(to bottom right, ${rankStyle.headerBg.replace('rgba', 'rgba').replace('0.3', '0.1')}, ${rankStyle.cardBg})`,
+        borderRadius: '0',
       }}>
         {/* 실제 콘텐츠 */}
         <div style={{ 
@@ -382,17 +403,17 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
           padding: '28px 32px', 
           display: 'flex', 
           flexDirection: 'column', 
-          flexGrow: 1, // 실제 콘텐츠 영역이 남은 공간 채우도록 유지
+          flexGrow: 1,
           backgroundColor: 'transparent',
-          borderRadius: '0 0 8px 8px',
-          overflow: 'hidden', // 다시 추가: 콘텐츠 넘침 방지
+          borderRadius: '0',
+          overflow: 'hidden',
         }}>
           {/* 소개 섹션 */}
           <div style={{ 
             fontSize: '20px', 
             fontWeight: 600, 
-            marginBottom: '12px', // 조금 더 여백 추가
-            color: '#F3F4F6', 
+            marginBottom: '12px',
+            color: '#FFFFFF', 
             display: 'flex',
             alignItems: 'center',
             textShadow: profile.backgroundImageUrl ? '0 1px 2px rgba(0,0,0,0.4)' : 'none',
@@ -400,17 +421,17 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
           }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginRight: '6px' }}>
               <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" 
-                fill="#F3F4F6" />
+                fill="#FFFFFF" />
             </svg>
             About
           </div>
           <div style={{
             fontSize: '14px', 
-            color: '#9CA3AF', 
-            marginBottom: '28px', // 섹션 간 간격 증가
+            color: '#FFFFFF', 
+            marginBottom: '28px',
             padding: '16px',
             borderRadius: '8px',
-            backgroundColor: 'rgba(31, 41, 55, 0.85)', // 다크 테마 색상 bg-gray-800
+            backgroundColor: 'rgba(17, 24, 39, 0.85)',
             boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             lineHeight: 1.5
           }}>
@@ -419,12 +440,12 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
 
           {/* 기술 스택 섹션 */}
           {profile.skills && profile.skills.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '28px', width: '100%' }}> {/* width: 100% 추가 */}
+            <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '28px', width: '100%' }}>
               <div style={{ 
                 fontSize: '20px', 
                 fontWeight: 600, 
-                marginBottom: '12px', // 조금 더 여백 추가
-                color: '#F3F4F6', 
+                marginBottom: '12px',
+                color: '#FFFFFF', 
                 display: 'flex',
                 alignItems: 'center',
                 textShadow: profile.backgroundImageUrl ? '0 1px 2px rgba(0,0,0,0.4)' : 'none',
@@ -437,16 +458,25 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                 Skills
               </div>
               <div style={{ 
-                display: 'flex', 
-                flexWrap: 'wrap', 
-                gap: '10px', // 뱃지 간 간격 조금 더 늘림
-                padding: '18px 24px', // 패딩 증가
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '8px',
+                padding: '16px 16px',
                 borderRadius: '8px',
-                backgroundColor: 'rgba(17, 24, 39, 0.85)', // 다크 테마로 변경
-                border: `1px solid ${rankStyle.headerBorderColor}`,
+                backgroundColor: 'rgba(17, 24, 39, 0.85)',
+                border: 'none',
+                justifyContent: 'space-between',
               }}> 
                 {profile.skills.slice(0, 15).map((skill, index) => (
-                  <SimpleTechBadge key={index} tech={skill} />
+                  <div key={index} style={{ 
+                    width: `${BADGE_WIDTH}px`,
+                    marginBottom: '8px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
+                    <SimpleTechBadge tech={skill} />
+                  </div>
                 ))}
               </div>
             </div>
@@ -456,13 +486,13 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
           <div style={{ 
             display: 'flex', 
             flexDirection: 'column',
-            width: '100%', // 추가: 너비 100% 설정
+            width: '100%',
           }}>
             <div style={{ 
               fontSize: '20px', 
               fontWeight: 600, 
-              color: '#F3F4F6', 
-              marginBottom: '12px', // 조금 더 여백 추가
+              color: '#FFFFFF', 
+              marginBottom: '12px',
               display: 'flex',
               alignItems: 'center',
               textShadow: profile.backgroundImageUrl ? '0 1px 2px rgba(0,0,0,0.4)' : 'none',
@@ -488,9 +518,9 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                   flex: 1, 
                   padding: '18px 12px',
                   borderRadius: '8px',
-                  backgroundColor: 'rgba(31, 41, 55, 0.9)', // 다크 테마로 변경
+                  backgroundColor: 'rgba(17, 24, 39, 0.85)',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                  border: `1px solid ${rankStyle.headerBorderColor}`,
+                  border: 'none',
                 }}>
                   <div style={{ 
                     fontSize: '24px', 
@@ -502,7 +532,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                   </div>
                   <div style={{ 
                     fontSize: '13px', 
-                    color: '#9CA3AF', // 다크 테마 텍스트 색상
+                    color: '#9CA3AF',
                     display: 'flex'
                   }}>
                     Commits | {currentYear}
@@ -519,9 +549,9 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                   flex: 1, 
                   padding: '18px 12px',
                   borderRadius: '8px',
-                  backgroundColor: 'rgba(31, 41, 55, 0.9)', // 다크 테마로 변경
+                  backgroundColor: 'rgba(17, 24, 39, 0.85)',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                  border: `1px solid ${rankStyle.headerBorderColor}`,
+                  border: 'none',
                 }}>
                   <div style={{ 
                     fontSize: '24px', 
@@ -533,7 +563,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                   </div>
                   <div style={{ 
                     fontSize: '13px', 
-                    color: '#9CA3AF', // 다크 테마 텍스트 색상
+                    color: '#9CA3AF',
                     display: 'flex'
                   }}>
                     Total Stars
@@ -552,9 +582,9 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                   flex: 1, 
                   padding: '18px 12px',
                   borderRadius: '8px',
-                  backgroundColor: 'rgba(31, 41, 55, 0.9)', // 다크 테마로 변경
+                  backgroundColor: 'rgba(17, 24, 39, 0.85)',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                  border: `1px solid ${rankStyle.headerBorderColor}`,
+                  border: 'none',
                 }}>
                   <div style={{ 
                     fontSize: '24px', 
@@ -566,7 +596,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                   </div>
                   <div style={{ 
                     fontSize: '13px', 
-                    color: '#9CA3AF', // 다크 테마 텍스트 색상
+                    color: '#9CA3AF',
                     display: 'flex'
                   }}>
                     Total PRs
@@ -583,9 +613,9 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                   flex: 1, 
                   padding: '18px 12px',
                   borderRadius: '8px',
-                  backgroundColor: 'rgba(31, 41, 55, 0.9)', // 다크 테마로 변경
+                  backgroundColor: 'rgba(17, 24, 39, 0.85)',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                  border: `1px solid ${rankStyle.headerBorderColor}`,
+                  border: 'none',
                 }}>
                   <div style={{ 
                     fontSize: '24px', 
@@ -597,7 +627,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                   </div>
                   <div style={{ 
                     fontSize: '13px', 
-                    color: '#9CA3AF', // 다크 테마 텍스트 색상
+                    color: '#9CA3AF',
                     display: 'flex'
                   }}>
                     Total Issues
@@ -611,18 +641,18 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
               <div style={{
                 display: 'flex',
                 padding: '16px 32px',
-                borderRadius: '12px',
-                backgroundColor: 'rgba(31, 41, 55, 0.95)', // 다크 테마로 변경
+                borderRadius: '8px',
+                backgroundColor: 'rgba(17, 24, 39, 0.85)',
                 alignItems: 'center', 
                 justifyContent: 'center',
-                boxShadow: `0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 2px ${rankStyle.headerBorderColor}`,
-                border: `2px solid ${rankStyle.headerBorderColor}`,
+                boxShadow: `0 4px 12px rgba(0, 0, 0, 0.3)`,
+                border: 'none',
                 minWidth: '150px',
               }}>
                 <div style={{ 
                   fontSize: '16px', 
                   fontWeight: 600, 
-                  color: '#9CA3AF', // 다크 테마 텍스트 색상
+                  color: '#9CA3AF',
                   marginRight: '12px',
                   display: 'flex'
                 }}>
@@ -648,7 +678,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
             }}>
               <div style={{ 
                 fontSize: '12px', 
-                color: '#D1D5DB', // 다크 테마 텍스트 색상
+                color: '#FFFFFF',
                 display: 'flex',
                 textShadow: profile.backgroundImageUrl ? '0 1px 1px rgba(0,0,0,0.2)' : 'none',
               }}>
