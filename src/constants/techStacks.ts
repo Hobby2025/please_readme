@@ -45,8 +45,11 @@ import {
   SiGitlab,
   SiJira,
   SiMysql,
+  SiPostman,
+  SiJenkins,
+  SiSonarqube,
 } from 'react-icons/si';
-import { FaJava, FaQuestionCircle, FaCloud } from 'react-icons/fa';
+import { FaJava, FaQuestionCircle, FaCloud, FaServer, FaCogs, FaVial } from 'react-icons/fa';
 
 // 기술 스택 정보 타입 정의
 export interface TechInfo {
@@ -112,13 +115,13 @@ export const techMap: Record<string, TechInfo> = {
   'Jira': { icon: SiJira, bg: 'bg-[#0052CC]', text: 'text-white' },
   'MySQL': { icon: SiMysql, bg: 'bg-[#4479A1]', text: 'text-white' },
 
-  // 기타 (필요시 추가)
-  'REST API': { icon: FaQuestionCircle, bg: 'bg-gray-400', text: 'text-white' }, 
-  'CI/CD': { icon: FaQuestionCircle, bg: 'bg-gray-400', text: 'text-white' },
-  '테스트': { icon: FaQuestionCircle, bg: 'bg-gray-400', text: 'text-white' },
+  // 기타 스택에 브랜드 색상 적용
+  'REST API': { icon: SiPostman, bg: 'bg-[#FF6C37]', text: 'text-white' }, 
+  'CI/CD': { icon: SiJenkins, bg: 'bg-[#D33833]', text: 'text-white' },
+  '테스트': { icon: SiSonarqube, bg: 'bg-[#4E9BCD]', text: 'text-white' },
 
   // 기본값
-  'default': { icon: FaQuestionCircle, bg: 'bg-gray-400', text: 'text-white' },
+  'default': { icon: FaQuestionCircle, bg: 'bg-[#2563EB]', text: 'text-white' },
 };
 
 // 선택 가능한 기술 스택 목록 (techMap의 키들을 사용)

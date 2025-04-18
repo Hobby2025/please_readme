@@ -4,21 +4,70 @@ import { Profile, GitHubStats, ProfileCardProps, Theme } from '../../types/profi
 // 단순화된 TechBadge 컴포넌트 (@vercel/og 호환) - 아이콘 없음
 const SimpleTechBadge = ({ tech }: { tech: string }) => {
   const bgColors: Record<string, string> = {
-    'React': '#61DAFB', 'TypeScript': '#3178C6', 'JavaScript': '#F7DF1E', 'Next.js': '#000000',
-    'Node.js': '#339933', 'Python': '#3776AB', 'Java': '#007396', 'Go': '#00ADD8',
-    'CSS3': '#1572B6', 'HTML5': '#E34F26', 'Tailwind CSS': '#06B6D4', 'MySQL': '#4479A1',
-    'PostgreSQL': '#4169E1', 'MongoDB': '#47A248', 'Express': '#000000', 'GraphQL': '#E10098',
-    'Redux': '#764ABC', 'Git': '#F05032', 'Docker': '#2496ED', 'Kubernetes': '#326CE5',
-    'AWS': '#232F3E', 'Flutter': '#02569B', 'Vue.js': '#4FC08D', 'Angular': '#DD0031',
-    'default': '#6B7280'
+    // 기본 스택
+    'React': '#61DAFB',
+    'TypeScript': '#3178C6',
+    'JavaScript': '#F7DF1E',
+    'Next.js': '#000000',
+    'Node.js': '#339933',
+    'Python': '#3776AB',
+    'Java': '#007396',
+    'Go': '#00ADD8',
+    'CSS3': '#1572B6',
+    'CSS': '#1572B6',
+    'HTML5': '#E34F26',
+    'HTML': '#E34F26',
+    'Tailwind CSS': '#06B6D4',
+    'TailwindCSS': '#06B6D4',
+    'MySQL': '#4479A1',
+    'PostgreSQL': '#4169E1',
+    'MongoDB': '#47A248',
+    'Express': '#000000',
+    'GraphQL': '#E10098',
+    'Redux': '#764ABC',
+    'Git': '#F05032',
+    'Docker': '#2496ED',
+    'Kubernetes': '#326CE5',
+    'AWS': '#232F3E',
+    'Vue.js': '#4FC08D',
+    'Angular': '#DD0031',
+    'Linux': '#FCC624',
+    'Rust': '#DEA584',
+    'Kotlin': '#7F52FF',
+    'Swift': '#F05138',
+    'Redis': '#DC382D',
+    'C#': '#512BD4',
+    'PHP': '#777BB4',
+    'Ruby': '#CC342D',
+    'Sass': '#CC6699',
+    'Figma': '#F24E1E',
+    'Spring Boot': '#6DB33F',
+    'Spring': '#6DB33F',
+    'C++': '#00599C',
+    'Django': '#092E20',
+    'Flask': '#000000',
+    'GCP': '#4285F4',
+    'Azure': '#0078D4',
+    'Bootstrap': '#7952B3',
+    'Svelte': '#FF3E00',
+    'MobX': '#FF9955',
+    'Cypress': '#17202C',
+    'GitHub': '#181717',
+    'GitLab': '#FC6D26',
+    'Jira': '#0052CC',
+
+    // 기타 스택
+    'REST API': '#FF6C37', 
+    'CI/CD': '#D33833',
+    '테스트': '#4E9BCD',
+    'default': '#2563EB'
   };
+
   const textColors: Record<string, string> = {
-    'JavaScript': '#000000', 'Tailwind CSS': '#FFFFFF', 'HTML5': '#FFFFFF', 'Python': '#FFFFFF',
-    'Java': '#FFFFFF', 'Go': '#FFFFFF', 'CSS3': '#FFFFFF', 'MySQL': '#FFFFFF', 'PostgreSQL': '#FFFFFF',
-    'MongoDB': '#FFFFFF', 'GraphQL': '#FFFFFF', 'Redux': '#FFFFFF', 'Git': '#FFFFFF',
-    'Docker': '#FFFFFF', 'Kubernetes': '#FFFFFF', 'AWS': '#FFFFFF', 'Flutter': '#FFFFFF',
-    'Vue.js': '#FFFFFF', 'Angular': '#FFFFFF',
-    'default': '#FFFFFF' // 기본값 흰색
+    'JavaScript': '#000000',
+    'Linux': '#000000',
+    'Rust': '#000000',
+    'default': '#FFFFFF'
   };
 
   const bgColor = bgColors[tech] || bgColors['default'];
@@ -40,7 +89,6 @@ const SimpleTechBadge = ({ tech }: { tech: string }) => {
         boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
       }}
     >
-      {/* 아이콘 렌더링 로직 없음 확인 */} 
       {tech}
     </div>
   );
