@@ -65,6 +65,7 @@ export interface ProfilePreviewProps {
   setProfile?: (profile: Profile) => void;
   isImageLoaded: boolean;
   onCopyMarkdown: () => void;
+  onCopyHtml: () => void;
 }
 
 export interface ImageGenerationOptions {

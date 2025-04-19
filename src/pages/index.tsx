@@ -161,6 +161,55 @@ export default function Home() {
       });
   };
 
+  // HTML 코드 복사 핸들러 추가
+  const handleCopyHtml = () => {
+    if (!previewParams?.username) return;
+    
+    const params = new URLSearchParams();
+    params.set('username', previewParams.username);
+    params.set('theme', previewParams.theme);
+    
+    // 필수 아닌 매개변수는 값이 있을 때만 추가
+    if (previewParams.skills.length > 0) params.set('skills', previewParams.skills.join(','));
+    if (previewParams.bio && previewParams.bio.trim() !== '') params.set('bio', previewParams.bio);
+    if (previewParams.name && previewParams.name.trim() !== '') params.set('name', previewParams.name);
+    
+    // 배경 이미지가 선택된 경우만 추가
+    if (previewParams.backgroundImageUrl && 
+        previewParams.backgroundImageUrl.trim() !== '' && 
+        previewParams.backgroundImageUrl !== '/bg-image/' && 
+        previewParams.backgroundImageUrl !== '/bg-image') {
+      params.set('bg', previewParams.backgroundImageUrl);
+      
+      // 투명도가 기본값(0.5)이 아닌 경우만 추가
+      if (previewParams.backgroundOpacity !== undefined && 
+          previewParams.backgroundOpacity !== 0.5) {
+        params.set('opacity', previewParams.backgroundOpacity.toString());
+      }
+    }
+    
+    // 폰트가 선택된 경우에만 추가
+    if (previewParams.fontFamily && previewParams.fontFamily.trim() !== '') {
+      params.set('fontFamily', previewParams.fontFamily);
+    }
+
+    // 환경 변수에서 API 기본 URL 가져오기 (fallback 추가)
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+    const url = `${baseUrl}/api/card?${params.toString()}`;
+    
+    // 넓이 속성이 포함된 HTML 이미지 태그 생성
+    const htmlCode = `<img src="${url}" width="500">`;
+    
+    navigator.clipboard.writeText(htmlCode)
+      .then(() => {
+        alert('HTML 코드가 클립보드에 복사되었습니다!');
+      })
+      .catch((error) => {
+        console.error('코드 복사 실패:', error);
+        alert('코드 복사에 실패했습니다.');
+      });
+  };
+
   const subtlePatternStyle = {
     backgroundColor: '#ffffff', // white base
     // Grid pattern using Font-4 color (F2DAAC) with low opacity
@@ -230,7 +279,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-base font-semibold text-[#F29F05] mb-2">GitHub에 적용</h3>
                 <p className="text-sm text-gray-700">
-                  미리보기 상단의 '마크다운 복사' 버튼으로 코드를 복사하여 GitHub 프로필 README.md 파일에 붙여넣습니다.
+                  미리보기 상단의 '마크다운 복사' 버튼 또는 높이조절이 가능한 'Html 복사' 버튼으로 코드를 복사하여 GitHub 프로필 README.md 파일에 붙여넣습니다.
                 </p>
               </div>
             </div>
@@ -257,7 +306,19 @@ export default function Home() {
               onImageLoadSuccess={handleImageLoadSuccess}
               isImageLoaded={isImageLoaded}
               onCopyMarkdown={handleCopyMarkdown}
+              onCopyHtml={handleCopyHtml}
             />
+          </div>
+        </div>
+        <div className='flex flex-row justify-between mt-3'>
+          <label className='text-[#F2B705]'>© 2025 Hobby2025. All rights reserved.</label>
+          <div className="flex space-x-6">
+            <a href="https://github.com/Hobby2025/please_readme" className="text-[#F2B705] hover:text-[#F29F05]">
+              <span className="sr-only">GitHub</span>
+              <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+              </svg>
+            </a>
           </div>
         </div>
       </div>

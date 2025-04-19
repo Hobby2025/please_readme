@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { ProfilePreviewProps, Profile, Theme } from '../../types/profile';
 import { Button } from '../ui/Button';
-import { FaMarkdown } from 'react-icons/fa';
+import { FaMarkdown, FaHtml5, FaCode } from 'react-icons/fa';
 import { Loading } from '../ui/Loading';
 import { ErrorMessage } from '../ui/ErrorMessage';
 
@@ -14,6 +14,7 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
   onImageLoadSuccess,
   isImageLoaded,
   onCopyMarkdown,
+  onCopyHtml,
 }) => {
   const [imageUrl, setImageUrl] = useState('');
   const [isImageLoading, setIsImageLoading] = useState(false);
@@ -78,15 +79,26 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
           프로필 이미지 미리보기
         </h2>
         {isImageLoaded && (
-          <Button 
-            size="sm" 
-            onClick={onCopyMarkdown}
-            disabled={!previewParams?.username}
-            className="bg-[#F2B705] text-white hover:bg-[#F29F05]"
-          >
-            <FaMarkdown className="mr-2" />
-            마크다운 복사
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              onClick={onCopyMarkdown}
+              disabled={!previewParams?.username}
+              className="bg-[#F2B705] text-white hover:bg-[#F29F05]"
+            >
+              <FaMarkdown className="mr-2" />
+              마크다운 복사
+            </Button>
+            <Button 
+              size="sm" 
+              onClick={onCopyHtml}
+              disabled={!previewParams?.username}
+              className="bg-[#F2B705] text-white hover:bg-[#F29F05]"
+            >
+              <FaCode className="mr-2" />
+              HTML 복사
+            </Button>
+          </div>
         )}
       </div>
 
@@ -116,7 +128,7 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
                  <ErrorMessage message={imageError} className="text-red-700" />
                </div>
             )}
-            <div className="aspect-[10/8] relative">
+            <div className="aspect-[50/49] relative">
               <img 
                 src={imageUrl} 
                 alt={`${previewParams?.username || '...'}'s Profile Card Preview`}
