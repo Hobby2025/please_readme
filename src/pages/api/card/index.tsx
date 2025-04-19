@@ -10,8 +10,8 @@ import { optimizeImage, getImageUrl } from '@/utils/imageUtils';
 import { getCachedData, setCachedData, deleteCachedData } from '@/utils/cache';
 
 // 캐시 TTL 설정
-const CACHE_TTL_SECONDS = 24 * 60 * 60; // 24시간으로 증가 (1일)
-const GITHUB_DATA_TTL_SECONDS = 12 * 60 * 60; // GitHub 데이터 12시간 캐싱
+const CACHE_TTL_SECONDS = 4 * 60 * 60; // vercel 캐싱 주기 4시간으로 조절
+const GITHUB_DATA_TTL_SECONDS = 4 * 60 * 60; // GitHub 데이터 4시간 캐싱
 
 // 기술 스택 개수에 따른 카드 높이 계산 함수
 const calculateCardHeight = (skillsCount: number): number => {
