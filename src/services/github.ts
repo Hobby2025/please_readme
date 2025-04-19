@@ -32,7 +32,7 @@ export class GitHubService {
     // 캐시에서 데이터 확인
     const cachedData = await getCachedData<T>(cacheKey);
     if (cachedData) {
-      console.log(`[GraphQL 캐시 사용] ${cacheKey}`);
+      // console.log(`[GraphQL 캐시 사용] ${cacheKey}`);
       return cachedData;
     }
     
@@ -43,7 +43,7 @@ export class GitHubService {
     }
 
     try {
-      console.time(`github:graphql:${queryHash}`);
+      // console.time(`github:graphql:${queryHash}`);
       const response = await fetch(this.graphqlUrl, {
         method: 'POST',
         headers: {
@@ -52,7 +52,7 @@ export class GitHubService {
         },
         body: JSON.stringify({ query, variables }),
       });
-      console.timeEnd(`github:graphql:${queryHash}`);
+      // console.timeEnd(`github:graphql:${queryHash}`);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -72,7 +72,7 @@ export class GitHubService {
       
       return data.data;
     } catch (error) {
-      console.error(`GraphQL 요청 실패:`, error);
+      // console.error(`GraphQL 요청 실패:`, error);
       if (error instanceof Error) {
         throw error;
       }
@@ -162,13 +162,13 @@ export class GitHubService {
     if (!forceRefresh) {
       const cachedStats = await getCachedData<GitHubStats>(cacheKey);
       if (cachedStats) {
-        console.log(`[캐시 사용] ${username}의 데이터 캐시에서 로드됨, 랭크:`, cachedStats.rank);
+        // console.log(`[캐시 사용] ${username}의 데이터 캐시에서 로드됨, 랭크:`, cachedStats.rank);
         return cachedStats;
       }
     }
     
-    console.log(`[GitHub API 요청] ${username}의 통계 데이터 요청 중...`);
-    console.time(`github:stats:${username}`);
+    // console.log(`[GitHub API 요청] ${username}의 통계 데이터 요청 중...`);
+    // console.time(`github:stats:${username}`);
     
     try {
       // 최적화: 쿼리 및 변수를 한 번만 생성
@@ -207,9 +207,9 @@ export class GitHubService {
         stars: totalStars,
       };
 
-      console.log(`[랭크 계산 전] ${username}의 통계:`, rankParams);
+      // console.log(`[랭크 계산 전] ${username}의 통계:`, rankParams);
       const rankResult = calculateRank(rankParams);
-      console.log(`[랭크 계산 후] ${username}의 랭크:`, rankResult);
+      // console.log(`[랭크 계산 후] ${username}의 랭크:`, rankResult);
 
       // 최종 반환 객체 구성 (불변 객체로 한 번에 생성)
       const finalStats: GitHubStats = {
@@ -232,12 +232,12 @@ export class GitHubService {
 
       // 캐시에 저장
       await setCachedData(cacheKey, finalStats, GITHUB_STATS_CACHE_TTL);
-      console.timeEnd(`github:stats:${username}`);
+      // console.timeEnd(`github:stats:${username}`);
 
       return finalStats;
     } catch (error) {
-      console.error(`GitHub 통계 조회 실패 (${username}):`, error);
-      console.timeEnd(`github:stats:${username}`);
+      // console.error(`GitHub 통계 조회 실패 (${username}):`, error);
+      // console.timeEnd(`github:stats:${username}`);
        
       // 에러 시 기본값 반환
       const defaultRank: Rank = { level: '?', percentile: 0, score: 0 };

@@ -13,11 +13,8 @@ const SimpleTechBadge = ({ tech }: { tech: string }) => {
     'Python': '#3776AB',
     'Java': '#007396',
     'Go': '#00ADD8',
-    'CSS3': '#1572B6',
     'CSS': '#1572B6',
-    'HTML5': '#E34F26',
     'HTML': '#E34F26',
-    'Tailwind CSS': '#06B6D4',
     'TailwindCSS': '#06B6D4',
     'MySQL': '#4479A1',
     'PostgreSQL': '#4169E1',
@@ -41,7 +38,6 @@ const SimpleTechBadge = ({ tech }: { tech: string }) => {
     'Ruby': '#CC342D',
     'Sass': '#CC6699',
     'Figma': '#F24E1E',
-    'Spring Boot': '#6DB33F',
     'Spring': '#6DB33F',
     'C++': '#00599C',
     'Django': '#092E20',
@@ -72,6 +68,28 @@ const SimpleTechBadge = ({ tech }: { tech: string }) => {
 
   const bgColor = bgColors[tech] || bgColors['default'];
   const textColor = textColors[tech] || textColors['default'];
+  
+  // 일부 색상에 대해 어두운 변형 생성 (그라데이션 효과용)
+  const darkenColor = (color: string, amount: number = 15): string => {
+    // 간단한 방식으로 색상을 어둡게 처리 (웹용 헥스 코드만 처리)
+    if (color.startsWith('#')) {
+      // 헥스 코드에서 RGB 추출
+      const r = parseInt(color.slice(1, 3), 16);
+      const g = parseInt(color.slice(3, 5), 16);
+      const b = parseInt(color.slice(5, 7), 16);
+      
+      // 각 채널을 어둡게 (0 이하로 내려가지 않도록)
+      const newR = Math.max(0, r - amount);
+      const newG = Math.max(0, g - amount);
+      const newB = Math.max(0, b - amount);
+      
+      // 다시 헥스 코드로 변환
+      return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+    }
+    return color;
+  };
+
+  const darkBgColor = darkenColor(bgColor);
 
   return (
     <div
@@ -79,18 +97,23 @@ const SimpleTechBadge = ({ tech }: { tech: string }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: bgColor,
+        background: `linear-gradient(135deg, ${bgColor}, ${darkBgColor})`,
         color: textColor,
         padding: '5px 8px',
-        borderRadius: '8px',
-        fontSize: '13px',
-        fontWeight: 500,
+        borderRadius: '4px',
+        fontSize: '12px',
+        fontWeight: 600,
+        letterSpacing: '0.02em',
         lineHeight: '1.2',
-        whiteSpace: 'nowrap',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-        margin: '0 auto',
+        width: '125px', 
+        height: '30px',
         textAlign: 'center',
-        maxWidth: '100%', // 너비 제한
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        margin: '0',
+        boxSizing: 'border-box',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+        border: '1px solid rgba(0, 0, 0, 0.1)',
       }}
     >
       {tech}
@@ -440,7 +463,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
 
           {/* 기술 스택 섹션 */}
           {profile.skills && profile.skills.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '28px', width: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '24px', width: '100%', justifyContent: 'center' }}>
               <div style={{ 
                 fontSize: '20px', 
                 fontWeight: 600, 
@@ -450,34 +473,69 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                 alignItems: 'center',
                 textShadow: profile.backgroundImageUrl ? '0 1px 2px rgba(0,0,0,0.4)' : 'none',
                 padding: '0 0 4px 0',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
               }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginRight: '6px' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ marginRight: '6px' }}>
                   <path d="M15.22 4.97a.75.75 0 0 1 1.06 0l6.5 6.5a.75.75 0 0 1 0 1.06l-6.5 6.5a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734L21.19 12l-5.97-5.97a.75.75 0 0 1 0-1.06Zm-6.44 0a.75.75 0 0 1 0 1.06L2.81 12l5.97 5.97a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215l-6.5-6.5a.75.75 0 0 1 0-1.06l6.5-6.5a.75.75 0 0 1 1.06 0Z" 
-                  fill="#F3F4F6" />
+                    fill="#F3F4F6" />
                 </svg>
                 Skills
               </div>
               <div style={{ 
                 display: 'flex',
                 flexWrap: 'wrap',
+                padding: '12px',
+                borderRadius: '6px',
+                backgroundColor: 'rgba(17, 24, 39, 0.65)',
+                border: '1px solid rgba(255, 255, 255, 0.05)',
+                justifyContent: 'flex-start',
                 gap: '8px',
-                padding: '16px 16px',
-                borderRadius: '8px',
-                backgroundColor: 'rgba(17, 24, 39, 0.85)',
-                border: 'none',
-                justifyContent: 'space-between',
+                boxShadow: 'inset 0 1px 1px rgba(0, 0, 0, 0.05)',
               }}> 
-                {profile.skills.slice(0, 15).map((skill, index) => (
-                  <div key={index} style={{ 
-                    width: `${BADGE_WIDTH}px`,
-                    marginBottom: '8px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}>
-                    <SimpleTechBadge tech={skill} />
-                  </div>
-                ))}
+                {(() => {
+                  // 기술 이름 정규화 맵핑
+                  const techNormalization: Record<string, string> = {
+                    'CSS': 'CSS',
+                    'CSS3': 'CSS',
+                    'HTML': 'HTML',
+                    'HTML5': 'HTML',
+                    'Tailwind CSS': 'Tailwind CSS',
+                    'TailwindCSS': 'Tailwind CSS',
+                    'Spring Boot': 'Spring',
+                    'Spring': 'Spring',
+                    'Node.js': 'Node.js',
+                    'NodeJS': 'Node.js',
+                    'Javascript': 'JavaScript',
+                    'JS': 'JavaScript',
+                    'TS': 'TypeScript',
+                    'ReactJS': 'React',
+                    'ReactNative': 'React Native',
+                    'VueJS': 'Vue.js',
+                    'Vue': 'Vue.js',
+                    'Postgres': 'PostgreSQL',
+                    'MySQL': 'MySQL',
+                    'MariaDB': 'MySQL',
+                  };
+                  
+                  // 정규화된 기술 이름 목록 생성
+                  const normalizedSkills = profile.skills.map(skill => techNormalization[skill] || skill);
+                  
+                  // 중복 제거 후 배열 생성
+                  const uniqueSkills = Array.from(new Set(normalizedSkills));
+                  
+                  return uniqueSkills.slice(0, 16).map((skill, index) => (
+                    <div key={index} style={{ 
+                      display: 'flex',
+                      justifyContent: 'center',
+                      width: '120px',
+                      height: '24px',
+                      flexShrink: 0,
+                      marginBottom: '8px',
+                    }}>
+                      <SimpleTechBadge tech={skill} />
+                    </div>
+                  ));
+                })()}
               </div>
             </div>
           )}

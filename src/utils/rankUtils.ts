@@ -74,9 +74,9 @@ export function calculateRank({ commits, prs, issues, stars }: {
   stars: number; 
 }): Rank {
   // 디버깅 정보 출력
-  console.log(`[calculateRank] 입력 - commits: ${commits}, prs: ${prs}, issues: ${issues}, stars: ${stars}`);
-  console.log(`[calculateRank] 중간값 - COMMITS_MEDIAN: ${COMMITS_MEDIAN}, PRS_MEDIAN: ${PRS_MEDIAN}, ISSUES_MEDIAN: ${ISSUES_MEDIAN}, STARS_MEDIAN: ${STARS_MEDIAN}`);
-  console.log(`[calculateRank] 가중치 - COMMITS_WEIGHT: ${COMMITS_WEIGHT}, PRS_WEIGHT: ${PRS_WEIGHT}, ISSUES_WEIGHT: ${ISSUES_WEIGHT}, STARS_WEIGHT: ${STARS_WEIGHT}`);
+  // console.log(`[calculateRank] 입력 - commits: ${commits}, prs: ${prs}, issues: ${issues}, stars: ${stars}`);
+  // console.log(`[calculateRank] 중간값 - COMMITS_MEDIAN: ${COMMITS_MEDIAN}, PRS_MEDIAN: ${PRS_MEDIAN}, ISSUES_MEDIAN: ${ISSUES_MEDIAN}, STARS_MEDIAN: ${STARS_MEDIAN}`);
+  // console.log(`[calculateRank] 가중치 - COMMITS_WEIGHT: ${COMMITS_WEIGHT}, PRS_WEIGHT: ${PRS_WEIGHT}, ISSUES_WEIGHT: ${ISSUES_WEIGHT}, STARS_WEIGHT: ${STARS_WEIGHT}`);
   
   // 각 지표를 정규화 (0-10 범위)
   const normalizedCommits = normalize(commits, COMMITS_MEDIAN);
@@ -84,7 +84,7 @@ export function calculateRank({ commits, prs, issues, stars }: {
   const normalizedIssues = normalize(issues, ISSUES_MEDIAN);
   const normalizedStars = normalize(stars, STARS_MEDIAN);
   
-  console.log(`[calculateRank] 정규화 값 - commits: ${normalizedCommits}, prs: ${normalizedPRs}, issues: ${normalizedIssues}, stars: ${normalizedStars}`);
+  // console.log(`[calculateRank] 정규화 값 - commits: ${normalizedCommits}, prs: ${normalizedPRs}, issues: ${normalizedIssues}, stars: ${normalizedStars}`);
   
   // 가중치 적용된 점수 계산
   const weightedCommits = normalizedCommits * COMMITS_WEIGHT;
@@ -92,7 +92,7 @@ export function calculateRank({ commits, prs, issues, stars }: {
   const weightedIssues = normalizedIssues * ISSUES_WEIGHT;
   const weightedStars = normalizedStars * STARS_WEIGHT;
   
-  console.log(`[calculateRank] 각 항목 점수 - commits: ${weightedCommits.toFixed(2)}, prs: ${weightedPRs.toFixed(2)}, issues: ${weightedIssues.toFixed(2)}, stars: ${weightedStars.toFixed(2)}`);
+  // console.log(`[calculateRank] 각 항목 점수 - commits: ${weightedCommits.toFixed(2)}, prs: ${weightedPRs.toFixed(2)}, issues: ${weightedIssues.toFixed(2)}, stars: ${weightedStars.toFixed(2)}`);
   
   // 총점 계산 (모든 가중치 적용 점수의 합)
   const totalScore = weightedCommits + weightedPRs + weightedIssues + weightedStars;
@@ -100,7 +100,7 @@ export function calculateRank({ commits, prs, issues, stars }: {
   // 평균 점수 계산 (0-10 범위)
   const avgScore = totalScore / TOTAL_WEIGHT;
   
-  console.log(`[calculateRank] 총점: ${totalScore.toFixed(2)}, 평균 점수: ${avgScore.toFixed(2)}`);
+  // console.log(`[calculateRank] 총점: ${totalScore.toFixed(2)}, 평균 점수: ${avgScore.toFixed(2)}`);
   
   // 백분위 점수로 변환 (0-100 범위)
   const percentileScore = avgScore * 10;
@@ -111,8 +111,8 @@ export function calculateRank({ commits, prs, issues, stars }: {
   // 계산 과정 로깅
   const adjustedScore = Math.max(0, Math.min(100, percentileScore));
   
-  console.log(`[calculateRank] 조정된 점수: ${adjustedScore.toFixed(2)}, 백분위: ${percentileScore.toFixed(2)}`);
-  console.log(`[calculateRank] 임계값 ${THRESHOLDS[level as keyof typeof THRESHOLDS]}${percentileScore < THRESHOLDS[level as keyof typeof THRESHOLDS] ? '보다 낮음' : '보다 높음'}, 레벨: ${level}`);
+  // console.log(`[calculateRank] 조정된 점수: ${adjustedScore.toFixed(2)}, 백분위: ${percentileScore.toFixed(2)}`);
+  // console.log(`[calculateRank] 임계값 ${THRESHOLDS[level as keyof typeof THRESHOLDS]}${percentileScore < THRESHOLDS[level as keyof typeof THRESHOLDS] ? '보다 낮음' : '보다 높음'}, 레벨: ${level}`);
   
   // 최종 결과 반환 (점수는 소수점 한 자리까지만)
   const result: Rank = {
@@ -121,7 +121,7 @@ export function calculateRank({ commits, prs, issues, stars }: {
     percentile: parseFloat(percentileScore.toFixed(1))
   };
   
-  console.log(`[calculateRank] 최종 결과:`, result);
+  // console.log(`[calculateRank] 최종 결과:`, result);
   
   return result;
 }
