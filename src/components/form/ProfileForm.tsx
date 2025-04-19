@@ -4,9 +4,17 @@ import { TechBadge } from '../ui/TechBadge';
 import { Profile, ProfileFormProps } from '../../types/profile';
 import { availableTechStacks } from '../../constants/techStacks';
 import { Button } from '../ui/Button';
-import { cn } from '../../utils/cn';
-import { FaMoon, FaPencilAlt, FaImage } from 'react-icons/fa';
+import { FaPencilAlt, FaImage, FaFont, FaGithubSquare, FaAcquisitionsIncorporated, FaFeatherAlt, FaTerminal } from 'react-icons/fa';
 import { useRouter } from 'next/router';
+
+// 사용 가능한 폰트 목록
+const availableFonts = [
+  { value: 'BookkMyungjo', label: '북크 명조' },
+  { value: 'Pretendard', label: '프리텐다드' },
+  { value: 'HSSanTokki2.0', label: 'HS산토끼체2.0' },
+  { value: 'BMJUA_ttf', label: '배민 주아체'},
+  { value: 'BMDOHYEON_ttf', label: '배민 도현체'},
+];
 
 export const ProfileForm: React.FC<ProfileFormProps> = ({
   profile,
@@ -32,6 +40,12 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
     });
   };
 
+  // 폰트 변경 핸들러 추가
+  const handleFontChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.target;
+    setProfile({ ...profile, fontFamily: value });
+  };
+
   const handleClearSkills = () => {
     setProfile({ ...profile, skills: [] });
   };
@@ -50,7 +64,8 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
           <div className="space-y-4">
             <h3 className="text-base font-semibold leading-6 text-[#F29F05]">기본 정보</h3>
             <div>
-              <label htmlFor="githubUsername" className="block text-sm font-medium text-[#F2B705] mb-1">
+              <label htmlFor="githubUsername" className="text-base font-medium text-[#F2B705] mb-1 flex items-center">
+                <FaGithubSquare className='h-4 mr-1' />
                 GitHub 사용자명
               </label>
               <Input
@@ -64,7 +79,8 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             </div>
 
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-[#F2B705] mb-1">
+              <label htmlFor="name" className="text-base font-medium text-[#F2B705] mb-1 flex items-center">
+                <FaAcquisitionsIncorporated className='h-4  mr-1' />
                 카드 제목
               </label>
               <Input
@@ -78,7 +94,8 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             </div>
 
             <div>
-              <label htmlFor="bio" className="block text-sm font-medium text-[#F2B705] mb-1">
+              <label htmlFor="bio" className="text-base font-medium text-[#F2B705] mb-1 flex items-center">
+                <FaFeatherAlt className='h-4  mr-1' />
                 소개
               </label>
               <Input
@@ -90,11 +107,36 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
                 placeholder="간단한 자기소개"
               />
             </div>
+            
+            {/* 폰트 선택 필드 추가 */}
+            <div>
+              <label className="text-base font-medium text-[#F2B705] mb-1 flex items-center">
+                <FaFont className="h-4 mr-1" />
+                폰트 스타일
+              </label>
+              <select
+                id="fontFamily"
+                name="fontFamily"
+                value={profile.fontFamily || 'BookkMyungjo'}
+                onChange={handleFontChange}
+                disabled={disabled}
+                className="block w-full rounded-md border border-[#F2D479] bg-white/70 py-2 px-3 shadow-sm focus:border-[#F2B705] focus:outline-none focus:ring-1 focus:ring-[#F29F05] text-sm"
+              >
+                {availableFonts.map((font) => (
+                  <option key={font.value} value={font.value}>
+                    {font.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-base font-semibold leading-6 text-[#F29F05]">기술 스택</h3>
+              <label className="text-base font-medium text-[#F2B705] mb-1 flex items-center">
+                <FaTerminal className='h-4 mr-1' />
+                기술 스택
+              </label>
               {profile.skills.length > 0 && (
                 <Button
                   type="button"

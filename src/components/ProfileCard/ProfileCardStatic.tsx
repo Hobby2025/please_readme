@@ -331,9 +331,10 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
   console.log('[ProfileCardStatic] 기술 스택 줄 수:', skillRows);
   
   // 기본 높이 + 추가 줄 수에 따른 높이 계산 (줄당 40px 추가)
-  const BASE_HEIGHT = 780;
+  const BASE_HEIGHT = (profile.fontFamily === 'BookkMyungjo' || profile.fontFamily === 'BMJUA_ttf') ? 780 : 820;
   const ROW_HEIGHT = 40;
   const cardHeight = BASE_HEIGHT + (Math.max(0, skillRows - 1) * ROW_HEIGHT);
+  console.log('[ProfileCardStatic] 사용 폰트:', profile.fontFamily);
   console.log('[ProfileCardStatic] 계산된 카드 높이:', cardHeight);
   
   // 기술 스택 간격 조정을 위한 상수 (정확한 값으로 수정)
@@ -349,7 +350,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
         flexDirection: 'column',
         width: '600px',
         height: `${cardHeight}px`,
-        fontFamily: '"BookkMyungjo", serif',
+        fontFamily: profile.fontFamily ? `"${profile.fontFamily}", serif` : '"BookkMyungjo", serif',
         borderRadius: '0',
         border: 'none',
         backgroundColor: rankStyle.cardBg,

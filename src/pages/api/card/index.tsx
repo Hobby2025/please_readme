@@ -14,9 +14,11 @@ const CACHE_TTL_SECONDS = 4 * 60 * 60; // vercel 캐싱 주기 4시간으로 조
 const GITHUB_DATA_TTL_SECONDS = 4 * 60 * 60; // GitHub 데이터 4시간 캐싱
 
 // 기술 스택 개수에 따른 카드 높이 계산 함수
-const calculateCardHeight = (skillsCount: number): number => {
+const calculateCardHeight = (skillsCount: number, fontFamily?: string): number => {
   const SKILLS_PER_ROW = 4;
-  const BASE_HEIGHT = 780;
+  
+  // 폰트에 따른 기본 높이 설정
+  const BASE_HEIGHT = (fontFamily === 'BookkMyungjo' || fontFamily === 'BMJUA_ttf') ? 780 : 820;
   const ROW_HEIGHT = 40;
   
   const skillRows = Math.ceil(skillsCount / SKILLS_PER_ROW);
@@ -27,22 +29,59 @@ function isValidTheme(theme: string): theme is Theme {
   return theme === 'dark';
 }
 
-// 로컬 폰트 데이터 로드 함수 (BookkMyungjo TTF 사용)
-async function getFontData(): Promise<{ name: string; data: Buffer; weight: number; style: 'normal' | 'italic' }[]> {
+// 로컬 폰트 데이터 로드 함수 (사용자 선택 폰트 지원)
+async function getFontData(fontFamily: string = 'BookkMyungjo'): Promise<{ name: string; data: Buffer; weight: number; style: 'normal' | 'italic' }[]> {
   const fontDirectory = path.join(process.cwd(), 'public', 'fonts');
 
-  const fontFiles = [
-    { file: 'BookkMyungjo_Light.ttf', weight: 300 }, // Light weight
-    { file: 'BookkMyungjo_Bold.ttf', weight: 700 },  // Bold weight
-  ];
+  // 폰트별 파일 설정
+  const fontConfig: Record<string, {files: {file: string; weight: number}[]}> = {
+    'BookkMyungjo': {
+      files: [
+        { file: 'BookkMyungjo_Light.ttf', weight: 300 },
+        { file: 'BookkMyungjo_Bold.ttf', weight: 700 },
+      ]
+    },
+    'Pretendard': {
+      files: [
+        { file: 'Pretendard-Regular.ttf', weight: 400 },
+        { file: 'Pretendard-Bold.ttf', weight: 700 },
+      ]
+    },
+    'HSSanTokki2.0': {
+      files: [
+        { file: 'HSSanTokki2.0.ttf', weight: 400 },
+        { file: 'HSSanTokki2.0.ttf', weight: 700 },
+      ]
+    },
+    'BMJUA_ttf': {
+      files: [
+        { file: 'BMJUA_ttf.ttf', weight: 400},
+        { file: 'BMJUA_ttf.ttf', weight: 700},
+      ]
+    },
+    'BMDOHYEON_ttf': {
+      files: [
+        { file: 'BMDOHYEON_ttf.ttf', weight:400},
+        { file: 'BMDOHYEON_ttf.ttf', weight:700},
+      ]
+    }
+  };
+
+  // 요청된 폰트가 설정에 없는 경우 기본 폰트 사용
+  if (!fontConfig[fontFamily]) {
+    console.log(`[카드 API] 요청된 폰트 ${fontFamily}가 없어 기본 폰트(BookkMyungjo)를 사용합니다.`);
+    fontFamily = 'BookkMyungjo';
+  }
+
+  const fontFiles = fontConfig[fontFamily].files;
 
   const fontDataPromises = fontFiles.map(async ({ file, weight }) => {
     try {
       const filePath = path.join(fontDirectory, file);
       const data = await fs.readFile(filePath);
-      return { name: 'BookkMyungjo', data: data, weight, style: 'normal' as 'normal' | 'italic' };
+      return { name: fontFamily, data: data, weight, style: 'normal' as 'normal' | 'italic' };
     } catch (error) {
-      console.error(`Error loading font ${file}:`, error);
+      console.error(`[카드 API] 폰트 ${file} 로딩 실패:`, error);
       return null; // 오류 발생 시 null 반환
     }
   });
@@ -52,7 +91,7 @@ async function getFontData(): Promise<{ name: string; data: Buffer; weight: numb
   const validFontData = settledFontData.filter(data => data !== null) as { name: string; data: Buffer; weight: number; style: 'normal' | 'italic' }[];
   
   if (validFontData.length === 0) {
-     console.error('Failed to load any local fonts.');
+     console.error('[카드 API] 폰트 로딩 실패. 기본 시스템 폰트를 사용합니다.');
      return [];
   }
   
@@ -142,7 +181,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       skills: skillsParam,
       name: customName,
       opacity: opacityParam,
-      nocache
+      nocache,
+      fontFamily
     } = req.query;
     
     if (!username || typeof username !== 'string') {
@@ -153,7 +193,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const theme: Theme = 'dark';
     
     // 캐싱을 위한 키 생성 (모든 파라미터 포함)
-    const cacheKey = `card:${username}:${theme}:${customBgUrl || ''}:${customBio || ''}:${skillsParam || ''}:${customName || ''}:${opacityParam || ''}`;
+    const cacheKey = `card:${username}:${theme}:${customBgUrl || ''}:${customBio || ''}:${skillsParam || ''}:${customName || ''}:${opacityParam || ''}:${fontFamily || ''}`;
     
     // nocache 파라미터가 있으면 캐시 강제 삭제 및 강제 새로고침 사용
     const forceRefresh = nocache === 'true';
@@ -187,7 +227,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       measurePerformance('GitHub 데이터 요청', async () => 
         GitHubService.getInstance().getUserStats(username, forceRefresh)
       ),
-      measurePerformance('폰트 로딩', getFontData)
+      measurePerformance('폰트 로딩', () => {
+        // fontFamily가 문자열인지 확인
+        const fontFamilyStr = typeof fontFamily === 'string' ? fontFamily : undefined;
+        return getFontData(fontFamilyStr);
+      })
     ]);
     
     const stats = githubResult.result;
@@ -205,7 +249,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       : [];
     
     // 기술 스택 개수에 따른 카드 높이 계산
-    const cardHeight = calculateCardHeight(skills.length);
+    const cardHeight = calculateCardHeight(
+      skills.length, 
+      typeof fontFamily === 'string' ? fontFamily : undefined
+    );
     console.log(`[카드 API] 기술 스택 개수: ${skills.length}, 계산된 카드 높이: ${cardHeight}px`);
     
     // 배경 불투명도 파싱
@@ -222,6 +269,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       theme,
       backgroundImageUrl: undefined,
       backgroundOpacity: undefined,
+      fontFamily: typeof fontFamily === 'string' ? fontFamily : undefined,
     };
     
     // 이미지 생성에 필요한 옵션

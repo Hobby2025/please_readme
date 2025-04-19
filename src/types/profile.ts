@@ -28,6 +28,7 @@ export interface Profile {
   theme: Theme;
   backgroundImageUrl?: string;
   backgroundOpacity?: number;
+  fontFamily?: string;
 }
 
 export interface ProfileFormProps {
@@ -55,6 +56,7 @@ export interface ProfilePreviewProps {
     name?: string;
     backgroundImageUrl?: string;
     backgroundOpacity?: number;
+    fontFamily?: string;
   } | null;
   githubStats: GitHubStats | null;
   statsLoading: boolean;

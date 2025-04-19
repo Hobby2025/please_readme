@@ -33,6 +33,7 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
     if (previewParams.skills.length > 0) params.set('skills', previewParams.skills.join(','));
     if (previewParams.bio) params.set('bio', previewParams.bio);
     if (previewParams.name) params.set('name', previewParams.name);
+    if (previewParams.fontFamily) params.set('fontFamily', previewParams.fontFamily);
     
     params.set('t', Date.now().toString());
 

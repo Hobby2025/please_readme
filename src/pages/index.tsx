@@ -1,11 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { ProfileForm } from '../components/form/ProfileForm';
 import { ProfilePreview } from '../components/preview/ProfilePreview';
-import { Button } from '../components/ui/Button';
 import { useProfile } from '../hooks/useProfile';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
-import { FaMarkdown } from 'react-icons/fa';
-import { Loading } from '../components/ui/Loading';
 import { Profile, Theme } from '@/types/profile';
 
 export default function Home() {
@@ -83,6 +80,7 @@ export default function Home() {
     name?: string;
     backgroundImageUrl?: string;
     backgroundOpacity?: number;
+    fontFamily?: string;
   } | null>(null);
 
   const handleImageLoadSuccess = () => {
@@ -108,6 +106,7 @@ export default function Home() {
         name: profile.name,
         backgroundImageUrl: profile.backgroundImageUrl,
         backgroundOpacity: profile.backgroundOpacity,
+        fontFamily: profile.fontFamily,
       });
       
     } catch (err) {
@@ -139,6 +138,11 @@ export default function Home() {
           previewParams.backgroundOpacity !== 0.5) {
         params.set('opacity', previewParams.backgroundOpacity.toString());
       }
+    }
+
+    // 폰트가 선택된 경우에만 추가
+    if (previewParams.fontFamily && previewParams.fontFamily.trim() !== '') {
+      params.set('fontFamily', previewParams.fontFamily);
     }
 
     // 환경 변수에서 API 기본 URL 가져오기 (fallback 추가)
