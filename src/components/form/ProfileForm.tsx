@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
 import { TechBadge } from '../ui/TechBadge';
 import { Profile, ProfileFormProps, ThemeOption, FontOption, CardTheme } from '@/types';
 import { availableTechStacks } from '../../constants/techStacks';
@@ -59,7 +60,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
                 <FaGithubSquare className='h-4 mr-1' />
                 GitHub 사용자명
               </label>
-              <input
+              <Input
                 id="githubUsername"
                 name="githubUsername"
                 value={profile.githubUsername}
@@ -74,7 +75,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
                 <FaAcquisitionsIncorporated className='h-4  mr-1' />
                 카드 제목
               </label>
-              <input
+              <Input
                 id="name"
                 name="name"
                 value={profile.name}
@@ -89,7 +90,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
                 <FaFeatherAlt className='h-4  mr-1' />
                 소개
               </label>
-              <input
+              <Input
                 id="bio"
                 name="bio"
                 value={profile.bio}
