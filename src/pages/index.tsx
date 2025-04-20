@@ -4,8 +4,10 @@ import { ProfilePreview } from '../components/preview/ProfilePreview';
 import { useProfile } from '../hooks/useProfile';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { Profile, Theme } from '@/types/profile';
+import { useToast } from '@/contexts/ToastContext';
 
 export default function Home() {
+  const { showToast } = useToast();
 
   // 개발자 도구 커스텀
   const [hasLogged, setHasLogged] = useState(false);
@@ -89,7 +91,7 @@ export default function Home() {
 
   const handleGeneratePreview = async () => {
     if (!profile.githubUsername || profile.githubUsername.trim() === '') {
-      alert('GitHub 사용자명을 입력해주세요.');
+      showToast('GitHub 사용자명을 입력해주세요.', 'error');
       return;
     }
     
@@ -153,11 +155,11 @@ export default function Home() {
     
     navigator.clipboard.writeText(markdownCode)
       .then(() => {
-        alert('마크다운 코드가 클립보드에 복사되었습니다!');
+        showToast('마크다운 코드가 클립보드에 복사되었습니다!', 'success');
       })
       .catch((error) => {
         console.error('코드 복사 실패:', error);
-        alert('코드 복사에 실패했습니다.');
+        showToast('코드 복사에 실패했습니다.', 'error');
       });
   };
 
@@ -202,11 +204,11 @@ export default function Home() {
     
     navigator.clipboard.writeText(htmlCode)
       .then(() => {
-        alert('HTML 코드가 클립보드에 복사되었습니다!');
+        showToast('HTML 코드가 클립보드에 복사되었습니다!', 'success');
       })
       .catch((error) => {
         console.error('코드 복사 실패:', error);
-        alert('코드 복사에 실패했습니다.');
+        showToast('코드 복사에 실패했습니다.', 'error');
       });
   };
 
