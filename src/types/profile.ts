@@ -1,6 +1,6 @@
 import { Rank } from '@/utils/rankUtils';
 
-export type Theme = 'dark';
+export type Theme = 'dark' | 'light';
 
 export interface GitHubStats {
   totalStars: number;

@@ -26,7 +26,7 @@ const calculateCardHeight = (skillsCount: number, fontFamily?: string): number =
 };
 
 function isValidTheme(theme: string): theme is Theme {
-  return theme === 'dark';
+  return theme === 'dark' || theme === 'light';
 }
 
 // 로컬 폰트 데이터 로드 함수 (사용자 선택 폰트 지원)
@@ -189,8 +189,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'GitHub 사용자명(username)이 필요합니다.' });
     }
     
-    // 테마는 항상 다크로 설정
-    const theme: Theme = 'dark';
+    // 테마 처리 - 유효한 테마 값이면 사용, 아니면 다크로 기본값 설정
+    const theme: Theme = (typeof themeParam === 'string' && isValidTheme(themeParam)) 
+      ? themeParam as Theme 
+      : 'dark';
+    
+    console.log(`[카드 API] 요청된 테마: ${themeParam}, 사용될 테마: ${theme}`);
     
     // 캐싱을 위한 키 생성 (모든 파라미터 포함)
     const cacheKey = `card:${username}:${theme}:${customBgUrl || ''}:${customBio || ''}:${skillsParam || ''}:${customName || ''}:${opacityParam || ''}:${fontFamily || ''}`;

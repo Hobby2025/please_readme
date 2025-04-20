@@ -1,11 +1,12 @@
 import React from 'react';
 import { Input } from '../ui/Input';
 import { TechBadge } from '../ui/TechBadge';
-import { Profile, ProfileFormProps } from '../../types/profile';
+import { Profile, ProfileFormProps, Theme } from '../../types/profile';
 import { availableTechStacks } from '../../constants/techStacks';
 import { Button } from '../ui/Button';
-import { FaPencilAlt, FaImage, FaFont, FaGithubSquare, FaAcquisitionsIncorporated, FaFeatherAlt, FaTerminal } from 'react-icons/fa';
+import { FaPencilAlt, FaImage, FaFont, FaGithubSquare, FaAcquisitionsIncorporated, FaFeatherAlt, FaTerminal, FaMoon, FaSun } from 'react-icons/fa';
 import { useRouter } from 'next/router';
+import { IconType } from 'react-icons';
 
 // 사용 가능한 폰트 목록
 const availableFonts = [
@@ -14,6 +15,12 @@ const availableFonts = [
   { value: 'HSSanTokki2.0', label: 'HS산토끼체2.0' },
   { value: 'BMJUA_ttf', label: '배민 주아체'},
   { value: 'BMDOHYEON_ttf', label: '배민 도현체'},
+];
+
+// 테마 옵션 목록 추가
+const themeOptions: { value: Theme; label: string; icon: IconType }[] = [
+  { value: 'dark', label: '다크 테마', icon: FaMoon },
+  { value: 'light', label: '라이트 테마', icon: FaSun },
 ];
 
 export const ProfileForm: React.FC<ProfileFormProps> = ({
@@ -44,6 +51,11 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   const handleFontChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { value } = e.target;
     setProfile({ ...profile, fontFamily: value });
+  };
+
+  // 테마 변경 핸들러 추가
+  const handleThemeChange = (theme: Theme) => {
+    setProfile({ ...profile, theme });
   };
 
   const handleClearSkills = () => {
@@ -128,6 +140,36 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
                   </option>
                 ))}
               </select>
+            </div>
+            
+            {/* 테마 선택 필드 추가 */}
+            <div>
+              <label className="text-base font-medium text-[#F2B705] mb-1 flex items-center">
+                <FaTerminal className="h-4 mr-1" />
+                카드 테마
+              </label>
+              <div className="flex space-x-3 mt-1">
+                {themeOptions.map((option) => {
+                  const Icon = option.icon;
+                  const isSelected = profile.theme === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => handleThemeChange(option.value)}
+                      disabled={disabled}
+                      className={`flex items-center justify-center px-4 py-2 rounded-md border ${
+                        isSelected
+                          ? 'border-[#F2B705] bg-[#F2B705]/20 text-[#F29F05] font-medium'
+                          : 'border-gray-300 bg-white/70 text-gray-500 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Icon className="h-4 w-4 mr-2" />
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
