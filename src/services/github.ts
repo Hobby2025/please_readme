@@ -4,8 +4,8 @@ import { calculateRank, Rank } from '@/utils/rankUtils';
 import { getCachedData, setCachedData } from '@/utils/cache';
 
 // 캐시 TTL 상수
-const GITHUB_STATS_CACHE_TTL = 24 * 60 * 60; // 24시간 (하루)으로 증가
-const GITHUB_GRAPHQL_CACHE_TTL = 12 * 60 * 60; // 12시간
+const GITHUB_STATS_CACHE_TTL = 4 * 60 * 60; // 24시간 (하루)으로 증가
+const GITHUB_GRAPHQL_CACHE_TTL = 4 * 60 * 60; // 12시간
 
 export class GitHubService {
   private static instance: GitHubService;
@@ -155,6 +155,7 @@ export class GitHubService {
 
   // getUserStats 메서드를 GraphQL 기반으로 최적화
   public async getUserStats(username: string, forceRefresh: boolean = false): Promise<GitHubStats> {
+    username = username.trim();
     // 캐시 키 생성
     const cacheKey = `github:stats:${username}`;
     
@@ -232,12 +233,12 @@ export class GitHubService {
 
       // 캐시에 저장
       await setCachedData(cacheKey, finalStats, GITHUB_STATS_CACHE_TTL);
-      // console.timeEnd(`github:stats:${username}`);
+      console.timeEnd(`github:stats:${username}`);
 
       return finalStats;
     } catch (error) {
-      // console.error(`GitHub 통계 조회 실패 (${username}):`, error);
-      // console.timeEnd(`github:stats:${username}`);
+      console.error(`GitHub 통계 조회 실패 (${username}):`, error);
+      console.timeEnd(`github:stats:${username}`);
        
       // 에러 시 기본값 반환
       const defaultRank: Rank = { level: '?', percentile: 0, score: 0 };
