@@ -1,0 +1,62 @@
+/* 폰트 정의 */
+
+/* 북크 명조 */
+@font-face {
+  font-family: 'BookkMyungjo';
+  src: url('/fonts/BookkMyungjo_Light.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BookkMyungjo';
+  src: url('/fonts/BookkMyungjo_Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 프리텐다드 */
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/fonts/Pretendard-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/fonts/Pretendard-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* HS산토끼체2.0 */
+@font-face {
+  font-family: 'HSSanTokki';
+  src: url('/fonts/HSSanTokki2.0.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 배민 주아체 */
+@font-face {
+  font-family: 'BMJUA';
+  src: url('/fonts/BMJUA_ttf.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 배민 도현체 */
+@font-face {
+  font-family: 'BMDOHYEON';
+  src: url('/fonts/BMDOHYEON_ttf.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+} 
