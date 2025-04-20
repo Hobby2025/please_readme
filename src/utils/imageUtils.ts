@@ -114,4 +114,27 @@ export function getImageUrl(path: string): string {
   return `https://${domain}${path}`;
 }
 
+/**
+ * 큰 숫자를 K, M 단위로 변환하는 함수입니다.
+ * 예: 1500 -> 1.5K, 1500000 -> 1.5M
+ */
+export function formatNumberUnit(num: number): string {
+  if (num === undefined || num === null) return '0';
+  
+  if (num === 0) return '0';
+  
+  // 백만 단위 이상
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  }
+  
+  // 천 단위 이상
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  }
+  
+  // 그 외의 경우 그대로 반환
+  return num.toString();
+}
+
 // 이미지 파일을 base64로 인코딩하는 유틸리티 함수들은 이곳에 추가할 수 있습니다. 

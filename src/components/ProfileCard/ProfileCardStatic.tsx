@@ -1,5 +1,6 @@
 import React from 'react';
 import { Profile, GitHubStats, ProfileCardProps, Theme } from '../../types/profile';
+import { formatNumberUnit } from '../../utils/imageUtils';
 
 // 단순화된 TechBadge 컴포넌트 (@vercel/og 호환) - 아이콘 없음
 const SimpleTechBadge = ({ tech }: { tech: string }) => {
@@ -409,7 +410,41 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
             @{profile.githubUsername}
           </p>
         </div>
-        {/* 랭크 표시는 카드 하단으로 이동 */}
+        
+        {/* 스타 수 표시 */}
+        {stats?.totalStars !== undefined && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            borderRadius: '16px',
+            padding: '6px 12px',
+            border: `1px solid ${rankStyle.headerBorderColor}`,
+            position: 'absolute',
+            right: '24px',
+            top: '20px',
+          }}>
+            {/* Unicode 별 문자 사용 */}
+            <span style={{ 
+              color: '#FFD700', 
+              fontSize: '16px',
+              lineHeight: 1,
+              fontWeight: 'bold',
+              textShadow: '0 1px 2px rgba(0,0,0,0.7)'
+            }}>
+              ★
+            </span>
+            <span style={{ 
+              color: '#FFD700', 
+              fontWeight: '600', 
+              fontSize: '15px',
+              textShadow: '0 1px 1px rgba(0,0,0,0.5)'
+            }}>
+              {formatNumberUnit(stats.totalStars)}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* --- 본문 영역 --- */}
