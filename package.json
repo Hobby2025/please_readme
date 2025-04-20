@@ -1,6 +1,6 @@
 {
   "name": "please_readme",
-  "version": "2.2.9",
+  "version": "3.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
