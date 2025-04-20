@@ -566,6 +566,36 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
             {/* 통계 항목들 */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '28px' }}> 
               <div style={{ display: 'flex', gap: '16px' }}>
+                {/* totalCommits */}
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  justifyContent: 'center', 
+                  alignItems: 'center', 
+                  gap: '6px',
+                  flex: 1, 
+                  padding: '18px 12px',
+                  borderRadius: '8px',
+                  backgroundColor: 'rgba(17, 24, 39, 0.85)',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                  border: 'none',
+                }}>
+                  <div style={{ 
+                    fontSize: '24px', 
+                    fontWeight: 700, 
+                    color: rankStyle.titleColor,
+                    display: 'flex'
+                  }}>
+                    {stats?.totalCommits ?? '-'}
+                  </div>
+                  <div style={{ 
+                    fontSize: '13px', 
+                    color: '#9CA3AF',
+                    display: 'flex'
+                  }}>
+                    Total Commits
+                  </div>
+                </div>
                 {/* Commits */}
                 <div style={{ 
                   display: 'flex', 
@@ -594,37 +624,6 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                     display: 'flex'
                   }}>
                     Commits | {currentYear}
-                  </div>
-                </div>
-                
-                {/* Stars */}
-                <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  justifyContent: 'center', 
-                  alignItems: 'center', 
-                  gap: '6px',
-                  flex: 1, 
-                  padding: '18px 12px',
-                  borderRadius: '8px',
-                  backgroundColor: 'rgba(17, 24, 39, 0.85)',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                  border: 'none',
-                }}>
-                  <div style={{ 
-                    fontSize: '24px', 
-                    fontWeight: 700, 
-                    color: rankStyle.titleColor,
-                    display: 'flex'
-                  }}>
-                    {stats?.totalStars ?? '-'}
-                  </div>
-                  <div style={{ 
-                    fontSize: '13px', 
-                    color: '#9CA3AF',
-                    display: 'flex'
-                  }}>
-                    Total Stars
                   </div>
                 </div>
               </div>

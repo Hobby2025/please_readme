@@ -119,8 +119,14 @@ export class GitHubService {
             }
           }
           
-          # 올해 커밋 수 - 필수 필드만
-          contributionsCollection(from: $from, to: $to) {
+          # 올해 커밋 수 (별칭 사용)
+          currentYearContributions: contributionsCollection(from: $from, to: $to) {
+            totalCommitContributions
+            restrictedContributionsCount
+          }
+          
+          # 전체 기간 커밋 수 (제한 없이)
+          totalContributions: contributionsCollection {
             totalCommitContributions
             restrictedContributionsCount
           }
@@ -186,7 +192,7 @@ export class GitHubService {
       // 최적화: 필요한 데이터만 추출하는 구조 분해 할당 사용
       const { 
         name, login, avatarUrl, bio, location, company, email, websiteUrl,
-        repositories, contributionsCollection, pullRequests, issues,
+        repositories, currentYearContributions, totalContributions, pullRequests, issues,
         createdAt, updatedAt 
       } = result.user;
 
@@ -196,9 +202,15 @@ export class GitHubService {
         0
       );
       
+      // 올해 커밋 수 (제한된 시간 범위)
       const currentYearCommits = 
-        contributionsCollection.totalCommitContributions + 
-        contributionsCollection.restrictedContributionsCount;
+        currentYearContributions.totalCommitContributions + 
+        currentYearContributions.restrictedContributionsCount;
+      
+      // 전체 커밋 수 (제한 없는 시간 범위)
+      const totalCommits = 
+        totalContributions.totalCommitContributions + 
+        totalContributions.restrictedContributionsCount;
 
       // Rank 계산에 필요한 필드만 포함
       const rankParams = {
@@ -223,6 +235,7 @@ export class GitHubService {
         blog: websiteUrl || '',
         totalStars,
         currentYearCommits,
+        totalCommits,
         totalPRs: pullRequests.totalCount,
         totalIssues: issues.totalCount,
         createdAt,
@@ -244,7 +257,7 @@ export class GitHubService {
       const defaultRank: Rank = { level: '?', percentile: 0, score: 0 };
       return {
         name: username, avatarUrl: '', bio: '', location: '', company: '', email: '', blog: '',
-        totalStars: 0, currentYearCommits: 0,
+        totalStars: 0, currentYearCommits: 0, totalCommits: 0,
         totalPRs: 0, totalIssues: 0, createdAt: '', updatedAt: '',
         rank: defaultRank,
         twitterUsername: '',

@@ -16,6 +16,7 @@ const initialGithubStats: GitHubStats = {
   createdAt: '',
   updatedAt: '',
   currentYearCommits: 0,
+  totalCommits: 0,
   totalPRs: 0,
   totalIssues: 0,
   rank: { level: '?', percentile: 0, score: 0 },

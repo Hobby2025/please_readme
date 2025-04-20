@@ -137,7 +137,11 @@ export interface GitHubGraphQLResponse {
         stargazerCount: number;
       }[];
     };
-    contributionsCollection: {
+    currentYearContributions: {
+      totalCommitContributions: number;
+      restrictedContributionsCount: number;
+    };
+    totalContributions: {
       totalCommitContributions: number;
       restrictedContributionsCount: number;
     };

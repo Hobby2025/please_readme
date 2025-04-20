@@ -15,6 +15,7 @@ export interface GitHubStats {
   createdAt: string;
   updatedAt: string;
   currentYearCommits: number;
+  totalCommits: number;
   totalPRs: number;
   totalIssues: number;
   rank: Rank;
