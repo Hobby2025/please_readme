@@ -5,6 +5,7 @@
 import { getCachedData, setCachedData } from './cache';
 import path from 'path';
 import fs from 'fs/promises';
+import { GitHubStats } from '@/types'; // GitHubStats 타입 import
 
 const IMAGE_CACHE_TTL = 24 * 60 * 60; // 24시간 캐시
 
@@ -12,7 +13,7 @@ const IMAGE_CACHE_TTL = 24 * 60 * 60; // 24시간 캐시
  * 외부 이미지 URL을 가져와 캐싱
  * - 이미지 최적화는 별도의 라이브러리 없이 간단한 방식으로 구현
  */
-export async function optimizeImage(url: string): Promise<string | null> {
+export async function optimizeAndCacheImage(url: string): Promise<string | null> {
   try {
     // 캐시 키 생성
     const cacheKey = `image:${url}`;
@@ -138,3 +139,50 @@ export function formatNumberUnit(num: number): string {
 }
 
 // 이미지 파일을 base64로 인코딩하는 유틸리티 함수들은 이곳에 추가할 수 있습니다. 
+
+// ImageService에서 분리된 loadImage 함수
+export function loadImage(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    // 외부 이미지 로드를 위해 CORS 설정이 필요할 수 있음 (특히 Canvas에서 사용 시)
+    img.crossOrigin = 'anonymous'; 
+    img.onload = () => resolve(img);
+    img.onerror = (err) => {
+      console.error(`이미지 로드 실패: ${url}`, err);
+      reject(new Error(`이미지 로드 실패: ${url}`));
+    };
+    // 유효한 URL인지 먼저 검사 (선택 사항, urlUtils 사용 가능)
+    // if (!validateImageUrl(url)) { 
+    //   reject(new Error(`유효하지 않은 이미지 URL: ${url}`));
+    //   return;
+    // }
+    img.src = url;
+  });
+}
+
+// API 핸들러에서 분리된 이미지 처리 최적화 함수
+export async function optimizeProfileImages(
+  stats: GitHubStats
+): Promise<{ 
+  optimizedStats: GitHubStats;
+}> {
+  console.log(`[이미지 유틸] 프로필 이미지 최적화 시작`);
+  try {
+    // 아바타 이미지만 최적화 (optimizeAndCacheImage 사용)
+    const optimizedAvatar = stats.avatarUrl ? await optimizeAndCacheImage(stats.avatarUrl) : null;
+
+    // 최적화된 아바타 적용
+    const optimizedStats = {
+      ...stats,
+      avatarUrl: optimizedAvatar || stats.avatarUrl, // 최적화 실패 시 원본 유지
+    };
+    
+    console.log(`[이미지 유틸] 프로필 이미지 최적화 완료`);
+    return { optimizedStats };
+
+  } catch (error) {
+    console.error(`[이미지 유틸] 프로필 이미지 최적화 실패`, error);
+    // 오류 발생 시 원본 데이터 반환
+    return { optimizedStats: stats };
+  }
+} 

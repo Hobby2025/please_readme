@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
-import { Theme } from '@/types/profile';
-import { getRankStyle } from '@/styles/rankThemes';
+import { CardTheme } from '@/types';
+import { getRankStyle } from '@/themes/cardThemes';
 
 interface ThemeTooltipProps {
-  theme: Theme;
+  cardTheme: CardTheme;
   children: React.ReactNode;
 }
 
-const ThemeTooltip: React.FC<ThemeTooltipProps> = ({ theme, children }) => {
+const ThemeTooltip: React.FC<ThemeTooltipProps> = ({ cardTheme, children }) => {
   const [isVisible, setIsVisible] = useState(false);
 
-  // 랭크 레벨 배열
   const rankLevels = ['S', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', '?'];
+
+  const getDisplayThemeName = (theme: CardTheme): string => {
+    switch (theme) {
+      case 'cosmic': return 'Cosmic';
+      case 'mineral': return 'Mineral';
+      case 'pastel': return 'Pastel';
+      case 'default': return 'Default (Dark)';
+      default: return theme;
+    }
+  };
 
   return (
     <div 
@@ -24,11 +33,11 @@ const ThemeTooltip: React.FC<ThemeTooltipProps> = ({ theme, children }) => {
       {isVisible && (
         <div className="absolute z-10 w-64 p-3 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
           <div className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-            {theme === 'dark' ? '다크 테마' : '라이트 테마'} 스펙트럼
+            {getDisplayThemeName(cardTheme)} 스펙트럼
           </div>
           <div className="grid grid-cols-1 gap-2">
             {rankLevels.map(rank => {
-              const style = getRankStyle(rank, theme);
+              const style = getRankStyle(rank, cardTheme);
               return (
                 <div key={rank} className="flex items-center space-x-2">
                   <div className="flex-shrink-0 w-6 text-start">{rank}</div>

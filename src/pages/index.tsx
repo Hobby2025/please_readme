@@ -3,7 +3,7 @@ import { ProfileForm } from '../components/form/ProfileForm';
 import { ProfilePreview } from '../components/preview/ProfilePreview';
 import { useProfile } from '../hooks/useProfile';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
-import { Profile, Theme } from '@/types/profile';
+import { Profile, CardTheme } from '@/types';
 import { useToast } from '@/contexts/ToastContext';
 
 export default function Home() {
@@ -76,7 +76,7 @@ export default function Home() {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [previewParams, setPreviewParams] = useState<{
     username: string;
-    theme: Theme;
+    theme: CardTheme;
     skills: string[];
     bio?: string;
     name?: string;

@@ -1,17 +1,16 @@
 import React from 'react';
-import { Input } from '../ui/Input';
-import { TechBadge } from '../ui/TechBadge';
-import { Profile, ProfileFormProps, Theme } from '../../types/profile';
-import { availableTechStacks } from '../../constants/techStacks';
 import { Button } from '../ui/Button';
+import { TechBadge } from '../ui/TechBadge';
+import { Profile, ProfileFormProps, ThemeOption, FontOption, CardTheme } from '@/types';
+import { availableTechStacks } from '../../constants/techStacks';
 import { FaPencilAlt, FaImage, FaFont, FaGithubSquare, FaAcquisitionsIncorporated, FaFeatherAlt, FaTerminal, FaMoon, FaSun } from 'react-icons/fa';
-import { useRouter } from 'next/router';
-import { IconType } from 'react-icons';
 import ThemeTooltip from '../ui/ThemeTooltip';
 import FontPreview from '../ui/FontPreview';
+import { FiMoon, FiSun, FiStar, FiFeather } from 'react-icons/fi';
+import { useProfileForm } from '@/hooks/useProfileForm';
 
-// 사용 가능한 폰트 목록
-const availableFonts = [
+// 사용 가능한 폰트 목록 (타입 적용)
+const availableFonts: FontOption[] = [
   { value: 'BookkMyungjo', label: '북크 명조' },
   { value: 'Pretendard', label: '프리텐다드' },
   { value: 'HSSanTokki2.0', label: 'HS산토끼체2.0' },
@@ -19,10 +18,12 @@ const availableFonts = [
   { value: 'BMDOHYEON_ttf', label: '배민 도현체'},
 ];
 
-// 테마 옵션 목록 추가
-const themeOptions: { value: Theme; label: string; icon: IconType }[] = [
-  { value: 'dark', label: '다크 테마', icon: FaMoon },
-  { value: 'light', label: '라이트 테마', icon: FaSun },
+// 테마 옵션 목록 업데이트 (CardTheme 사용)
+const themeOptions: ThemeOption[] = [
+  { value: 'default', label: 'Default', icon: FiMoon }, // Dark 테마
+  { value: 'pastel', label: 'Pastel', icon: FiSun }, // Light 테마
+  { value: 'cosmic', label: 'Cosmic', icon: FiStar }, // Cosmic 테마 (임시 아이콘)
+  { value: 'mineral', label: 'Mineral', icon: FiFeather }, // Mineral 테마 (임시 아이콘)
 ];
 
 export const ProfileForm: React.FC<ProfileFormProps> = ({
@@ -31,38 +32,14 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   disabled = false,
   onGeneratePreview,
 }) => {
-  const router = useRouter();
-  
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setProfile({ ...profile, [name]: value });
-  };
-
-  const handleSkillChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value, checked } = e.target;
-    setProfile({
-      ...profile,
-      skills:
-        checked
-          ? [...profile.skills, value]
-          : profile.skills.filter((skill) => skill !== value),
-    });
-  };
-
-  // 폰트 변경 핸들러 추가
-  const handleFontChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { value } = e.target;
-    setProfile({ ...profile, fontFamily: value });
-  };
-
-  // 테마 변경 핸들러 추가
-  const handleThemeChange = (theme: Theme) => {
-    setProfile({ ...profile, theme });
-  };
-
-  const handleClearSkills = () => {
-    setProfile({ ...profile, skills: [] });
-  };
+  // useProfileForm 훅 사용
+  const {
+    handleInputChange,
+    handleSkillChange,
+    handleFontChange,
+    handleThemeChange,
+    handleClearSkills,
+  } = useProfileForm({ profile, setProfile });
 
   return (
     <div className="h-full bg-[#F2F2F2]/80 rounded-xl shadow-lg overflow-hidden flex flex-col border border-[#F2D479]">
@@ -82,7 +59,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
                 <FaGithubSquare className='h-4 mr-1' />
                 GitHub 사용자명
               </label>
-              <Input
+              <input
                 id="githubUsername"
                 name="githubUsername"
                 value={profile.githubUsername}
@@ -97,7 +74,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
                 <FaAcquisitionsIncorporated className='h-4  mr-1' />
                 카드 제목
               </label>
-              <Input
+              <input
                 id="name"
                 name="name"
                 value={profile.name}
@@ -112,7 +89,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
                 <FaFeatherAlt className='h-4  mr-1' />
                 소개
               </label>
-              <Input
+              <input
                 id="bio"
                 name="bio"
                 value={profile.bio}
@@ -147,29 +124,29 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
               <FontPreview fontFamily={profile.fontFamily || 'BookkMyungjo'} />
             </div>
             
-            {/* 테마 선택 필드 추가 */}
+            {/* 테마 선택 필드 수정 */}
             <div>
               <label className="text-base font-medium text-[#F2B705] mb-1 flex items-center">
                 <FaTerminal className="h-4 mr-1" />
                 카드 테마
               </label>
-              <div className="flex space-x-3 mt-1">
+              <div className="flex flex-wrap gap-2 mt-1">
                 {themeOptions.map((option) => {
                   const Icon = option.icon;
                   const isSelected = profile.theme === option.value;
                   return (
-                    <ThemeTooltip key={option.value} theme={option.value}>
+                    <ThemeTooltip key={option.value} cardTheme={option.value}>
                       <button
                         type="button"
                         onClick={() => handleThemeChange(option.value)}
                         disabled={disabled}
-                        className={`flex items-center justify-center px-4 py-2 rounded-md border ${
+                        className={`flex items-center justify-center px-3 py-1.5 rounded-md border text-sm ${
                           isSelected
                             ? 'border-[#F2B705] bg-[#F2B705]/20 text-[#F29F05] font-medium'
                             : 'border-gray-300 bg-white/70 text-gray-500 hover:bg-gray-50'
                         }`}
                       >
-                        <Icon className="h-4 w-4 mr-2" />
+                        <Icon className="h-4 w-4 mr-1.5" />
                         {option.label}
                       </button>
                     </ThemeTooltip>
@@ -201,7 +178,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             
             <div className="mb-3 flex flex-wrap gap-2 min-h-[30px]">
               {profile.skills.length > 0 ? (
-                profile.skills.map((skill) => (
+                profile.skills.map((skill: string) => (
                   <TechBadge key={skill} tech={skill} />
                 ))
               ) : (

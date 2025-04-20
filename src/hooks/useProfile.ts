@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
-import { Profile, GitHubStats } from '../types/profile';
+import { Profile, GitHubStats, CardTheme } from '@/types';
 import { GitHubService } from '../services/github';
-import { Rank } from '@/utils/rankUtils';
 
 const initialGithubStats: GitHubStats = {
   totalStars: 0,
@@ -27,7 +26,7 @@ const initialProfile: Profile = {
   name: '',
   bio: '',
   skills: [],
-  theme: 'dark',
+  theme: 'default',
 };
 
 export function useProfile() {

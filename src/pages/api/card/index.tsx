@@ -1,101 +1,21 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { GitHubService } from '@/services/github';
-import { Profile, GitHubStats, Theme } from '@/types/profile';
+import { Profile, CardTheme } from '@/types';
 import { ImageResponse } from '@vercel/og';
 import ProfileCardStatic from '@/components/ProfileCard/ProfileCardStatic';
-import fs from 'fs/promises';
-import path from 'path';
-import React from 'react';
-import { optimizeImage, getImageUrl } from '@/utils/imageUtils';
+import { optimizeProfileImages } from '@/utils/imageUtils';
+import { getFontData, VercelFontOptions } from '@/utils/fontUtils';
+import { calculateCardHeight } from '@/utils/layoutUtils';
+import { measurePerformance } from '@/utils/performanceUtils';
 import { getCachedData, setCachedData, deleteCachedData } from '@/utils/cache';
 
 // 캐시 TTL 설정
 const CACHE_TTL_SECONDS = 4 * 60 * 60; // vercel 캐싱 주기 4시간으로 조절
 const GITHUB_DATA_TTL_SECONDS = 4 * 60 * 60; // GitHub 데이터 4시간 캐싱
 
-// 기술 스택 개수에 따른 카드 높이 계산 함수
-const calculateCardHeight = (skillsCount: number, fontFamily?: string): number => {
-  const SKILLS_PER_ROW = 4;
-  
-  // 폰트에 따른 기본 높이 설정
-  const BASE_HEIGHT = (fontFamily === 'BookkMyungjo' || fontFamily === 'BMJUA_ttf') ? 780 : 820;
-  const ROW_HEIGHT = 40;
-  
-  const skillRows = Math.ceil(skillsCount / SKILLS_PER_ROW);
-  return BASE_HEIGHT + (Math.max(0, skillRows - 1) * ROW_HEIGHT);
-};
-
-function isValidTheme(theme: string): theme is Theme {
-  return theme === 'dark' || theme === 'light';
-}
-
-// 로컬 폰트 데이터 로드 함수 (사용자 선택 폰트 지원)
-async function getFontData(fontFamily: string = 'BookkMyungjo'): Promise<{ name: string; data: Buffer; weight: number; style: 'normal' | 'italic' }[]> {
-  const fontDirectory = path.join(process.cwd(), 'public', 'fonts');
-
-  // 폰트별 파일 설정
-  const fontConfig: Record<string, {files: {file: string; weight: number}[]}> = {
-    'BookkMyungjo': {
-      files: [
-        { file: 'BookkMyungjo_Light.ttf', weight: 300 },
-        { file: 'BookkMyungjo_Bold.ttf', weight: 700 },
-      ]
-    },
-    'Pretendard': {
-      files: [
-        { file: 'Pretendard-Regular.ttf', weight: 400 },
-        { file: 'Pretendard-Bold.ttf', weight: 700 },
-      ]
-    },
-    'HSSanTokki2.0': {
-      files: [
-        { file: 'HSSanTokki2.0.ttf', weight: 400 },
-        { file: 'HSSanTokki2.0.ttf', weight: 700 },
-      ]
-    },
-    'BMJUA_ttf': {
-      files: [
-        { file: 'BMJUA_ttf.ttf', weight: 400},
-        { file: 'BMJUA_ttf.ttf', weight: 700},
-      ]
-    },
-    'BMDOHYEON_ttf': {
-      files: [
-        { file: 'BMDOHYEON_ttf.ttf', weight:400},
-        { file: 'BMDOHYEON_ttf.ttf', weight:700},
-      ]
-    }
-  };
-
-  // 요청된 폰트가 설정에 없는 경우 기본 폰트 사용
-  if (!fontConfig[fontFamily]) {
-    console.log(`[카드 API] 요청된 폰트 ${fontFamily}가 없어 기본 폰트(BookkMyungjo)를 사용합니다.`);
-    fontFamily = 'BookkMyungjo';
-  }
-
-  const fontFiles = fontConfig[fontFamily].files;
-
-  const fontDataPromises = fontFiles.map(async ({ file, weight }) => {
-    try {
-      const filePath = path.join(fontDirectory, file);
-      const data = await fs.readFile(filePath);
-      return { name: fontFamily, data: data, weight, style: 'normal' as 'normal' | 'italic' };
-    } catch (error) {
-      console.error(`[카드 API] 폰트 ${file} 로딩 실패:`, error);
-      return null; // 오류 발생 시 null 반환
-    }
-  });
-
-  const settledFontData = await Promise.all(fontDataPromises);
-  
-  const validFontData = settledFontData.filter(data => data !== null) as { name: string; data: Buffer; weight: number; style: 'normal' | 'italic' }[];
-  
-  if (validFontData.length === 0) {
-     console.error('[카드 API] 폰트 로딩 실패. 기본 시스템 폰트를 사용합니다.');
-     return [];
-  }
-  
-  return validFontData;
+// CardTheme 타입 가드 함수
+function isValidCardTheme(theme: string): theme is CardTheme {
+  return ['cosmic', 'mineral', 'default', 'pastel'].includes(theme);
 }
 
 // Edge 런타임 설정 제거
@@ -103,68 +23,7 @@ async function getFontData(fontFamily: string = 'BookkMyungjo'): Promise<{ name:
 //   runtime: 'edge',
 // };
 
-// 이미지 처리 성능 최적화
-async function optimizeImageProcessing(
-  stats: GitHubStats, 
-  fonts: any[]
-): Promise<{ 
-  optimizedStats: GitHubStats, 
-  processingTime: number
-}> {
-  const startTime = Date.now();
-  console.log(`[카드 API] 이미지 최적화 시작`);
-
-  try {
-    // 아바타 이미지만 최적화
-    const optimizedAvatar = stats.avatarUrl ? await optimizeImage(stats.avatarUrl) : null;
-
-    // 최적화된 아바타 적용
-    const optimizedStats = {
-      ...stats,
-      avatarUrl: optimizedAvatar || stats.avatarUrl
-    };
-
-    const processingTime = (Date.now() - startTime) / 1000;
-    console.log(`[카드 API] 이미지 최적화 완료: ${processingTime.toFixed(2)}초`);
-
-    return {
-      optimizedStats,
-      processingTime
-    };
-  } catch (error) {
-    const processingTime = (Date.now() - startTime) / 1000;
-    console.error(`[카드 API] 이미지 최적화 실패: ${processingTime.toFixed(2)}초`, error);
-    
-    // 오류 발생 시 원본 데이터 반환
-    return {
-      optimizedStats: stats,
-      processingTime
-    };
-  }
-}
-
-// 성능 측정을 위한 래퍼 함수
-async function measurePerformance<T>(
-  name: string, 
-  fn: () => Promise<T>
-): Promise<{ result: T, time: number }> {
-  const startTime = Date.now();
-  console.log(`[카드 API] ${name} 시작`);
-  
-  try {
-    const result = await fn();
-    const time = (Date.now() - startTime) / 1000;
-    console.log(`[카드 API] ${name} 완료: ${time.toFixed(2)}초`);
-    return { result, time };
-  } catch (error) {
-    const time = (Date.now() - startTime) / 1000;
-    console.error(`[카드 API] ${name} 실패: ${time.toFixed(2)}초`, error);
-    throw error;
-  }
-}
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // 시작 시간 기록 (성능 측정용)
   const startTime = Date.now();
   console.log(`[카드 API 요청 시작] ${new Date().toISOString()}`);
   
@@ -189,12 +48,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'GitHub 사용자명(username)이 필요합니다.' });
     }
     
-    // 테마 처리 - 유효한 테마 값이면 사용, 아니면 다크로 기본값 설정
-    const theme: Theme = (typeof themeParam === 'string' && isValidTheme(themeParam)) 
-      ? themeParam as Theme 
-      : 'dark';
+    // 테마 처리 (CardTheme 사용)
+    const theme: CardTheme = (typeof themeParam === 'string' && isValidCardTheme(themeParam)) 
+      ? themeParam as CardTheme 
+      : 'default'; // 기본값은 'default' CardTheme
     
-    console.log(`[카드 API] 요청된 테마: ${themeParam}, 사용될 테마: ${theme}`);
+    console.log(`[카드 API] 요청된 테마 파라미터: ${themeParam}, 사용될 CardTheme: ${theme}`);
     
     // 캐싱을 위한 키 생성 (모든 파라미터 포함)
     const cacheKey = `card:${username}:${theme}:${customBgUrl || ''}:${customBio || ''}:${skillsParam || ''}:${customName || ''}:${opacityParam || ''}:${fontFamily || ''}`;
@@ -228,11 +87,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     // 모든 데이터 가져오기를 병렬로 처리
     const [githubResult, fontsResult] = await Promise.all([
-      measurePerformance('GitHub 데이터 요청', async () => 
+      measurePerformance('GitHub 데이터 요청', () => 
         GitHubService.getInstance().getUserStats(username, forceRefresh)
       ),
       measurePerformance('폰트 로딩', () => {
-        // fontFamily가 문자열인지 확인
         const fontFamilyStr = typeof fontFamily === 'string' ? fontFamily : undefined;
         return getFontData(fontFamilyStr);
       })
@@ -241,97 +99,64 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const stats = githubResult.result;
     const fonts = fontsResult.result;
     
-    // 이미지 최적화 처리
-    const { 
-      optimizedStats, 
-      processingTime: imageOptTime 
-    } = await optimizeImageProcessing(stats, fonts);
+    // 이미지 최적화 (measurePerformance + 분리된 함수 사용)
+    const { result: { optimizedStats }, time: imageOptTime } = await measurePerformance(
+       '이미지 최적화', 
+       () => optimizeProfileImages(stats)
+    );
     
     // 스킬 배열 파싱
-    const skills = skillsParam && typeof skillsParam === 'string'
-      ? skillsParam.split(',').map(skill => skill.trim()).filter(Boolean)
-      : [];
+    const skills = typeof skillsParam === 'string' ? skillsParam.split(',').map(s => s.trim()).filter(Boolean) : [];
     
-    // 기술 스택 개수에 따른 카드 높이 계산
-    const cardHeight = calculateCardHeight(
-      skills.length, 
-      typeof fontFamily === 'string' ? fontFamily : undefined
-    );
-    console.log(`[카드 API] 기술 스택 개수: ${skills.length}, 계산된 카드 높이: ${cardHeight}px`);
-    
-    // 배경 불투명도 파싱
-    const opacity = opacityParam && typeof opacityParam === 'string'
-      ? parseFloat(opacityParam)
-      : 0.1;
-    
-    // 프로필 객체 구성
+    // 프로필 객체 생성 (theme: CardTheme 사용)
     const profile: Profile = {
       githubUsername: username,
-      name: customName && typeof customName === 'string' ? customName : undefined,
-      bio: customBio && typeof customBio === 'string' ? customBio : undefined,
-      skills,
+      name: (typeof customName === 'string' ? customName : optimizedStats.name) || '',
+      bio: (typeof customBio === 'string' ? customBio : optimizedStats.bio) || '',
       theme,
-      backgroundImageUrl: undefined,
-      backgroundOpacity: undefined,
-      fontFamily: typeof fontFamily === 'string' ? fontFamily : undefined,
+      skills,
+      fontFamily: typeof fontFamily === 'string' ? fontFamily : 'BookkMyungjo', 
+      // backgroundImageUrl, backgroundOpacity 는 현재 쿼리 파라미터로 처리하지 않음
     };
     
-    // 이미지 생성에 필요한 옵션
-    const options = {
-      width: 600,
-      height: cardHeight, // 동적으로 계산된 높이 사용
-      fonts: fonts.map(font => ({
-        name: font.name,
-        data: font.data,
-        weight: font.weight as (100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900),
-        style: font.style as ('normal' | 'italic'),
-      })),
-      // 메모리 사용량 최적화 옵션
-      emoji: 'noto' as 'noto',
-      debug: false,
-    };
+    // 카드 높이 계산 (분리된 함수 사용)
+    const cardHeight = calculateCardHeight(profile.skills.length, profile.fontFamily);
     
-    // 이미지 렌더링 측정
-    const renderResult = await measurePerformance('이미지 렌더링', async () => {
-      // 이미지 응답 생성
+    // @vercel/og 이미지 생성 (measurePerformance 사용)
+    const { result: imageBuffer, time: imageGenTime } = await measurePerformance('카드 이미지 생성', async () => {
       const imageResponse = new ImageResponse(
         (
-          <ProfileCardStatic
+          <ProfileCardStatic 
             profile={profile}
             stats={optimizedStats}
             loading={false}
-            currentYear={new Date().getFullYear()}
           />
         ),
-        options
+        {
+          width: 600,
+          height: cardHeight,
+          fonts: fonts as VercelFontOptions[],
+          // debug: true, // 필요시 디버깅 활성화
+        }
       );
-      
-      // 이미지 버퍼 반환
-      const imgBuffer = await imageResponse.arrayBuffer();
-      return Buffer.from(imgBuffer);
+      // ArrayBuffer로 변환
+      const imageArrayBuffer = await imageResponse.arrayBuffer();
+      return Buffer.from(imageArrayBuffer);
     });
-    
-    const buffer = renderResult.result;
-    
-    // 캐시에 저장
-    await setCachedData(cacheKey, buffer, CACHE_TTL_SECONDS);
-    
-    // 응답 헤더 설정
+
+    // 캐시에 이미지 저장
+    await setCachedData(cacheKey, imageBuffer, CACHE_TTL_SECONDS);
+
+    // 응답 헤더 설정 및 이미지 반환
     res.setHeader('Content-Type', 'image/png');
     res.setHeader('Cache-Control', `public, max-age=${CACHE_TTL_SECONDS}`);
     
-    // 총 처리 시간 로깅
-    const totalTime = (Date.now() - startTime) / 1000;
-    console.log(
-      `[카드 API 완료] 총 처리 시간: ${totalTime.toFixed(2)}초, ` +
-      `내역: GitHub(${githubResult.time.toFixed(2)}초), ` + 
-      `폰트 로딩(${fontsResult.time.toFixed(2)}초), ` +
-      `이미지 최적화(${imageOptTime.toFixed(2)}초), ` + 
-      `렌더링(${renderResult.time.toFixed(2)}초)`
-    );
+    // 처리 완료 시간 로깅
+    const endTime = Date.now();
+    const totalTime = (endTime - startTime) / 1000;
+    console.log(`[카드 API 완료] 캐시 생성 - 총 처리 시간: ${totalTime.toFixed(2)}초 (GitHub: ${githubResult.time.toFixed(2)}s, 폰트: ${fontsResult.time.toFixed(2)}s, 이미지 최적화: ${imageOptTime.toFixed(2)}s, 이미지 생성: ${imageGenTime.toFixed(2)}s)`);
     
-    return res.status(200).send(buffer);
-    
+    return res.status(200).send(imageBuffer);
   } catch (error) {
     console.error('카드 생성 실패:', error);
     

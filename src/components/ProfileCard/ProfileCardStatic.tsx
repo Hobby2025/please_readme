@@ -1,86 +1,15 @@
 import React from 'react';
-import { Profile, GitHubStats, ProfileCardProps, Theme } from '../../types/profile';
+import { Profile, GitHubStats, ProfileCardProps, SimpleTechBadgeProps, TechNormalizationMap, CardTheme } from '@/types';
 import { formatNumberUnit } from '../../utils/imageUtils';
-import { getRankStyle } from '../../styles/rankThemes';
+import { getRankStyle } from '@/themes/cardThemes';
+import { FiStar, FiExternalLink, FiMapPin, FiUsers, FiBriefcase, FiMail, FiTwitter, FiLink, FiCalendar, FiEdit } from 'react-icons/fi';
+import { SiGithub } from 'react-icons/si';
+import Head from 'next/head';
+import { getTechColor, darkenColor } from '@/utils/colorUtils';
 
-// Simplified TechBadge component (compatible with @vercel/og) - no icons
-const SimpleTechBadge = ({ tech }: { tech: string }) => {
-  const bgColors: Record<string, string> = {
-    'React': '#61DAFB',
-    'TypeScript': '#3178C6',
-    'JavaScript': '#F7DF1E',
-    'Next.js': '#000000',
-    'Node.js': '#339933',
-    'Python': '#3776AB',
-    'Java': '#007396',
-    'Go': '#00ADD8',
-    'CSS': '#1572B6',
-    'HTML': '#E34F26',
-    'TailwindCSS': '#06B6D4',
-    'MySQL': '#4479A1',
-    'PostgreSQL': '#4169E1',
-    'MongoDB': '#47A248',
-    'Express': '#000000',
-    'GraphQL': '#E10098',
-    'Redux': '#764ABC',
-    'Git': '#F05032',
-    'Docker': '#2496ED',
-    'Kubernetes': '#326CE5',
-    'AWS': '#232F3E',
-    'Vue.js': '#4FC08D',
-    'Angular': '#DD0031',
-    'Linux': '#FCC624',
-    'Rust': '#DEA584',
-    'Kotlin': '#7F52FF',
-    'Swift': '#F05138',
-    'Redis': '#DC382D',
-    'C#': '#512BD4',
-    'PHP': '#777BB4',
-    'Ruby': '#CC342D',
-    'Sass': '#CC6699',
-    'Figma': '#F24E1E',
-    'Spring': '#6DB33F',
-    'C++': '#00599C',
-    'Django': '#092E20',
-    'Flask': '#000000',
-    'GCP': '#4285F4',
-    'Azure': '#0078D4',
-    'Bootstrap': '#7952B3',
-    'Svelte': '#FF3E00',
-    'MobX': '#FF9955',
-    'Cypress': '#17202C',
-    'GitHub': '#181717',
-    'GitLab': '#FC6D26',
-    'Jira': '#0052CC',
-    'REST API': '#FF6C37',
-    'CI/CD': '#D33833',
-    '테스트': '#4E9BCD',
-    'default': '#2563EB'
-  };
-
-  const textColors: Record<string, string> = {
-    'JavaScript': '#000000',
-    'Linux': '#000000',
-    'Rust': '#000000',
-    'default': '#FFFFFF'
-  };
-
-  const bgColor = bgColors[tech] || bgColors['default'];
-  const textColor = textColors[tech] || textColors['default'];
-
-  const darkenColor = (color: string, amount: number = 15): string => {
-    if (color.startsWith('#')) {
-      const r = parseInt(color.slice(1, 3), 16);
-      const g = parseInt(color.slice(3, 5), 16);
-      const b = parseInt(color.slice(5, 7), 16);
-      const newR = Math.max(0, r - amount);
-      const newG = Math.max(0, g - amount);
-      const newB = Math.max(0, b - amount);
-      return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
-    }
-    return color;
-  };
-
+const SimpleTechBadge: React.FC<SimpleTechBadgeProps> = ({ tech }) => {
+  const { background: bgColor, text: textColor } = getTechColor(tech);
+  
   const darkBgColor = darkenColor(bgColor);
 
   return (
@@ -132,7 +61,12 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
   console.log('[ProfileCardStatic] 계산된 카드 높이:', cardHeight);
 
   const currentYear = new Date().getFullYear();
-  const rankStyle = getRankStyle(rankLevel, profile.theme);
+  
+  // 내부 테마 매핑 로직 제거
+  // const cardTheme: CardTheme = profile.theme === 'light' ? 'pastel' : 'default'; 
+  
+  // profile.theme (이제 CardTheme 타입)을 직접 사용
+  const rankStyle = getRankStyle(rankLevel, profile.theme); 
 
   return (
     <div
@@ -340,7 +274,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                 }}
               >
                 {(() => {
-                  const techNormalization: Record<string, string> = {
+                  const techNormalization: TechNormalizationMap = {
                     'CSS': 'CSS',
                     'CSS3': 'CSS',
                     'HTML': 'HTML',

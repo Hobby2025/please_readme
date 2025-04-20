@@ -1,20 +1,7 @@
-import { Theme } from '../types/profile';
-
-export type CardTheme = 'cosmic' | 'mineral' | 'default' | 'pastel';
+import { RankStyle, CardTheme } from '@/types';
 
 // 테마별 랭크 스타일 시스템 정의
-export interface RankStyle {
-  headerBg: string;
-  headerBorderColor: string;
-  cardShadow: string;
-  rankTextColor: string;
-  statsBg: string;
-  badgeBg: string;
-  badgeText: string;
-  cardBg: string;
-  textColor: string;
-  titleColor: string;
-}
+// export interface RankStyle { ... }
 
 // 테마별 랭크 스타일 시스템 
 export const themeStyles: Record<CardTheme, Record<string, RankStyle>> = {

@@ -1,9 +1,11 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { ProfilePreviewProps, Profile, Theme } from '../../types/profile';
+import React from 'react';
+import { Profile, GitHubStats, ProfilePreviewProps } from '@/types';
 import { Button } from '../ui/Button';
 import { FaMarkdown, FaHtml5, FaCode } from 'react-icons/fa';
 import { Loading } from '../ui/Loading';
 import { ErrorMessage } from '../ui/ErrorMessage';
+import ProfileCardStatic from '../ProfileCard/ProfileCardStatic';
+import { useProfilePreviewImage } from '@/hooks/useProfilePreviewImage';
 
 export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
   profileForFallback,
@@ -16,47 +18,13 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
   onCopyMarkdown,
   onCopyHtml,
 }) => {
-  const [imageUrl, setImageUrl] = useState('');
-  const [isImageLoading, setIsImageLoading] = useState(false);
-  const [imageError, setImageError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!previewParams || statsLoading || statsError) {
-      setImageUrl('');
-      setIsImageLoading(false);
-      setImageError(null);
-      return;
-    }
-
-    const params = new URLSearchParams();
-    params.set('username', previewParams.username);
-    params.set('theme', previewParams.theme);
-    if (previewParams.skills.length > 0) params.set('skills', previewParams.skills.join(','));
-    if (previewParams.bio) params.set('bio', previewParams.bio);
-    if (previewParams.name) params.set('name', previewParams.name);
-    if (previewParams.fontFamily) params.set('fontFamily', previewParams.fontFamily);
-    
-    params.set('t', Date.now().toString());
-
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
-    const url = `${baseUrl}/api/card?${params.toString()}`;
-    
-    setImageUrl(url);
-    setIsImageLoading(true);
-    setImageError(null);
-
-  }, [previewParams, statsLoading, statsError]);
-
-  const handleImageLoad = () => {
-    setIsImageLoading(false);
-    setImageError(null);
-    onImageLoadSuccess?.();
-  };
-
-  const handleImageError = () => {
-    setIsImageLoading(false);
-    setImageError('미리보기 이미지를 불러오는데 실패했습니다. API 서버 상태를 확인하거나 잠시 후 다시 시도해주세요.');
-  };
+  const {
+    imageUrl,
+    isImageLoading,
+    imageError,
+    handleImageLoad,
+    handleImageError,
+  } = useProfilePreviewImage({ previewParams, statsLoading, statsError, onImageLoadSuccess });
 
   return (
     <div className="h-full flex flex-col bg-[#F2F2F2]/80 rounded-xl shadow-lg overflow-hidden border border-[#F2DAAC]">
@@ -132,8 +100,8 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
               <img 
                 src={imageUrl} 
                 alt={`${previewParams?.username || '...'}'s Profile Card Preview`}
-                onLoad={handleImageLoad} 
-                onError={handleImageError} 
+                onLoad={handleImageLoad}
+                onError={handleImageError}
                 className={`w-full h-full object-contain ${isImageLoading || imageError ? 'hidden' : 'block'}`}
               />
             </div>
