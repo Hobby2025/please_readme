@@ -7,6 +7,8 @@ import { Button } from '../ui/Button';
 import { FaPencilAlt, FaImage, FaFont, FaGithubSquare, FaAcquisitionsIncorporated, FaFeatherAlt, FaTerminal, FaMoon, FaSun } from 'react-icons/fa';
 import { useRouter } from 'next/router';
 import { IconType } from 'react-icons';
+import ThemeTooltip from '../ui/ThemeTooltip';
+import FontPreview from '../ui/FontPreview';
 
 // 사용 가능한 폰트 목록
 const availableFonts = [
@@ -140,6 +142,9 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
                   </option>
                 ))}
               </select>
+              
+              {/* 폰트 미리보기 추가 */}
+              <FontPreview fontFamily={profile.fontFamily || 'BookkMyungjo'} />
             </div>
             
             {/* 테마 선택 필드 추가 */}
@@ -153,20 +158,21 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
                   const Icon = option.icon;
                   const isSelected = profile.theme === option.value;
                   return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleThemeChange(option.value)}
-                      disabled={disabled}
-                      className={`flex items-center justify-center px-4 py-2 rounded-md border ${
-                        isSelected
-                          ? 'border-[#F2B705] bg-[#F2B705]/20 text-[#F29F05] font-medium'
-                          : 'border-gray-300 bg-white/70 text-gray-500 hover:bg-gray-50'
-                      }`}
-                    >
-                      <Icon className="h-4 w-4 mr-2" />
-                      {option.label}
-                    </button>
+                    <ThemeTooltip key={option.value} theme={option.value}>
+                      <button
+                        type="button"
+                        onClick={() => handleThemeChange(option.value)}
+                        disabled={disabled}
+                        className={`flex items-center justify-center px-4 py-2 rounded-md border ${
+                          isSelected
+                            ? 'border-[#F2B705] bg-[#F2B705]/20 text-[#F29F05] font-medium'
+                            : 'border-gray-300 bg-white/70 text-gray-500 hover:bg-gray-50'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4 mr-2" />
+                        {option.label}
+                      </button>
+                    </ThemeTooltip>
                   );
                 })}
               </div>
@@ -203,7 +209,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
               )}
             </div>
 
-            <div className="max-h-48 overflow-y-auto border border-[#F2D479] rounded-lg p-3 grid grid-cols-2 sm:grid-cols-3 gap-2 bg-white/70">
+            <div className="max-h-36 overflow-y-auto border border-[#F2D479] rounded-lg p-3 grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white/70">
               {availableTechStacks.map((tech) => (
                 <label key={tech} className="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-[#F2DAAC]/50 transition-colors">
                   <input
