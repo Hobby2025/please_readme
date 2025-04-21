@@ -50,21 +50,12 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
           <div className="flex gap-2">
             <Button 
               size="sm" 
-              onClick={onCopyMarkdown}
-              disabled={!previewParams?.username}
-              className="bg-[#F2B705] text-white hover:bg-[#F29F05]"
-            >
-              <FaMarkdown className="mr-2" />
-              마크다운 복사
-            </Button>
-            <Button 
-              size="sm" 
               onClick={onCopyHtml}
               disabled={!previewParams?.username}
               className="bg-[#F2B705] text-white hover:bg-[#F29F05]"
             >
               <FaCode className="mr-2" />
-              HTML 복사
+              코드 복사
             </Button>
           </div>
         )}

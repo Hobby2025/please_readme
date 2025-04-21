@@ -200,7 +200,7 @@ export default function Home() {
     const url = `${baseUrl}/api/card?${params.toString()}`;
     
     // 넓이 속성이 포함된 HTML 이미지 태그 생성
-    const htmlCode = `<img src="${url}" width="500">`;
+    const htmlCode = `<img src="${url}" width="500" loading="lazy" alt="${previewParams.name || previewParams.username}'s GitHub Profile">`;
     
     navigator.clipboard.writeText(htmlCode)
       .then(() => {
@@ -281,7 +281,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-base font-semibold text-[#F29F05] mb-2">GitHub에 적용</h3>
                 <p className="text-sm text-gray-700">
-                  미리보기 상단의 '마크다운 복사' 버튼 또는 높이조절이 가능한 'Html 복사' 버튼으로 코드를 복사하여 GitHub 프로필 README.md 파일에 붙여넣습니다.
+                  미리보기 상단의 '코드 복사' 버튼으로 HTML 코드를 복사하여 GitHub 프로필 README.md 파일에 붙여넣습니다. 이미지는 지연 로딩됩니다.
                 </p>
               </div>
             </div>
