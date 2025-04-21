@@ -75,7 +75,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // 캐시된 이미지가 있으면 Content-Type 설정하고 반환
       console.log(`[카드 API] 캐시 사용: ${cacheKey}`);
       res.setHeader('Content-Type', 'image/png');
-      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Cache-Control', 'no-cache, no-store');
+      res.setHeader('Expires', 'Mon, 01 Jan 1990 00:00:00 GMT');
       
       // 처리 완료 시간 로깅 (캐시 사용)
       const endTime = Date.now();
@@ -138,7 +139,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           fonts: fonts as VercelFontOptions[],
           // debug: true, // 필요시 디버깅 활성화
           headers: {
-            'Cache-Control': 'no-cache',
+            'Cache-Control': 'no-cache, no-store',
+            'Expires': 'Mon, 01 Jan 1990 00:00:00 GMT',
           },
         }
       );
@@ -152,7 +154,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // 응답 헤더 설정 및 이미지 반환
     res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Cache-Control', 'no-cache, no-store');
+    res.setHeader('Expires', 'Mon, 01 Jan 1990 00:00:00 GMT');
     
     // 처리 완료 시간 로깅
     const endTime = Date.now();
