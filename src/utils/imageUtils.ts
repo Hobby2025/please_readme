@@ -168,8 +168,14 @@ export async function optimizeProfileImages(
 }> {
   console.log(`[이미지 유틸] 프로필 이미지 최적화 시작`);
   try {
-    // 아바타 이미지만 최적화 (optimizeAndCacheImage 사용)
+    // 아바타 이미지 최적화 (optimizeAndCacheImage 사용)
     const optimizedAvatar = stats.avatarUrl ? await optimizeAndCacheImage(stats.avatarUrl) : null;
+
+    // GitHub 이미지 URL이 있는지 확인하고 미리 로드
+    if (stats.avatarUrl && stats.avatarUrl.includes('github.com')) {
+      // 미리 이미지 로드를 위한 함수 호출
+      await preloadGitHubImage(stats.avatarUrl);
+    }
 
     // 최적화된 아바타 적용
     const optimizedStats = {
@@ -184,5 +190,38 @@ export async function optimizeProfileImages(
     console.error(`[이미지 유틸] 프로필 이미지 최적화 실패`, error);
     // 오류 발생 시 원본 데이터 반환
     return { optimizedStats: stats };
+  }
+}
+
+/**
+ * GitHub 이미지를 미리 로드하여 캐싱하는 함수
+ * - README에서 이미지가 제대로 표시되도록 돔
+ */
+export async function preloadGitHubImage(url: string): Promise<void> {
+  try {
+    if (!url.includes('github.com')) return;
+    
+    console.log(`GitHub 이미지 미리 로드 시작: ${url}`);
+    
+    // 이미지 미리 로드를 위한 헤더 설정
+    const headers = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache'
+    };
+    
+    // 이미지 미리 로드
+    const response = await fetch(url, { headers, cache: 'no-store' });
+    
+    if (!response.ok) {
+      console.error(`GitHub 이미지 미리 로드 실패: ${response.status} ${response.statusText}`);
+      return;
+    }
+    
+    // 이미지 데이터 버퍼로 가져오기
+    await response.arrayBuffer();
+    console.log(`GitHub 이미지 미리 로드 성공: ${url}`);
+  } catch (error) {
+    console.error(`GitHub 이미지 미리 로드 오류:`, error);
   }
 } 

@@ -151,7 +151,7 @@ export default function Home() {
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
     const url = `${baseUrl}/api/card?${params.toString()}`;
     
-    const markdownCode = `![${previewParams.name || previewParams.username}'s GitHub Profile](${url})`;
+    const markdownCode = `<img src="${url}" width="500" alt="${previewParams.name || previewParams.username}'s GitHub Profile">`;
     
     navigator.clipboard.writeText(markdownCode)
       .then(() => {
@@ -200,7 +200,7 @@ export default function Home() {
     const url = `${baseUrl}/api/card?${params.toString()}`;
     
     // 넓이 속성이 포함된 HTML 이미지 태그 생성
-    const htmlCode = `<img src="${url}" width="500" loading="lazy" alt="${previewParams.name || previewParams.username}'s GitHub Profile">`;
+    const htmlCode = `<img src="${url}" width="500" loading="eager" fetchpriority="high" alt="${previewParams.name || previewParams.username}'s GitHub Profile">`;
     
     navigator.clipboard.writeText(htmlCode)
       .then(() => {

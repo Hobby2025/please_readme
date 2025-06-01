@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: false,
   images: {
-    domains: ['avatars.githubusercontent.com', 'cdn.pixabay.com', 'localhost', 'vercel.app', 'raw.githubusercontent.com'],
+    domains: ['avatars.githubusercontent.com', 'cdn.pixabay.com', 'localhost', 'vercel.app', 'raw.githubusercontent.com', 'github.com', 'user-attachments.github.com'],
     unoptimized: true, // @vercel/og에서 사용할 이미지 최적화 비활성화
   },
   // 서버리스 함수 메모리 제한 증가

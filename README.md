@@ -1,4 +1,4 @@
-<img src="https://github.com/user-attachments/assets/2cd1f193-420c-4eb9-b6db-27497f437ccc"  height="120">
+<img src="https://github.com/user-attachments/assets/2cd1f193-420c-4eb9-b6db-27497f437ccc" height="120" loading="eager" alt="Please Readme 로고" fetchpriority="high">
 
 > GitHub 프로필 정보와 활동 통계를 기반으로 커스터마이징 가능한 이미지 카드를 생성하는 웹 애플리케이션입니다.<br>
 > `Vercel OG Image Generation`을 사용하여 서버사이드에서 이미지를 생성합니다.

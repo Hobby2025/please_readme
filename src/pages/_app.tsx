@@ -1,10 +1,29 @@
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
+import { useEffect } from 'react';
 import '../styles/globals.css';
 import '../styles/fonts.css';
 import { ToastProvider } from '@/contexts/ToastContext';
 
 export default function App({ Component, pageProps }: AppProps) {
+  // 이미지 프리로딩 함수
+  const preloadImages = () => {
+    // README에서 사용하는 GitHub 이미지 프리로딩
+    const imageUrls = [
+      'https://github.com/user-attachments/assets/2cd1f193-420c-4eb9-b6db-27497f437ccc'
+    ];
+    
+    imageUrls.forEach(url => {
+      const img = new Image();
+      img.src = url;
+    });
+  };
+
+  // 컴포넌트 마운트 시 이미지 프리로딩 실행
+  useEffect(() => {
+    preloadImages();
+  }, []);
+
   return (
     <ToastProvider>
       <div className="min-h-screen bg-background text-foreground">
