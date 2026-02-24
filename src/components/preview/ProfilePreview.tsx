@@ -27,68 +27,55 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
   } = useProfilePreviewImage({ previewParams, statsLoading, statsError, onImageLoadSuccess });
 
   return (
-    <div className="h-full flex flex-col bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-brand-light">
-      <div className="border-b border-brand-light bg-brand-light/40 px-6 py-4 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-primary flex items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-2 text-brand-orange"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
-          프로필 이미지 미리보기
+    <div className="h-full flex flex-col bg-black/40 backdrop-blur-md rounded-none overflow-hidden border border-white/10 relative">
+      <div className="border-b border-white/10 bg-white/5 px-6 py-4 flex items-center justify-between">
+        <h2 className="text-sm font-black text-primary tracking-[0.3em] flex items-center uppercase">
+          <span className="w-3 h-3 bg-primary mr-3 animate-pulse shadow-[0_0_10px_rgba(255,215,0,0.8)]" />
+          Preview // Output
         </h2>
         {isImageLoaded && (
-          <div className="flex gap-2">
+          <div className="flex gap-3">
              <Button 
               size="sm" 
               variant="secondary"
               onClick={onCopyHtml}
               disabled={!previewParams?.username}
-              className="font-bold shadow-md"
+              className="font-black text-xs px-5 border border-primary/50"
             >
               <FaCode className="mr-2" />
-              코드 복사
+              Capture Code
             </Button>
           </div>
         )}
       </div>
 
-      <div className="flex-1 h-full w-full p-6 flex flex-col justify-center bg-white/30 rounded-b-2xl">
+      <div className="flex-1 h-full w-full p-10 flex flex-col justify-center bg-black/40">
         {statsLoading && (
-          <div className="text-center mx-auto">
-            <Loading size="lg" className="mb-3 text-brand-yellow" />
-            <p className="text-primary font-bold">GitHub 통계 로딩 중...</p>
+          <div className="text-center mx-auto space-y-4">
+            <Loading size="lg" className="text-primary" />
+            <p className="text-primary font-black text-lg tracking-widest animate-pulse uppercase">Accessing Satellite Data...</p>
           </div>
         )}
         {statsError && !statsLoading && (
-           <div className="mx-auto">
-             <ErrorMessage message={`GitHub 통계 로딩 실패: ${statsError}`} className="text-red-700" />
-           </div>
+          <div className="mx-auto cyber-card p-6 border-red-500 bg-red-500/10">
+            <ErrorMessage message={`[LINK_FAILURE]: ${statsError}`} className="text-red-500 font-black text-sm uppercase italic" />
+          </div>
         )}
 
         {!statsLoading && !statsError && imageUrl && (
           <div className="flex justify-center items-center h-full w-full">
             {isImageLoading && (
-              <div className="text-center p-10 min-h-[200px] flex flex-col justify-center items-center">
-                <Loading size="lg" className="mb-3 text-brand-yellow" />
-                <p className="text-primary font-bold">미리보기 이미지 로딩 중...</p>
+              <div className="text-center p-12 min-h-[300px] flex flex-col justify-center items-center space-y-6">
+                <Loading size="lg" className="text-primary" />
+                <p className="text-white font-black text-lg tracking-[0.2em] uppercase">Synthesizing Visuals...</p>
               </div>
             )}
             {imageError && !isImageLoading && (
-               <div className="p-10 min-h-[200px] flex flex-col justify-center items-center">
-                 <ErrorMessage message={imageError} className="text-red-700" />
+               <div className="p-12 min-h-[300px] flex flex-col justify-center items-center cyber-card border-red-500/30">
+                 <ErrorMessage message={`[RENDER_ERROR]: ${imageError}`} className="text-red-500 font-bold uppercase" />
                </div>
             )}
-            <div className="aspect-[50/49] relative">
+            <div className="aspect-[50/49] relative shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/5">
               <img 
                 src={imageUrl} 
                 alt={`${previewParams?.username || '...'}'s Profile Card Preview`}
@@ -100,11 +87,17 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
           </div>
         )}
         {!previewParams && !statsLoading && !statsError && (
-          <p className="text-primary text-center mx-auto font-bold leading-relaxed">
-            왼쪽 폼에 정보를 입력하고<br/>
-            <span className="text-brand-orange">&apos;카드 생성 / 업데이트&apos;</span> 버튼을 눌러<br/>
-            미리보기를 확인하세요.
-          </p>
+          <div className="text-center space-y-8 p-12 cyber-card border-white/5 bg-white/[0.02]">
+            <p className="text-white text-lg sm:text-xl text-center mx-auto font-black leading-loose uppercase tracking-widest">
+              Terminal is <span className="text-primary">Idle</span>.<br/>
+              Awaiting <span className="text-secondary underline decoration-primary decoration-4 underline-offset-8">User Intelligence</span> Input.
+            </p>
+            <div className="flex justify-center gap-2">
+              <div className="w-1 h-1 bg-primary" />
+              <div className="w-8 h-1 bg-white/10" />
+              <div className="w-1 h-1 bg-primary" />
+            </div>
+          </div>
         )}
       </div>
     </div>

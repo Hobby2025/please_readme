@@ -25,26 +25,26 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const variantStyles = {
       default:
-        'bg-primary hover:bg-brand-orange text-white shadow-sm hover:shadow active:scale-95',
+        'bg-primary text-white border-none cyber-button hover:filter hover:brightness-125',
       secondary:
-        'bg-brand-yellow hover:bg-brand-yellow/80 text-white border border-brand-light hover:shadow-sm active:scale-95',
+        'bg-secondary text-black border-none cyber-button hover:filter hover:brightness-125',
       outline:
-        'bg-transparent border border-primary text-primary hover:bg-brand-orange/10 active:scale-95',
-      ghost: 'bg-transparent hover:bg-brand-light/20 text-brand-orange',
+        'bg-transparent border border-primary text-primary hover:bg-primary/10 cyber-button',
+      ghost: 'bg-transparent hover:bg-white/10 text-primary',
       link: 'bg-transparent text-primary hover:underline underline-offset-4',
     };
 
     const sizeStyles = {
-      default: 'py-2.5 px-5 text-sm',
-      sm: 'py-1.5 px-3.5 text-xs',
-      lg: 'py-3.5 px-8 text-base',
+      default: 'py-3 px-6 text-sm tracking-widest uppercase font-black',
+      sm: 'py-2 px-4 text-xs tracking-widest uppercase font-black',
+      lg: 'py-4 px-10 text-base tracking-widest uppercase font-black',
     };
 
     return (
       <button
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center font-bold transition-all rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:pointer-events-none',
+          'inline-flex items-center justify-center transition-all focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:pointer-events-none',
           variantStyles[variant],
           sizeStyles[size],
           className
