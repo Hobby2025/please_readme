@@ -27,12 +27,12 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
   } = useProfilePreviewImage({ previewParams, statsLoading, statsError, onImageLoadSuccess });
 
   return (
-    <div className="h-full flex flex-col bg-[#F2F2F2]/80 rounded-xl shadow-lg overflow-hidden border border-[#F2DAAC]">
-      <div className="border-b border-[#F2D479] bg-[#F2DAAC] px-6 py-4 flex items-center justify-between">
-        <h2 className="text-xl font-medium text-[#F29F05] flex items-center">
+    <div className="h-full flex flex-col bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-brand-light">
+      <div className="border-b border-brand-light bg-brand-light/40 px-6 py-4 flex items-center justify-between">
+        <h2 className="text-xl font-bold text-primary flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-2 text-[#F2B705]"
+            className="h-5 w-5 mr-2 text-brand-orange"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -48,11 +48,12 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
         </h2>
         {isImageLoaded && (
           <div className="flex gap-2">
-            <Button 
+             <Button 
               size="sm" 
+              variant="secondary"
               onClick={onCopyHtml}
               disabled={!previewParams?.username}
-              className="bg-[#F2B705] text-white hover:bg-[#F29F05]"
+              className="font-bold shadow-md"
             >
               <FaCode className="mr-2" />
               코드 복사
@@ -61,11 +62,11 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
         )}
       </div>
 
-      <div className="flex-1 h-full w-full p-2 flex flex-col justify-center bg-white/50 border border-[#F2DAAC]/50 rounded-b-xl">
+      <div className="flex-1 h-full w-full p-6 flex flex-col justify-center bg-white/30 rounded-b-2xl">
         {statsLoading && (
           <div className="text-center mx-auto">
-            <Loading size="lg" className="mb-2 text-[#F2B705]" />
-            <p className="text-[#F29F05]">GitHub 통계 로딩 중...</p>
+            <Loading size="lg" className="mb-3 text-brand-yellow" />
+            <p className="text-primary font-bold">GitHub 통계 로딩 중...</p>
           </div>
         )}
         {statsError && !statsLoading && (
@@ -78,8 +79,8 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
           <div className="flex justify-center items-center h-full w-full">
             {isImageLoading && (
               <div className="text-center p-10 min-h-[200px] flex flex-col justify-center items-center">
-                <Loading size="lg" className="mb-2 text-[#F2B705]" />
-                <p className="text-[#F29F05]">미리보기 이미지 로딩 중...</p>
+                <Loading size="lg" className="mb-3 text-brand-yellow" />
+                <p className="text-primary font-bold">미리보기 이미지 로딩 중...</p>
               </div>
             )}
             {imageError && !isImageLoading && (
@@ -99,8 +100,10 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
           </div>
         )}
         {!previewParams && !statsLoading && !statsError && (
-          <p className="text-[#F29F05] text-center mx-auto">
-            왼쪽 폼에 정보를 입력하고<br/>'카드 생성 / 업데이트' 버튼을 눌러<br/>미리보기를 확인하세요.
+          <p className="text-primary text-center mx-auto font-bold leading-relaxed">
+            왼쪽 폼에 정보를 입력하고<br/>
+            <span className="text-brand-orange">&apos;카드 생성 / 업데이트&apos;</span> 버튼을 눌러<br/>
+            미리보기를 확인하세요.
           </p>
         )}
       </div>

@@ -64,7 +64,7 @@ export async function getFontData(fontFamily: string = 'BookkMyungjo'): Promise<
       const filePath = path.join(fontDirectory, file);
       const data = await fs.readFile(filePath);
       // VercelFontOptions 타입으로 반환 (style은 기본값 'normal')
-      return { name: fontFamily, data: data, weight, style: 'normal' as 'normal' };
+      return { name: fontFamily, data: data, weight, style: 'normal' as const };
     } catch (error) {
       console.error(`[폰트 유틸] 폰트 ${file} 로딩 실패:`, error);
       return null; 

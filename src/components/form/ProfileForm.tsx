@@ -43,21 +43,21 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   } = useProfileForm({ profile, setProfile });
 
   return (
-    <div className="h-full bg-[#F2F2F2]/80 rounded-xl shadow-lg overflow-hidden flex flex-col border border-[#F2D479]">
-      <div className="bg-[#F2DAAC] px-6 py-4 border-b border-[#F2D479]">
-        <h2 className="text-lg font-medium text-[#F29F05] flex items-center">
-          <FaPencilAlt className="h-5 w-5 mr-2 text-[#F2B705]" />
+    <div className="h-full bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden flex flex-col border border-brand-light">
+      <div className="bg-brand-light/40 px-6 py-4 border-b border-brand-light">
+        <h2 className="text-lg font-bold text-primary flex items-center">
+          <FaPencilAlt className="h-5 w-5 mr-2 text-brand-orange" />
           프로필 정보 입력
         </h2>
       </div>
 
-      <div className="flex-1 p-6 overflow-auto bg-white/50">
+      <div className="flex-1 p-6 overflow-auto bg-white/30">
         <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
           <div className="space-y-4">
-            <h3 className="text-base font-semibold leading-6 text-[#F29F05]">기본 정보</h3>
+            <h3 className="text-base font-bold leading-6 text-primary">기본 정보</h3>
             <div>
-              <label htmlFor="githubUsername" className="text-base font-medium text-[#F2B705] mb-1 flex items-center">
-                <FaGithubSquare className='h-4 mr-1' />
+              <label htmlFor="githubUsername" className="text-sm font-bold text-brand-orange mb-1.5 flex items-center">
+                <FaGithubSquare className='h-4 w-4 mr-1.5' />
                 GitHub 사용자명
               </label>
               <Input
@@ -71,8 +71,8 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             </div>
 
             <div>
-              <label htmlFor="name" className="text-base font-medium text-[#F2B705] mb-1 flex items-center">
-                <FaAcquisitionsIncorporated className='h-4  mr-1' />
+              <label htmlFor="name" className="text-sm font-bold text-brand-orange mb-1.5 flex items-center">
+                <FaAcquisitionsIncorporated className='h-4 w-4 mr-1.5' />
                 카드 제목
               </label>
               <Input
@@ -86,8 +86,8 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             </div>
 
             <div>
-              <label htmlFor="bio" className="text-base font-medium text-[#F2B705] mb-1 flex items-center">
-                <FaFeatherAlt className='h-4  mr-1' />
+              <label htmlFor="bio" className="text-sm font-bold text-brand-orange mb-1.5 flex items-center">
+                <FaFeatherAlt className='h-4 w-4 mr-1.5' />
                 소개
               </label>
               <Input
@@ -102,8 +102,8 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             
             {/* 폰트 선택 필드 추가 */}
             <div>
-              <label className="text-base font-medium text-[#F2B705] mb-1 flex items-center">
-                <FaFont className="h-4 mr-1" />
+              <label className="text-sm font-bold text-brand-orange mb-1.5 flex items-center">
+                <FaFont className="h-4 w-4 mr-1.5" />
                 폰트 스타일
               </label>
               <select
@@ -112,7 +112,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
                 value={profile.fontFamily || 'BookkMyungjo'}
                 onChange={handleFontChange}
                 disabled={disabled}
-                className="block w-full rounded-md border border-[#F2D479] bg-white/70 py-2 px-3 shadow-sm focus:border-[#F2B705] focus:outline-none focus:ring-1 focus:ring-[#F29F05] text-sm"
+                className="block w-full rounded-lg border border-brand-light bg-white/70 py-2.5 px-3 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary text-sm transition-all"
               >
                 {availableFonts.map((font) => (
                   <option key={font.value} value={font.value}>
@@ -127,8 +127,8 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             
             {/* 테마 선택 필드 수정 */}
             <div>
-              <label className="text-base font-medium text-[#F2B705] mb-1 flex items-center">
-                <FaTerminal className="h-4 mr-1" />
+              <label className="text-sm font-bold text-brand-orange mb-1.5 flex items-center">
+                <FaTerminal className="h-4 w-4 mr-1.5" />
                 카드 테마
               </label>
               <div className="flex flex-wrap gap-2 mt-1">
@@ -141,10 +141,10 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
                         type="button"
                         onClick={() => handleThemeChange(option.value)}
                         disabled={disabled}
-                        className={`flex items-center justify-center px-3 py-1.5 rounded-md border text-sm ${
+                        className={`flex items-center justify-center px-4 py-2 rounded-lg border text-sm transition-all font-bold ${
                           isSelected
-                            ? 'border-[#F2B705] bg-[#F2B705]/20 text-[#F29F05] font-medium'
-                            : 'border-gray-300 bg-white/70 text-gray-500 hover:bg-gray-50'
+                            ? 'border-primary bg-primary text-white shadow-md scale-105'
+                            : 'border-brand-light bg-white/70 text-brand-orange hover:bg-brand-light/20'
                         }`}
                       >
                         <Icon className="h-4 w-4 mr-1.5" />
@@ -159,8 +159,8 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <label className="text-base font-medium text-[#F2B705] mb-1 flex items-center">
-                <FaTerminal className='h-4 mr-1' />
+              <label className="text-sm font-bold text-brand-orange mb-1.5 flex items-center">
+                <FaTerminal className='h-4 w-4 mr-1.5' />
                 기술 스택
               </label>
               {profile.skills.length > 0 && (
@@ -170,7 +170,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
                   size="sm"
                   onClick={handleClearSkills}
                   disabled={disabled}
-                  className="text-xs rounded-md text-[#F29F05] border-[#F2D479] hover:bg-[#F2DAAC]/50"
+                  className="text-xs rounded-lg text-primary border-brand-light hover:bg-brand-light/30 font-bold"
                 >
                   전체 해제
                 </Button>
@@ -187,29 +187,30 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
               )}
             </div>
 
-            <div className="max-h-36 overflow-y-auto border border-[#F2D479] rounded-lg p-3 grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white/70">
+            <div className="max-h-48 overflow-y-auto border border-brand-light rounded-xl p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white/50 backdrop-blur-sm">
               {availableTechStacks.map((tech) => (
-                <label key={tech} className="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-[#F2DAAC]/50 transition-colors">
+                <label key={tech} className="flex items-center space-x-2.5 cursor-pointer p-2 rounded-lg hover:bg-brand-light/30 transition-all group">
                   <input
                     type="checkbox"
                     value={tech}
                     checked={profile.skills.includes(tech)}
                     onChange={handleSkillChange}
                     disabled={disabled}
-                    className="rounded text-[#F2B705] focus:ring-[#F29F05]"
+                    className="w-4 h-4 rounded border-brand-light text-primary focus:ring-primary transition-all cursor-pointer"
                   />
-                  <span className="text-sm text-[#F29F05]">{tech}</span>
+                  <span className="text-sm text-primary font-bold group-hover:scale-105 transition-all">{tech}</span>
                 </label>
               ))}
             </div>
           </div>
 
-          <div className="pt-4 border-t border-[#F2D479]">
+          <div className="pt-6 border-t border-brand-light">
             <Button
               type="button"
+              variant="default"
               onClick={onGeneratePreview}
               disabled={!profile.githubUsername || disabled}
-              className="w-full bg-[#F29F05] hover:bg-[#F2B705] text-white"
+              className="w-full shadow-lg"
             >
               <FaImage className="w-4 h-4 mr-2" />
               카드 생성 / 업데이트
