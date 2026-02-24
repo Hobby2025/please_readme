@@ -1,11 +1,7 @@
 import React from 'react';
-import { Profile, GitHubStats, ProfileCardProps, SimpleTechBadgeProps, TechNormalizationMap, CardTheme, RankStyle } from '@/types';
+import { ProfileCardProps } from '@/types';
 import { formatNumberUnit } from '../../utils/imageUtils';
 import { getRankStyle } from '@/themes/cardThemes';
-import { FiStar, FiExternalLink, FiMapPin, FiUsers, FiBriefcase, FiMail, FiTwitter, FiLink, FiCalendar, FiEdit } from 'react-icons/fi';
-import { SiGithub } from 'react-icons/si';
-import Head from 'next/head';
-import { getTechColor, darkenColor } from '@/utils/colorUtils';
 
 // ProfileCardStatic component: Redesigned as a Premium Technical Label
 export default function ProfileCardStatic({ profile, stats, loading }: ProfileCardProps) {
@@ -35,28 +31,24 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
         overflow: 'hidden',
       }}
     >
-      {/* Decorative Side Barcode Strip */}
       <div style={{
         position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '40px',
-        height: '100%',
+        top: '50%',
+        left: '-180px', // 위치 조정
+        width: '400px',
+        height: '40px',
         backgroundColor: ACCENT,
         display: 'flex',
-        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '20px 0',
+        transform: 'rotate(-90deg)', // 전체 회전으로 세로 효과
         zIndex: 10,
       }}>
         <div style={{
-          writingMode: 'vertical-rl',
-          transform: 'rotate(180deg)',
           color: '#000000',
           fontSize: '14px',
           fontWeight: 900,
-          letterSpacing: '0.5em',
+          letterSpacing: '0.2em',
           textTransform: 'uppercase',
         }}>
           PLEASE_README_PROTOCOL_V3.1.7 // PROPERTY_OF_{profile.githubUsername?.toUpperCase() || 'UNKNOWN'}
@@ -84,7 +76,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
             background: ACCENT_GHOST
           }}>
             {stats?.avatarUrl ? (
-              <img src={stats.avatarUrl} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(1) contrast(1.2)' }} />
+              <img src={stats.avatarUrl} style={{ width: '100%', height: '100%' }} />
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: '10px', textAlign: 'center' }}>NO_IMAGE</div>
             )}
@@ -157,13 +149,16 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
             <div style={{ fontSize: '10px', fontWeight: 900, color: ACCENT_DIM }}>LAST_CALIBRATION: {currentYear}.02.25</div>
             <div style={{ fontSize: '12px', fontWeight: 900, color: ACCENT }}>STATUS: // SECURED_STABLE</div>
-            <div style={{ width: '150px', height: '40px', background: `repeating-linear-gradient(90deg, ${ACCENT}, ${ACCENT} 2px, transparent 2px, transparent 4px)` }} />
-          </div>
+            <div style={{ display: 'flex', width: '150px', height: '40px', overflow: 'hidden' }}>
+              {[...Array(25)].map((_, i) => (
+                <div key={i} style={{ width: i % 2 === 0 ? '2px' : '4px', height: '100%', backgroundColor: ACCENT, marginRight: '2px' }} />
+              ))}
+            </div>          </div>
 
           <div style={{ 
             width: '120px', 
             height: '110px', 
-            border: `4px double ${ACCENT}`, 
+            border: `4px solid ${ACCENT}`, 
             borderRadius: '50%',
             display: 'flex',
             flexDirection: 'column',
@@ -171,7 +166,6 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
             justifyContent: 'center',
             transform: 'rotate(-15deg)',
             background: 'rgba(0,0,0,0.5)',
-            boxShadow: `0 0 15px ${ACCENT_DIM}`
           }}>
             <span style={{ fontSize: '10px', fontWeight: 900, color: ACCENT }}>QC_PASSED</span>
             <span style={{ fontSize: '48px', fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{rankLevel}</span>
@@ -189,8 +183,6 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
         fontWeight: 900,
         color: ACCENT_GHOST,
         zIndex: 0,
-        pointerEvents: 'none',
-        userSelect: 'none',
       }}>
         {rankLevel}
       </div>
