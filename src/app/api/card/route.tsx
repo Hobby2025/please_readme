@@ -27,7 +27,13 @@ export async function GET(req: NextRequest) {
 
     if (dataParam) {
       try {
-        const decodedData = JSON.parse(decodeURIComponent(Buffer.from(dataParam, 'base64').toString('utf-8')));
+        // base64url 스펙 대응 (GitHub 캐시 이슈 방지)
+        let base64 = dataParam.replace(/-/g, '+').replace(/_/g, '/');
+        // 패딩 보정
+        while (base64.length % 4) {
+          base64 += '=';
+        }
+        const decodedData = JSON.parse(decodeURIComponent(Buffer.from(base64, 'base64').toString('utf-8')));
         username = decodedData.username;
         themeParam = decodedData.theme;
         customBgUrl = decodedData.bg;
@@ -76,7 +82,7 @@ export async function GET(req: NextRequest) {
     if (cachedCard && !forceRefresh) {
       const response = new NextResponse(Buffer.from(cachedCard));
       response.headers.set('Content-Type', 'image/png');
-      response.headers.set('Cache-Control', 'public, max-age=86400');
+      response.headers.set('Cache-Control', 'public, max-age=14400, s-maxage=14400, stale-while-revalidate=86400');
       response.headers.set('ETag', `"${cacheKey}"`);
       return response;
     }
@@ -142,7 +148,8 @@ export async function GET(req: NextRequest) {
 
     const response = new NextResponse(imageBuffer);
     response.headers.set('Content-Type', 'image/png');
-    response.headers.set('Cache-Control', 'public, max-age=86400');
+    // GitHub camo proxy 등의 캐시를 회피하기 위해 s-maxage 제어 및 stale-while-revalidate 추가
+    response.headers.set('Cache-Control', 'public, max-age=14400, s-maxage=14400, stale-while-revalidate=86400');
     response.headers.set('ETag', `"${cacheKey}"`);
     
     const endTime = Date.now();

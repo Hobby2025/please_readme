@@ -97,8 +97,9 @@ export default function HomeClient() {
       dataObj.fontFamily = previewParams.fontFamily;
     }
 
-    // JSON 객체를 Safe string으로 인코딩 후 Base64 변환
-    const encodedData = window.btoa(encodeURIComponent(JSON.stringify(dataObj)));
+    // JSON 객체를 Safe string으로 인코딩 후 Base64 변환 (Base64URL 스펙)
+    let encodedData = window.btoa(encodeURIComponent(JSON.stringify(dataObj)));
+    encodedData = encodedData.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
     return `${baseUrl}/api/card?data=${encodedData}`;
