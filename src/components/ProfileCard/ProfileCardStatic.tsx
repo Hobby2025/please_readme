@@ -118,7 +118,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
           {/* ARSENAL DATA */}
           <div>
             <div style={{ fontSize: '12px', fontWeight: 900, borderLeft: `5px solid ${ACCENT}`, paddingLeft: '10px', marginBottom: '15px' }}>02_TECHNICAL_CORE_ARSENAL</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
               {(profile.skills && profile.skills.length > 0 ? profile.skills.slice(0, 12) : ['GITHUB', 'TYPESCRIPT', 'NEXTJS', 'REACT']).map((skill, i) => (
                 <div key={i} style={{ 
                   border: `1px solid ${ACCENT_DIM}`, 
@@ -126,7 +126,8 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                   fontSize: '11px', 
                   textAlign: 'center', 
                   fontWeight: 900,
-                  backgroundColor: ACCENT_GHOST
+                  backgroundColor: ACCENT_GHOST,
+                  width: '107px', // 460px 넓이에서 10px 간격 4열 기준
                 }}>{skill.toUpperCase()}</div>
               ))}
             </div>
@@ -135,14 +136,14 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
           {/* DIAGNOSTIC DATA */}
           <div>
             <div style={{ fontSize: '12px', fontWeight: 900, borderLeft: `5px solid ${ACCENT}`, paddingLeft: '10px', marginBottom: '15px' }}>03_PERFORMANCE_DIAGNOSTICS</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', backgroundColor: ACCENT_DIM, border: `1px solid ${ACCENT_DIM}` }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1px', backgroundColor: ACCENT_DIM, border: `1px solid ${ACCENT_DIM}` }}>
               {[
                 { label: 'TOTAL_COMMITS', value: formatNumberUnit(stats?.totalCommits || 0) },
                 { label: 'DELIVERED_STARS', value: formatNumberUnit(stats?.totalStars || 0) },
                 { label: 'PULL_REQUESTS', value: formatNumberUnit(stats?.totalPRs || 0) },
                 { label: 'SYSTEM_ISSUES', value: formatNumberUnit(stats?.totalIssues || 0) },
               ].map((stat, i) => (
-                <div key={i} style={{ backgroundColor: '#000', padding: '20px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                <div key={i} style={{ backgroundColor: '#000', padding: '20px', display: 'flex', flexDirection: 'column', gap: '5px', width: '229.5px' }}>
                   <span style={{ fontSize: '9px', fontWeight: 900, opacity: 0.6 }}>{stat.label}</span>
                   <span style={{ fontSize: '28px', fontWeight: 900, color: '#FFF' }}>{stat.value}</span>
                 </div>
