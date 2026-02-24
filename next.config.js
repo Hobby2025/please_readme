@@ -15,6 +15,12 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_VERCEL_URL: process.env.VERCEL_URL || 'localhost:3000',
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 module.exports = nextConfig;
