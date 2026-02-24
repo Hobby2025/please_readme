@@ -71,6 +71,8 @@ export async function GET(req: NextRequest) {
     
     // 캐싱을 위한 키 생성
     const cacheKey = `card:${username}:${theme}:${customBgUrl || ''}:${customBio || ''}:${skillsParam || ''}:${customName || ''}:${opacityParam || ''}:${fontFamily || ''}`;
+    // ETag 헤더에 사용할 수 있도록 유니코드 안전(ASCII) Base64 문자열로 변환
+    const safeETag = Buffer.from(cacheKey).toString('base64');
     
     const forceRefresh = nocache;
     if (forceRefresh) {
@@ -83,7 +85,7 @@ export async function GET(req: NextRequest) {
       const response = new NextResponse(Buffer.from(cachedCard));
       response.headers.set('Content-Type', 'image/png');
       response.headers.set('Cache-Control', 'public, max-age=14400, s-maxage=14400, stale-while-revalidate=86400');
-      response.headers.set('ETag', `"${cacheKey}"`);
+      response.headers.set('ETag', `"${safeETag}"`);
       return response;
     }
     
@@ -135,7 +137,7 @@ export async function GET(req: NextRequest) {
           fonts: fonts as VercelFontOptions[],
           headers: {
             'Cache-Control': 'public, max-age=86400',
-            'ETag': `"${cacheKey}"`,
+            'ETag': `"${safeETag}"`,
           },
           emoji: 'twemoji',
         }
@@ -150,7 +152,7 @@ export async function GET(req: NextRequest) {
     response.headers.set('Content-Type', 'image/png');
     // GitHub camo proxy 등의 캐시를 회피하기 위해 s-maxage 제어 및 stale-while-revalidate 추가
     response.headers.set('Cache-Control', 'public, max-age=14400, s-maxage=14400, stale-while-revalidate=86400');
-    response.headers.set('ETag', `"${cacheKey}"`);
+    response.headers.set('ETag', `"${safeETag}"`);
     
     const endTime = Date.now();
     const totalTime = (endTime - startTime) / 1000;
