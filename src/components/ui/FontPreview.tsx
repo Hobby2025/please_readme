@@ -51,8 +51,8 @@ const FontPreview: React.FC<FontPreviewProps> = ({ fontFamily }) => {
   };
 
   return (
-    <div className="mt-3 p-3 border border-[#F2D479] rounded-md bg-white/80">
-      <div className="text-sm font-medium text-gray-700 mb-2">
+    <div className="mt-3 p-3 border border-[#F2D479] rounded-md ">
+      <div className="text-sm font-medium text-white mb-2">
         {fontDisplayName()} 미리보기
       </div>
       <div 

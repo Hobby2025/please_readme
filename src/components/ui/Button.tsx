@@ -25,26 +25,26 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const variantStyles = {
       default:
-        'bg-purple-600 hover:bg-purple-700 text-white shadow-sm hover:shadow',
+        'bg-primary text-white border-none cyber-button hover:filter hover:brightness-125',
       secondary:
-        'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm',
+        'bg-secondary text-black border-none cyber-button hover:filter hover:brightness-125',
       outline:
-        'bg-transparent border border-purple-600 text-purple-300 hover:bg-purple-900/20',
-      ghost: 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400',
-      link: 'bg-transparent text-purple-300 hover:underline',
+        'bg-transparent border border-primary text-primary hover:bg-primary/10 cyber-button',
+      ghost: 'bg-transparent hover:bg-white/10 text-primary',
+      link: 'bg-transparent text-primary hover:underline underline-offset-4',
     };
 
     const sizeStyles = {
-      default: 'py-2 px-4 text-sm',
-      sm: 'py-1 px-3 text-xs',
-      lg: 'py-3 px-6 text-base',
+      default: 'py-3 px-6 text-sm tracking-widest uppercase font-black',
+      sm: 'py-2 px-4 text-xs tracking-widest uppercase font-black',
+      lg: 'py-4 px-10 text-base tracking-widest uppercase font-black',
     };
 
     return (
       <button
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center font-medium transition-colors rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600 disabled:opacity-50 disabled:pointer-events-none',
+          'inline-flex items-center justify-center transition-all focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:pointer-events-none',
           variantStyles[variant],
           sizeStyles[size],
           className

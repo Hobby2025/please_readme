@@ -35,19 +35,23 @@ export function useProfilePreviewImage({
       return;
     }
 
-    const params = new URLSearchParams();
-    params.set('username', previewParams.username);
-    params.set('theme', previewParams.theme);
-    if (previewParams.skills.length > 0) params.set('skills', previewParams.skills.join(','));
-    if (previewParams.bio) params.set('bio', previewParams.bio);
-    if (previewParams.name) params.set('name', previewParams.name);
-    if (previewParams.fontFamily) params.set('fontFamily', previewParams.fontFamily);
+    const dataObj: any = {
+      username: previewParams.username,
+      theme: previewParams.theme,
+    };
     
-    // Add timestamp for cache busting
-    params.set('t', Date.now().toString());
+    if (previewParams.skills.length > 0) dataObj.skills = previewParams.skills.join(',');
+    if (previewParams.bio?.trim()) dataObj.bio = previewParams.bio;
+    if (previewParams.name?.trim()) dataObj.name = previewParams.name;
+    if (previewParams.fontFamily?.trim()) dataObj.fontFamily = previewParams.fontFamily;
 
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
-    const url = `${baseUrl}/api/card?${params.toString()}`;
+    // JSON 객체를 Safe string으로 인코딩 후 Base64 변환 (Base64URL 스펙)
+    let encodedData = btoa(encodeURIComponent(JSON.stringify(dataObj)));
+    encodedData = encodedData.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+    const timestamp = Date.now();
+    const url = `${baseUrl}/api/card?data=${encodedData}&nocache=true&t=${timestamp}`;
     
     setImageUrl(url);
     setIsImageLoading(true);

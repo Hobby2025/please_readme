@@ -40,15 +40,19 @@ export const TechBadge: FC<TechBadgeProps> = ({ tech }) => {
   return (
     <span
       className={cn(
-        'inline-grid grid-cols-[auto_1fr] items-center px-3 py-1.5 rounded-full text-sm font-medium gap-x-1.5',
+        'inline-grid grid-cols-[auto_1fr] items-center px-4 py-1.5 text-[10px] font-black gap-x-2 border transition-all uppercase tracking-widest',
         text
       )}
-      style={{ backgroundColor: backgroundColor }}
+      style={{ 
+        borderColor: backgroundColor,
+        backgroundColor: `${backgroundColor}11`,
+        clipPath: 'polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%)'
+      }}
     >
-      <div className="flex items-center justify-center w-5 h-5">
+      <div className="flex items-center justify-center w-4 h-4">
         <Icon className="flex-shrink-0 w-full h-full" />
       </div>
-      <span className='text-center'>{tech}</span>
+      <span className='leading-none'>{tech}</span>
     </span>
   );
 }; 

@@ -18,27 +18,26 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            className="block text-xs font-black text-secondary tracking-widest uppercase mb-2"
           >
             {label}
           </label>
         )}
-        <div className="relative">
+        <div className="relative group">
           {leftIcon && (
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-secondary">
               {leftIcon}
             </div>
           )}
           <input
             id={inputId}
             className={cn(
-              'block w-full rounded-lg shadow-sm sm:text-sm',
-              'bg-gray-100 border-gray-400',
-              'dark:bg-gray-800 dark:border-gray-600 dark:text-white',
-              'focus:ring-purple-600 focus:border-purple-600 focus:ring-1',
+              'block w-full rounded-none shadow-none sm:text-sm transition-all',
+              'bg-black border-white/20 text-white placeholder:text-white/20',
+              'focus:ring-0 focus:border-secondary outline-none border-t-0 border-l-0 border-r-0 border-b-2',
               leftIcon && 'pl-10',
               rightIcon && 'pr-10',
-              error && 'border-red-500 focus:ring-red-500 focus:border-red-500',
+              error && 'border-red-500 text-red-500',
               className
             )}
             ref={ref}

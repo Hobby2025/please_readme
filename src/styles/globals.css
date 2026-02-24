@@ -4,48 +4,32 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
-  }
+    --background: 240 10% 2%;    /* #050505 Pitch Black */
+    --foreground: 0 0% 100%;     /* Pure White */
+    --card: 0 0% 0%;
+    --card-foreground: 0 0% 100%;
+    
+    --primary: 45 100% 50%;      /* #FFD700 Gold */
+    --primary-foreground: 0 0% 0%;
+    
+    --secondary: 0 0% 100%;      /* Pure White for readability */
+    --secondary-foreground: 0 0% 0%;
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --brand-yellow: 45 100% 50%; /* Gold */
+    --brand-orange: 35 100% 50%; /* Amber */
+    --brand-light: 0 0% 20%;     /* Dark Gray */
+    --brand-bg: 0 0% 0%;
+    
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 45 100% 50%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
+    --ring: 45 100% 50%;
+    --radius: 0rem;
   }
 }
 
@@ -55,5 +39,76 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image: 
+      linear-gradient(rgba(255, 215, 0, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 215, 0, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    font-family: 'JetBrains Mono', 'Roboto Mono', monospace;
+    font-size: 16px; /* Base font size increased */
+    line-height: 1.6;
   }
-} 
+}
+
+/* Cyber Animations */
+@keyframes neon-pulse {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 5px var(--primary)); }
+  50% { opacity: 0.8; filter: drop-shadow(0 0 15px var(--primary)); }
+}
+
+@keyframes grid-flow {
+  from { background-position: 0 0; }
+  to { background-position: 40px 40px; }
+}
+
+@keyframes flicker {
+  0% { opacity: 0.98; }
+  5% { opacity: 0.95; }
+  10% { opacity: 0.9; }
+  15% { opacity: 0.95; }
+  20% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+.neon-glow {
+  animation: neon-pulse 2s infinite ease-in-out;
+}
+
+.cyber-grid-animate {
+  animation: grid-flow 20s linear infinite;
+}
+
+.neon-gold-glow {
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.flicker-slow {
+  animation: flicker 4s infinite step-end;
+}
+
+.cyber-button {
+  position: relative;
+  clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+  transition: all 0.3s ease;
+}
+
+.cyber-button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.2) drop-shadow(0 0 10px var(--primary));
+}
+
+.cyber-card {
+  background: #000;
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.cyber-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
