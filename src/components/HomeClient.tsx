@@ -110,7 +110,7 @@ export default function HomeClient() {
     const url = generateUrl();
     if (!url) return;
     
-    const markdownCode = `<img src="${url}" width="500" alt="${previewParams?.name || previewParams?.username}'s GitHub Profile">`;
+    const markdownCode = `<div align="center">\n  <img src="${url}" width="600" alt="${previewParams?.name || previewParams?.username}'s GitHub Profile">\n</div>`;
     
     navigator.clipboard.writeText(markdownCode)
       .then(() => showToast('마크다운 코드가 복사되었습니다!', 'success'))
@@ -121,7 +121,7 @@ export default function HomeClient() {
     const url = generateUrl();
     if (!url) return;
     
-    const htmlCode = `<img src="${url}" width="500" loading="eager" fetchpriority="high" alt="${previewParams?.name || previewParams?.username}'s GitHub Profile">`;
+    const htmlCode = `<div align="center">\n  <img src="${url}" width="600" loading="eager" fetchpriority="high" alt="${previewParams?.name || previewParams?.username}'s GitHub Profile">\n</div>`;
     
     navigator.clipboard.writeText(htmlCode)
       .then(() => showToast('HTML 코드가 복사되었습니다!', 'success'))

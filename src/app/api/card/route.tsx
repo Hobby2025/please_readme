@@ -161,9 +161,87 @@ export async function GET(req: NextRequest) {
     return response;
   } catch (error) {
     console.error('카드 생성 실패:', error);
-    return NextResponse.json({ 
-      message: '카드 생성에 실패했습니다.', 
-      error: error instanceof Error ? error.message : '알 수 없는 오류' 
-    }, { status: 500 });
+    
+    // API 장애 또는 처리 오류 시 Fallback 카드 반환 (서비스 중단 방지)
+    try {
+      // 최대한 파라미터에서 유도된 프로필 정보 활용
+      const { searchParams } = new URL(req.url);
+      const dataParam = searchParams.get('data');
+      let username = 'UNKNOWN';
+      let theme: CardTheme = 'default';
+      let skills: string[] = [];
+      let name = '';
+
+      if (dataParam) {
+        try {
+          let base64 = dataParam.replace(/-/g, '+').replace(/_/g, '/');
+          while (base64.length % 4) base64 += '=';
+          const decoded = JSON.parse(decodeURIComponent(Buffer.from(base64, 'base64').toString('utf-8')));
+          username = decoded.username || username;
+          theme = decoded.theme || theme;
+          skills = typeof decoded.skills === 'string' ? decoded.skills.split(',').map((s: string) => s.trim()) : [];
+          name = decoded.name || '';
+        } catch (e) {}
+      } else {
+        username = searchParams.get('username') || username;
+        theme = (searchParams.get('theme') as CardTheme) || theme;
+        skills = searchParams.get('skills')?.split(',').map(s => s.trim()) || [];
+        name = searchParams.get('name') || '';
+      }
+
+      // 폰트는 기본값 사용
+      const fontsResult = await getFontData('BookkMyungjo');
+      
+      const fallbackProfile: Profile = {
+        githubUsername: username,
+        name: name || username,
+        bio: 'SYSTEM_STATUS: OFFLINE // GitHub API connection lost. Displaying cached/static identification.',
+        theme,
+        skills,
+        fontFamily: 'BookkMyungjo',
+      };
+
+      const fallbackStats = {
+        name: name || username,
+        totalStars: 0,
+        totalCommits: 0,
+        totalPRs: 0,
+        totalIssues: 0,
+        rank: { level: '?', score: 0, label: 'OFFLINE' },
+        avatarUrl: '',
+        bio: 'MAINTENANCE_MODE_ACTIVE',
+      };
+
+      const imageResponse = new ImageResponse(
+        // @ts-ignore
+        (
+          <ProfileCardStatic 
+            profile={fallbackProfile}
+            // @ts-ignore
+            stats={fallbackStats}
+            loading={false}
+          />
+        ),
+        {
+          width: 600,
+          height: 920, // 기본 높이 고정
+          fonts: fontsResult as VercelFontOptions[],
+          emoji: 'twemoji',
+        }
+      );
+
+      const imageArrayBuffer = await imageResponse.arrayBuffer();
+      const response = new NextResponse(Buffer.from(imageArrayBuffer));
+      response.headers.set('Content-Type', 'image/png');
+      response.headers.set('Cache-Control', 'no-store, must-revalidate'); // 장애 시에는 캐싱 안함
+      return response;
+
+    } catch (fallbackError) {
+      console.error('Fallback 카드 생성조차 실패:', fallbackError);
+      return NextResponse.json({ 
+        message: '카드 생성에 완전히 실패했습니다.', 
+        error: error instanceof Error ? error.message : '알 수 없는 오류' 
+      }, { status: 500 });
+    }
   }
 }

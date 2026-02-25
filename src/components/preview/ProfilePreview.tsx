@@ -38,12 +38,22 @@ export const ProfilePreview: React.FC<ProfilePreviewProps> = ({
              <Button 
               size="sm" 
               variant="secondary"
+              onClick={onCopyMarkdown}
+              disabled={!previewParams?.username}
+              className="font-black text-xs px-5 border border-primary/50"
+            >
+              <FaMarkdown className="mr-2 text-xl" />
+              Copy Markdown
+            </Button>
+             <Button 
+              size="sm" 
+              variant="secondary"
               onClick={onCopyHtml}
               disabled={!previewParams?.username}
               className="font-black text-xs px-5 border border-primary/50"
             >
-              <FaCode className="mr-2" />
-              Capture Code
+              <FaHtml5 className="mr-2 text-xl" />
+              Copy HTML
             </Button>
           </div>
         )}

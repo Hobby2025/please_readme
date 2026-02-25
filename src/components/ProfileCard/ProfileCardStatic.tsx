@@ -62,7 +62,18 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: `2px solid ${ACCENT}`, paddingBottom: '20px', marginBottom: '30px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
             <span style={{ fontSize: '10px', fontWeight: 900, opacity: 0.6 }}>SPECIFICATION_LABEL / NO. {stats?.totalStars || '0000'}</span>
-            <h1 style={{ fontSize: '42px', fontWeight: 900, margin: 0, lineHeight: 0.9, letterSpacing: '-0.02em', color: '#FFF' }}>
+            <h1 style={{ 
+              fontSize: '42px', 
+              fontWeight: 900, 
+              margin: 0, 
+              lineHeight: 0.9, 
+              letterSpacing: '-0.02em', 
+              color: '#FFF',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: '350px'
+            }}>
               {profile.name || stats?.name || 'UNKNOWN'}
             </h1>
             <span style={{ fontSize: '14px', fontWeight: 700, color: ACCENT }}>GITHUB_USER_LINK // @{profile.githubUsername?.toUpperCase()}</span>
@@ -101,7 +112,13 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
               lineHeight: 1.6, 
               color: '#FFF', 
               border: `1px solid ${ACCENT_DIM}`,
-              fontStyle: 'italic'
+              fontStyle: 'italic',
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              height: '80px' // 줄어들거나 늘어나도 레이아웃 유지
             }}>
               "{profile.bio || stats?.bio || 'SYSTEM_INFO: No narrative data recovered from target server.'}"
             </div>
@@ -111,17 +128,31 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
           <div>
             <div style={{ fontSize: '12px', fontWeight: 900, borderLeft: `5px solid ${ACCENT}`, paddingLeft: '10px', marginBottom: '15px' }}>02_TECHNICAL_CORE_ARSENAL</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-              {(profile.skills && profile.skills.length > 0 ? profile.skills.slice(0, 12) : ['GITHUB', 'TYPESCRIPT', 'NEXTJS', 'REACT']).map((skill, i) => (
-                <div key={i} style={{ 
-                  border: `1px solid ${ACCENT_DIM}`, 
-                  padding: '10px 5px', 
-                  fontSize: '11px', 
-                  textAlign: 'center', 
-                  fontWeight: 900,
-                  backgroundColor: ACCENT_GHOST,
-                  width: '107px', // 460px 넓이에서 10px 간격 4열 기준
-                }}>{skill.toUpperCase()}</div>
-              ))}
+              {(() => {
+                const allSkills = profile.skills && profile.skills.length > 0 
+                  ? profile.skills 
+                  : ['GITHUB', 'TYPESCRIPT', 'NEXTJS', 'REACT'];
+                
+                const MAX_SKILLS = 12;
+                const displaySkills = allSkills.length > MAX_SKILLS 
+                  ? [...allSkills.slice(0, 11), `+${allSkills.length - 11} MORE`]
+                  : allSkills;
+
+                return displaySkills.map((skill, i) => (
+                  <div key={i} style={{ 
+                    border: `1px solid ${ACCENT_DIM}`, 
+                    padding: '10px 5px', 
+                    fontSize: '11px', 
+                    textAlign: 'center', 
+                    fontWeight: 900,
+                    backgroundColor: ACCENT_GHOST,
+                    width: '107px',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}>{skill.toUpperCase()}</div>
+                ));
+              })()}
             </div>
           </div>
 
