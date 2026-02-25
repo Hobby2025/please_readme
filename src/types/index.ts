@@ -9,6 +9,8 @@ export interface GitHubStats {
   totalIssues: number;
   followers: number;
   topLanguages: string[];
+  nodeId: string;
+  createdAt: string;
   rank: {
     level: string;
     score: number;

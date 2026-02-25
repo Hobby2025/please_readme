@@ -100,6 +100,8 @@ export class GitHubService {
         totalIssues,
         followers: user.followers || 0,
         topLanguages,
+        nodeId: user.node_id,
+        createdAt: user.created_at,
         rank: { level, score }
       };
     } catch (e: any) {

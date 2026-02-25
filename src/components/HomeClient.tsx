@@ -29,7 +29,7 @@ export default function HomeClient() {
   }, [debouncedUsername, config]);
 
   return (
-    <main className="min-h-screen bg-black text-white p-10 font-mono">
+    <main className="max-h-[100svh] bg-black text-white p-10 font-mono">
       <div className="max-w-6xl mx-auto flex flex-col gap-10">
         <section className="w-full">
           <header className="border-b border-yellow-500 pb-5 mb-10">
@@ -93,6 +93,24 @@ export default function HomeClient() {
               </div>
            </div>
         </section>
+
+        <footer className="w-full pt-10 mt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[14px] text-white/30 tracking-[0.2em] uppercase font-bold">
+          <div>
+            © 2026 PLEASE README. ALL RIGHTS RESERVED.
+          </div>
+          <div className="flex gap-8">
+            <a 
+              href="https://github.com/stjoo0925/please_readme" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-yellow-500 transition-colors flex items-center gap-2"
+            >
+              <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full" />
+              GITHUB_REPOSITORY
+            </a>
+            <span className="opacity-50">STATUS: PRODUCTION_STABLE</span>
+          </div>
+        </footer>
       </div>
     </main>
   );

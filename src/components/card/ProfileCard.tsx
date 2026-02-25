@@ -11,23 +11,31 @@ export default function ProfileCard({ stats, config }: ProfileCardProps) {
   
   const getRankTheme = () => {
     switch(rank) {
-      case 'S+': return { color: '#FFE55C' };
-      case 'S':  return { color: '#BC13FE' };
-      case 'A+': return { color: '#00F3FF' };
-      case 'A':  return { color: '#30D158' };
-      case 'B+': return { color: '#FF9F0A' };
-      case 'B':  return { color: '#FF375F' };
-      case 'C+': return { color: '#E5E5EA' };
-      default:   return { color: '#30D158' };
+      case 'S+': return { color: '#FFE55C', glow: 'rgba(255, 229, 92, 0.15)' };
+      case 'S':  return { color: '#BC13FE', glow: 'rgba(188, 19, 254, 0.15)' };
+      case 'A+': return { color: '#00F3FF', glow: 'rgba(0, 243, 255, 0.15)' };
+      case 'A':  return { color: '#30D158', glow: 'rgba(48, 209, 88, 0.15)' };
+      case 'B+': return { color: '#FF9F0A', glow: 'rgba(255, 159, 10, 0.15)' };
+      case 'B':  return { color: '#FF375F', glow: 'rgba(255, 55, 95, 0.15)' };
+      case 'C+': return { color: '#E5E5EA', glow: 'rgba(229, 229, 234, 0.15)' };
+      default:   return { color: '#30D158', glow: 'rgba(48, 209, 88, 0.15)' };
     }
   };
 
   const theme = getRankTheme();
   const activeColor = theme.color;
   
-  // Generate a techy system ID (replaces redundant username)
-  const systemId = Buffer.from(stats.username).toString('hex').substring(0, 10).toUpperCase();
+  // Format real GitHub Node ID into a 4-4-4 tech ID
+  const nodeIdHash = Buffer.from(stats.nodeId).toString('hex').toUpperCase();
+  const systemId = `${nodeIdHash.slice(0, 4)}-${nodeIdHash.slice(4, 8)}-${nodeIdHash.slice(8, 12)}`;
   const currentDate = new Date().toISOString().replace('T', ' ').substring(0, 19);
+  
+  // Calculate Seniority
+  const joinedYear = new Date(stats.createdAt).getFullYear();
+  const yearsActive = new Date().getFullYear() - joinedYear;
+  let seniorityBadge = 'CORE_DEVELOPER';
+  if (yearsActive >= 10) seniorityBadge = 'GENESIS_USER';
+  else if (yearsActive >= 5) seniorityBadge = 'ELITE_VETERAN';
 
   return (
     <div
@@ -35,122 +43,156 @@ export default function ProfileCard({ stats, config }: ProfileCardProps) {
         height: '400px',
         width: '1200px',
         display: 'flex',
-        backgroundColor: '#0a0a0c',
+        backgroundColor: '#020204',
         color: '#ffffff',
         fontFamily: 'sans-serif',
         position: 'relative',
         overflow: 'hidden',
-        border: '1px solid #1a1a1f',
+        border: '1px solid #1a1a24',
       }}
     >
-      {/* Background Decorator */}
-      <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '400px', height: '400px', borderRadius: '200px', backgroundColor: `${activeColor}08` }} />
+      {/* 1. MESH BACKGROUND & DEPTH */}
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #050508 0%, #020204 100%)' }} />
+      <div style={{ position: 'absolute', top: '-10%', right: '-5%', width: '500px', height: '500px', borderRadius: '250px', background: `radial-gradient(circle, ${theme.glow} 0%, transparent 70%)` }} />
+      <div style={{ position: 'absolute', bottom: '-20%', left: '10%', width: '600px', height: '600px', borderRadius: '300px', background: `radial-gradient(circle, ${activeColor}08 0%, transparent 70%)` }} />
       
-      {/* Top Accent Line */}
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '3px', backgroundColor: `${activeColor}44` }} />
+      {/* 2. BACKGROUND WATERMARK (MASSIVE RANK) */}
+      <div style={{ position: 'absolute', right: '40px', bottom: '-40px', fontSize: '320px', fontWeight: '950', color: activeColor, opacity: 0.04, lineHeight: 1, letterSpacing: '-15px' }}>
+        {rank}
+      </div>
 
-      <div style={{ display: 'flex', width: '100%', height: '100%', padding: '0 60px', alignItems: 'center' }}>
+      {/* 3. TECH HUD LINES & DOTS */}
+      {/* Horizontal Top Segmented Line */}
+      <div style={{ position: 'absolute', top: '25px', left: '60px', right: '60px', height: '1px', backgroundColor: '#ffffff0a', display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ width: '40px', height: '3px', backgroundColor: activeColor, marginTop: '-1px' }} />
+        <div style={{ display: 'flex', gap: '4px' }}>
+           {[1,2,3].map(i => <div key={i} style={{ width: '3px', height: '3px', backgroundColor: i === 3 ? activeColor : '#ffffff22' }} />)}
+        </div>
+      </div>
+      
+      {/* Vertical Side Accents */}
+      <div style={{ position: 'absolute', left: '30px', top: '25px', bottom: '25px', width: '1px', backgroundColor: '#ffffff0a' }} />
+      <div style={{ position: 'absolute', left: '26px', top: '50%', height: '40px', width: '8px', backgroundColor: `${activeColor}22`, marginTop: '-20px' }} />
+      
+      {/* Seniority & Status Markers */}
+      <div style={{ position: 'absolute', top: '35px', left: '40px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+         <span style={{ fontSize: '12px', color: activeColor, fontWeight: '1000', letterSpacing: '1px' }}>{seniorityBadge}</span>
+         <span style={{ fontSize: '11px', color: '#aaa', fontWeight: 'bold' }}>USER_SINCE_{joinedYear}</span>
+      </div>
+
+      {/* 4. MAIN CONTENT LAYER */}
+      <div style={{ display: 'flex', width: '100%', height: '100%', padding: '0 80px', alignItems: 'center', zIndex: 10 }}>
         
-        {/* Left: Identity Section */}
+        {/* Left: Identity Halo Section */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '240px', position: 'relative' }}>
-          <div style={{ position: 'relative', width: '200px', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-             <div style={{ position: 'absolute', width: '202px', height: '202px', borderRadius: '101px', border: `1.5px solid ${activeColor}33` }} />
-             <div style={{ position: 'absolute', width: '190px', height: '190px', borderRadius: '95px', border: `3px solid ${activeColor}` }} />
+          <div style={{ position: 'relative', width: '210px', height: '210px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+             {/* Rotating Frame Feel */}
+             <div style={{ position: 'absolute', width: '210px', height: '210px', borderRadius: '105px', border: `1px dashed ${activeColor}44` }} />
+             <div style={{ position: 'absolute', width: '196px', height: '196px', borderRadius: '98px', border: `3px solid ${activeColor}` }} />
+             <div style={{ position: 'absolute', top: 0, width: '15px', height: '15px', backgroundColor: activeColor, borderRadius: '50%' }} />
              <img 
                src={stats.avatarUrl} 
                style={{ 
-                 width: '176px', 
-                 height: '176px', 
-                 borderRadius: '88px',
+                 width: '180px', 
+                 height: '180px', 
+                 borderRadius: '90px',
                }} 
              />
           </div>
-          <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <span style={{ color: activeColor, fontSize: '11px', fontWeight: 'bold', letterSpacing: '2px', opacity: 0.6 }}>SYSTEM_ID</span>
-            <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '2px', color: '#fff', opacity: 0.8, letterSpacing: '1px' }}>
+          <div style={{ marginTop: '22px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <span style={{ color: activeColor, fontSize: '10px', fontWeight: '900', letterSpacing: '3px', opacity: 0.7 }}>PROFILE_CARD_ID</span>
+            <div style={{ fontSize: '16px', fontWeight: 'bold', marginTop: '4px', color: '#aaa', fontFamily: 'monospace' }}>
               {systemId}
             </div>
           </div>
         </div>
 
-        {/* Middle: Main Content */}
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, marginLeft: '60px', minWidth: 0, position: 'relative' }}>
+        {/* Middle: Content HUD */}
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, marginLeft: '20px', minWidth: 0 }}>
           <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '35px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+              <div style={{ backgroundColor: `${activeColor}`, width: '4px', height: '18px', marginRight: '10px' }} />
               <span style={{ 
-                backgroundColor: `${activeColor}15`, 
                 color: activeColor, 
-                padding: '4px 12px', 
-                borderRadius: '4px', 
-                fontSize: '13px', 
-                fontWeight: 'bold',
-                border: `1px solid ${activeColor}44`
+                fontSize: '14px', 
+                fontWeight: '900',
+                letterSpacing: '1px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
               }}>
-                {config.title || 'GITHUB ENGINEER'}
+                {config.title ? config.title.toUpperCase() : 'GITHUB ENGINEER'}
               </span>
             </div>
             
-            <h1 style={{ fontSize: '76px', margin: '0', fontWeight: '950', letterSpacing: '-3px', color: '#fff', lineHeight: '0.9' }}>
+            <h1 style={{ 
+              fontSize: '84px', 
+              margin: '0', 
+              fontWeight: '1000', 
+              letterSpacing: '-4px', 
+              color: '#fff', 
+              lineHeight: '0.85',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: '550px'
+            }}>
               {stats.name || stats.username}
             </h1>
             
-            <p style={{ fontSize: '18px', color: '#808085', fontWeight: '500', margin: '15px 0 0 0', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-              {stats.bio || 'Building future-proof applications with excellence.'}
+            <p style={{ 
+              fontSize: '19px', 
+              color: '#eee', 
+              fontWeight: '500', 
+              margin: '20px 0 0 0', 
+              overflow: 'hidden', 
+              whiteSpace: 'nowrap', 
+              textOverflow: 'ellipsis',
+              maxWidth: '550px' 
+            }}>
+              {stats.bio || 'Architecting digital solutions at the frontier of technology.'}
             </p>
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', overflow: 'hidden', maxHeight: '35px' }}>
             {(stats.topLanguages.length > 0 ? stats.topLanguages.slice(0, 5) : ['Developer']).map((lang) => (
-              <div key={lang} style={{ fontSize: '13px', fontWeight: 'bold', color: '#fff', backgroundColor: '#ffffff08', padding: '5px 12px', borderRadius: '4px', border: '1px solid #ffffff15' }}>
-                {lang}
+              <div key={lang} style={{ fontSize: '12px', fontWeight: 'bold', color: activeColor, backgroundColor: `${activeColor}11`, padding: '5px 14px', borderRadius: '2px', borderLeft: `2px solid ${activeColor}`, whiteSpace: 'nowrap' }}>
+                {lang.toUpperCase()}
               </div>
             ))}
           </div>
 
-          {/* Footer Info Area */}
-          <div style={{ display: 'flex', marginTop: '40px', paddingTop: '15px', borderTop: '1px solid #ffffff08', gap: '30px', alignItems: 'baseline' }}>
-             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '9px', color: '#555', fontWeight: 'bold', letterSpacing: '1px' }}>LAST UPDATED</span>
-                <span style={{ fontSize: '12px', color: '#888', fontWeight: '600' }}>{currentDate} UTC</span>
-             </div>
-             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '9px', color: '#555', fontWeight: 'bold', letterSpacing: '1px' }}>VERIFIED BY</span>
-                <span style={{ fontSize: '12px', color: activeColor, fontWeight: '800' }}>Please Readme</span>
-             </div>
-          </div>
         </div>
 
-        {/* Right: Metric Intelligence */}
-        <div style={{ display: 'flex', flexDirection: 'column', width: '320px', marginLeft: '60px', height: '100%', justifyContent: 'center', borderLeft: '1px solid #ffffff0d', paddingLeft: '50px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '22px', marginBottom: '40px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '11px', color: '#606065', fontWeight: 'bold', letterSpacing: '1px' }}>STARS</span>
-                  <span style={{ fontSize: '28px', fontWeight: '900', color: '#fff' }}>{stats.totalStars.toLocaleString()}</span>
-               </div>
-               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                  <span style={{ fontSize: '11px', color: '#606065', fontWeight: 'bold', letterSpacing: '1px' }}>COMMITS</span>
-                  <span style={{ fontSize: '28px', fontWeight: '900', color: '#fff' }}>{stats.totalCommits.toLocaleString()}</span>
-               </div>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '11px', color: '#606065', fontWeight: 'bold', letterSpacing: '1px' }}>PULL REQUESTS</span>
-                  <span style={{ fontSize: '28px', fontWeight: '900', color: '#fff' }}>{stats.totalPRs.toLocaleString()}</span>
-               </div>
-               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                  <span style={{ fontSize: '11px', color: '#606065', fontWeight: 'bold', letterSpacing: '1px' }}>ISSUES</span>
-                  <span style={{ fontSize: '28px', fontWeight: '900', color: '#fff' }}>{stats.totalIssues.toLocaleString()}</span>
-               </div>
-            </div>
+        {/* Right: Intelligence Grid */}
+        <div style={{ display: 'flex', flexDirection: 'column', width: '300px', marginLeft: '60px', height: '100%', justifyContent: 'center', borderLeft: '1px solid #ffffff0d', paddingLeft: '50px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', marginBottom: '35px' }}>
+            {[
+              { label: 'STARS_COUNT', val: stats.totalStars, align: 'flex-start' },
+              { label: 'COMMIT_TOTAL', val: stats.totalCommits, align: 'flex-end' },
+              { label: 'PULL_REQUESTS', val: stats.totalPRs, align: 'flex-start' },
+              { label: 'ACTIVE_ISSUES', val: stats.totalIssues, align: 'flex-end' }
+            ].reduce((rows: any[], curr, i) => {
+              if (i % 2 === 0) rows.push([curr]); else rows[rows.length-1].push(curr);
+              return rows;
+            }, []).map((row, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                {row.map((item: any) => (
+                  <div key={item.label} style={{ display: 'flex', flexDirection: 'column', alignItems: item.align }}>
+                    <span style={{ fontSize: '10px', color: '#bbb', fontWeight: '900', letterSpacing: '1px' }}>{item.label}</span>
+                    <span style={{ fontSize: '30px', fontWeight: '950', color: '#fff', lineHeight: '1.1' }}>{item.val.toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-             <span style={{ fontSize: '110px', fontWeight: '1000', color: activeColor, lineHeight: '0.8' }}>{rank}</span>
-             <div style={{ display: 'flex', flexDirection: 'column', borderLeft: `2px solid ${activeColor}33`, paddingLeft: '15px' }}>
-                <span style={{ fontSize: '15px', color: activeColor, fontWeight: '900', letterSpacing: '3px' }}>RANK</span>
-                <span style={{ fontSize: '10px', color: '#404045', fontWeight: 'bold', marginTop: '2px' }}>CORE ENGINE v4</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px' }}>
+             <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '16px', color: activeColor, fontWeight: '1000', letterSpacing: '4px' }}>RANK</span>
+                <span style={{ fontSize: '10px', color: '#aaa', fontWeight: 'bold' }}>VERIFIED_USER</span>
              </div>
+             <span style={{ fontSize: '110px', fontWeight: '1000', color: activeColor, lineHeight: '0.8' }}>{rank}</span>
           </div>
         </div>
 
