@@ -174,8 +174,8 @@ export class GitHubService {
       }
     }
     
-    // console.log(`[GitHub API 요청] ${username}의 통계 데이터 요청 중...`);
-    // console.time(`github:stats:${username}`);
+    console.log(`[GitHub API 요청] ${username}의 통계 데이터 요청 중...`);
+    console.time(`github:stats:${username}`);
     
     try {
       // 최적화: 쿼리 및 변수를 한 번만 생성

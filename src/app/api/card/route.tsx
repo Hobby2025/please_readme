@@ -165,7 +165,7 @@ export async function GET(req: NextRequest) {
     // API 장애 또는 처리 오류 시 Fallback 카드 반환 (서비스 중단 방지)
     try {
       // 최대한 파라미터에서 유도된 프로필 정보 활용
-      const { searchParams } = new URL(req.url);
+      const { searchParams } = req.nextUrl;
       const dataParam = searchParams.get('data');
       let username = 'UNKNOWN';
       let theme: CardTheme = 'default';
@@ -208,7 +208,7 @@ export async function GET(req: NextRequest) {
         totalPRs: 0,
         totalIssues: 0,
         rank: { level: '?', score: 0, label: 'OFFLINE' },
-        avatarUrl: '',
+        avatarUrl: null, // 비어있는 문자열 대신 null을 사용하여 로드 시도 방지
         bio: 'MAINTENANCE_MODE_ACTIVE',
       };
 
