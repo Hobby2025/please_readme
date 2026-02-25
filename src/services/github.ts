@@ -31,10 +31,19 @@ export class GitHubService {
     const token = process.env.GITHUB_TOKEN;
     
     // Create octokit instance within the request to ensure environment variables are fresh
+    const customFetch = (url: RequestInfo | URL, options?: RequestInit) => {
+      return fetch(url, {
+        ...options,
+        // Cache GitHub API responses for 4 hours to dramatically speed up edge function responses
+        next: { revalidate: 14400 },
+      });
+    };
+
     const octokit = new Octokit({
       auth: token,
       request: {
         timeout: 5000, // 5 second timeout for requests
+        fetch: customFetch,
       }
     });
 

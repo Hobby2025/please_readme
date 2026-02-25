@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
         width: 1200, // Banner Width
         height: 400,  // Banner Height
         headers: {
-          'Cache-Control': 'public, max-age=14400, s-maxage=14400, stale-while-revalidate=60',
+          'Cache-Control': 'public, max-age=14400, s-maxage=14400, stale-while-revalidate=86400',
         },
       }
     );
