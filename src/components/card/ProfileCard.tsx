@@ -81,21 +81,21 @@ export default function ProfileCard({ stats, config }: ProfileCardProps) {
       </div>
 
       {/* 4. MAIN CONTENT LAYER */}
-      <div style={{ display: 'flex', width: '100%', height: '100%', padding: '0 80px', alignItems: 'center', zIndex: 10 }}>
+      <div style={{ display: 'flex', width: '100%', height: '100%', padding: '0 40px', alignItems: 'center', zIndex: 10 }}>
         
         {/* Left: Identity Halo Section */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '240px', position: 'relative' }}>
-          <div style={{ position: 'relative', width: '210px', height: '210px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '200px', position: 'relative' }}>
+          <div style={{ position: 'relative', width: '190px', height: '190px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
              {/* Rotating Frame Feel */}
-             <div style={{ position: 'absolute', width: '210px', height: '210px', borderRadius: '105px', border: `1px dashed ${activeColor}44` }} />
-             <div style={{ position: 'absolute', width: '196px', height: '196px', borderRadius: '98px', border: `3px solid ${activeColor}` }} />
-             <div style={{ position: 'absolute', top: 0, width: '15px', height: '15px', backgroundColor: activeColor, borderRadius: '50%' }} />
+             <div style={{ position: 'absolute', width: '190px', height: '190px', borderRadius: '95px', border: `1px dashed ${activeColor}44` }} />
+             <div style={{ position: 'absolute', width: '176px', height: '176px', borderRadius: '88px', border: `3px solid ${activeColor}` }} />
+             <div style={{ position: 'absolute', top: 0, width: '12px', height: '12px', backgroundColor: activeColor, borderRadius: '50%' }} />
              <img 
                src={stats.avatarUrl} 
                style={{ 
-                 width: '180px', 
-                 height: '180px', 
-                 borderRadius: '90px',
+                 width: '160px', 
+                 height: '160px', 
+                 borderRadius: '80px',
                }} 
              />
           </div>
@@ -126,16 +126,17 @@ export default function ProfileCard({ stats, config }: ProfileCardProps) {
             </div>
             
             <h1 style={{ 
-              fontSize: '84px', 
+              fontSize: '78px', 
               margin: '0', 
               fontWeight: '1000', 
               letterSpacing: '-4px', 
               color: '#fff', 
-              lineHeight: '0.85',
+              lineHeight: '1.2',
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
-              maxWidth: '550px'
+              maxWidth: '650px',
+              paddingBottom: '12px'
             }}>
               {stats.name || stats.username}
             </h1>
@@ -148,7 +149,7 @@ export default function ProfileCard({ stats, config }: ProfileCardProps) {
               overflow: 'hidden', 
               whiteSpace: 'nowrap', 
               textOverflow: 'ellipsis',
-              maxWidth: '550px' 
+              maxWidth: '650px' 
             }}>
               {stats.bio || 'Architecting digital solutions at the frontier of technology.'}
             </p>
@@ -165,7 +166,7 @@ export default function ProfileCard({ stats, config }: ProfileCardProps) {
         </div>
 
         {/* Right: Intelligence Grid */}
-        <div style={{ display: 'flex', flexDirection: 'column', width: '300px', marginLeft: '60px', height: '100%', justifyContent: 'center', borderLeft: '1px solid #ffffff0d', paddingLeft: '50px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', width: '260px', marginLeft: '40px', height: '100%', justifyContent: 'center', borderLeft: '1px solid #ffffff0d', paddingLeft: '30px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', marginBottom: '35px' }}>
             {[
               { label: 'STARS_COUNT', val: stats.totalStars, align: 'flex-start' },
