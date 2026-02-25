@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<img src="https://github.com/user-attachments/assets/2cd1f193-420c-4eb9-b6db-27497f437ccc" height="120" loading="eager" alt="Please Readme 로고" fetchpriority="high">
 
-## Getting Started
+> GitHub 프로필 정보와 활동 통계를 기반으로 커스터마이징 가능한 이미지 카드를 생성하는 웹 애플리케이션입니다.<br>
+> `Vercel OG Image Generation`을 사용하여 서버사이드에서 이미지를 생성합니다.
 
-First, run the development server:
+## 📌 기능
 
+- GitHub 사용자 정보 및 활동 통계 (커밋, 스타, PR, 이슈) 표시
+- 프로필 정보 (이름, 소개) 커스터마이징
+- 기술 스택 목록 표시
+- 왜곡 없는 이미지 표시
+- API 엔드포인트를 통한 프로필 카드 이미지 생성 (`/api/card?username=...`)
+- 생성된 이미지 미리보기 및 마크다운 코드 복사 기능
+
+## 📌 기술 스택
+
+- `Next.js`
+- `React`
+- `TypeScript`
+- `Tailwind CSS`
+- `@vercel/og` (Satori) for Image Generation
+- `GitHub API` (@octokit/rest)
+
+## 📌 시작하기
+
+1. 저장소 클론
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Hobby2025/please_readme.git
+cd please_readme
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. 의존성 설치
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. 개발 서버 실행
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. 브라우저에서 확인
+```
+http://localhost:3000
+```
 
-## Learn More
+## 📌 환경 변수
 
-To learn more about Next.js, take a look at the following resources:
+`.env.local` 파일을 생성하고 다음 환경 변수를 설정하세요:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+GITHUB_TOKEN=your_github_token
+NEXT_PUBLIC_API_BASE_URL=your_deployment_url (e.g., http://localhost:3000 for development)
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📌 프로필 카드 사용법
 
-## Deploy on Vercel
+1. 웹 애플리케이션에서 GitHub 사용자명과 기타 정보를 입력합니다.
+2. '카드 생성 / 업데이트' 버튼을 클릭하여 카드를 생성합니다.
+3. '마크다운 복사' 버튼 또는 높이조절이 가능한 'HTML 복사' 버튼을 사용하여 마크다운 코드를 복사합니다.
+4. GitHub 프로필 README.md에 코드를 붙여넣어 카드를 표시합니다.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📌 카드 사양
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **지원 기술 스택**: React, TypeScript, JavaScript, Python, Java 등 다양한 기술 스택 아이콘 지원
+- **랭크 표시**: GitHub 활동에 따른 랭크 시스템 (S, A+, A, A-, B+, B, B-, C+, C)
+
+## 📌 버전 관리
+
+커밋 메시지에 따라 자동으로 버전이 업데이트됩니다:
+
+1. **일반 업데이트** (z 증가)
+   - 일반적인 커밋
+   - 예: `fix: 버그 수정`
+
+2. **마이너 업데이트** (y 증가)
+   - 커밋 메시지에 `#minor` 포함
+   - 예: `feat: 새로운 기능 추가 #minor`
+
+3. **메이저 업데이트** (x 증가)
+   - 커밋 메시지에 `#major` 포함
+   - 예: `feat: 주요 기능 변경 #major`
+
+4. **버전 업데이트 제외**
+   - 커밋 메시지에 `#noversion` 포함
+
+## 📌 최근 업데이트
+
+- 프로필 카드 디자인 개선 (더 큰 아이콘 및 텍스트)
+- 이미지 표시 문제 해결 (종횡비 유지하여 왜곡 방지)
+- 기술 스택 배지 시각적 개선
+- 폰트 개수 확장
+- 스택 개수에 따른 동적인 이미지 높이 조절
+
+## 📌 알려진 이슈
+[이슈보드](https://github.com/Hobby2025/please_readme/discussions/1)
+
+## 📌 라이선스
+
+MIT
