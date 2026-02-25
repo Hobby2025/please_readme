@@ -21,7 +21,8 @@ export default function HomeClient() {
   useEffect(() => {
     if (debouncedUsername) {
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-      setPreviewUrl(`${baseUrl}/api/card?username=${debouncedUsername}&t=${Date.now()}`);
+      const titleParam = config.title ? `&title=${encodeURIComponent(config.title)}` : '';
+      setPreviewUrl(`${baseUrl}/api/card?username=${debouncedUsername}${titleParam}&t=${Date.now()}`);
     } else {
       setPreviewUrl('');
     }
@@ -48,6 +49,18 @@ export default function HomeClient() {
                   className="bg-transparent border-b-2 border-white/20 p-2 text-xl outline-none focus:border-yellow-500 transition-all font-black"
                 />
               </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold text-yellow-500 uppercase tracking-tighter">Custom Title</label>
+                <input 
+                  type="text" 
+                  value={config.title || ''}
+                  onChange={(e) => setConfig({ ...config, title: e.target.value })}
+                  placeholder="GITHUB ENGINEER"
+                  className="bg-transparent border-b-2 border-white/20 p-2 text-xl outline-none focus:border-yellow-500 transition-all font-black text-white/80"
+                />
+              </div>
+
               <button 
                 className="w-full h-16 bg-yellow-500 text-black font-black text-xl hover:bg-white transition-all transform hover:scale-[1.02] shadow-[0_0_20px_rgba(234,179,8,0.3)]"
                 onClick={() => {

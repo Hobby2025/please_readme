@@ -19,4 +19,5 @@ export interface ProfileConfig {
   bio?: string | null;
   username: string;
   name?: string;
+  title?: string;
 }

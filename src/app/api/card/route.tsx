@@ -22,6 +22,8 @@ export async function GET(req: NextRequest) {
 
     const stats = await Promise.race([statsPromise, timeoutPromise]) as any;
     
+    const title = searchParams.get('title') || 'GITHUB ENGINEER';
+    
     return new ImageResponse(
       (
         <ProfileCard 
@@ -29,6 +31,7 @@ export async function GET(req: NextRequest) {
           config={{
             username,
             bio: stats.bio,
+            title,
           }}
         />
       ),
