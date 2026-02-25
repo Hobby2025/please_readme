@@ -1,87 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GitHubService } from '@/services/github';
-import { Profile, CardTheme } from '@/types';
+import { Profile } from '@/types';
 import { ImageResponse } from '@vercel/og';
 import ProfileCardStatic from '@/components/ProfileCard/ProfileCardStatic';
-import { optimizeProfileImages } from '@/utils/imageUtils';
 import { getFontData, VercelFontOptions } from '@/utils/fontUtils';
-import { calculateCardHeight } from '@/utils/layoutUtils';
-import { measurePerformance } from '@/utils/performanceUtils';
 import { getCachedData, setCachedData, deleteCachedData } from '@/utils/cache';
 
-const CACHE_TTL_SECONDS = 4 * 60 * 60; // vercel 캐싱 주기 4시간
-
-function isValidCardTheme(theme: string): theme is CardTheme {
-  return ['cosmic', 'mineral', 'default', 'pastel'].includes(theme);
-}
+const CACHE_TTL_SECONDS = 4 * 60 * 60; // 4 hours
 
 export async function GET(req: NextRequest) {
   const startTime = Date.now();
-  console.log(`[카드 API 요청 시작] ${new Date().toISOString()}`);
   
   try {
     const { searchParams } = new URL(req.url);
-    const dataParam = searchParams.get('data');
-    
-    let username, themeParam, customBgUrl, customBio, skillsParam, customName, opacityParam, nocache, fontFamily;
+    const username = searchParams.get('username') || 'UNKNOWN';
+    const nocache = searchParams.get('nocache') === 'true';
 
-    if (dataParam) {
-      try {
-        // base64url 스펙 대응 (GitHub 캐시 이슈 방지)
-        let base64 = dataParam.replace(/-/g, '+').replace(/_/g, '/');
-        // 패딩 보정
-        while (base64.length % 4) {
-          base64 += '=';
-        }
-        const decodedData = JSON.parse(decodeURIComponent(Buffer.from(base64, 'base64').toString('utf-8')));
-        username = decodedData.username;
-        themeParam = decodedData.theme;
-        customBgUrl = decodedData.bg;
-        customBio = decodedData.bio;
-        skillsParam = decodedData.skills;
-        customName = decodedData.name;
-        opacityParam = decodedData.opacity;
-        fontFamily = decodedData.fontFamily;
-        nocache = searchParams.get('nocache') === 'true'; 
-      } catch (e) {
-        console.error('Base64 디코딩 실패', e);
-        return NextResponse.json({ message: '잘못된 데이터 형식입니다.' }, { status: 400 });
-      }
-    } else {
-      // 구 버전 하위 호환성 (마크다운 이미지 직접 링크 사용 시 대응)
-      username = searchParams.get('username');
-      themeParam = searchParams.get('theme');
-      customBgUrl = searchParams.get('bg');
-      customBio = searchParams.get('bio');
-      skillsParam = searchParams.get('skills');
-      customName = searchParams.get('name');
-      opacityParam = searchParams.get('opacity');
-      nocache = searchParams.get('nocache') === 'true';
-      fontFamily = searchParams.get('fontFamily');
-    }
-
-    if (!username || typeof username !== 'string') {
+    if (username === 'UNKNOWN') {
       return NextResponse.json({ message: 'GitHub 사용자명(username)이 필요합니다.' }, { status: 400 });
     }
     
-    // 테마 처리
-    const theme: CardTheme = (typeof themeParam === 'string' && isValidCardTheme(themeParam)) 
-      ? themeParam as CardTheme 
-      : 'default'; 
-    
-    // 캐싱을 위한 키 생성
-    const cacheKey = `card:${username}:${theme}:${customBgUrl || ''}:${customBio || ''}:${skillsParam || ''}:${customName || ''}:${opacityParam || ''}:${fontFamily || ''}`;
-    // ETag 헤더에 사용할 수 있도록 유니코드 안전(ASCII) Base64 문자열로 변환
+    // 가장 단순한 캐시키
+    const cacheKey = `card:v5:${username}`;
     const safeETag = Buffer.from(cacheKey).toString('base64');
     
-    const forceRefresh = nocache;
-    if (forceRefresh) {
+    if (nocache) {
       await deleteCachedData(cacheKey);
       await deleteCachedData(`github:stats:${username}`);
     }
     
     const cachedCard = await getCachedData<Buffer>(cacheKey);
-    if (cachedCard && !forceRefresh) {
+    if (cachedCard && !nocache) {
       const response = new NextResponse(Buffer.from(cachedCard));
       response.headers.set('Content-Type', 'image/png');
       response.headers.set('Cache-Control', 'public, max-age=14400, s-maxage=14400, stale-while-revalidate=86400');
@@ -89,157 +38,58 @@ export async function GET(req: NextRequest) {
       return response;
     }
     
-    // 데이터 가져오기 (GitHub API & 폰트)
-    const [githubResult, fontsResult] = await Promise.all([
-      measurePerformance('GitHub 데이터 요청', () => 
-        GitHubService.getInstance().getUserStats(username, forceRefresh)
-      ),
-      measurePerformance('폰트 로딩', () => {
-        const fontFamilyStr = typeof fontFamily === 'string' ? fontFamily : undefined;
-        return getFontData(fontFamilyStr);
-      })
+    console.log('[DEBUG-CARD] Fetching Github & Font...');
+    // 가장 단순한 API + 단일 폰트 로드
+    const [stats, fontsResult] = await Promise.all([
+      GitHubService.getInstance().getUserStats(username, nocache),
+      getFontData('Pretendard') // 무조건 Pretendard-Bold (400) 만 사용
     ]);
     
-    const stats = githubResult.result;
-    const fonts = fontsResult.result;
-    
-    const { result: { optimizedStats } } = await measurePerformance(
-       '이미지 최적화', 
-       () => optimizeProfileImages(stats)
-    );
-    
-    const skills = typeof skillsParam === 'string' ? skillsParam.split(',').map(s => s.trim()).filter(Boolean) : [];
-    
+    console.log('[DEBUG-CARD] Rendering Satori ImageResponse...');
     const profile: Profile = {
       githubUsername: username,
-      name: (typeof customName === 'string' ? customName : optimizedStats.name) || '',
-      bio: (typeof customBio === 'string' ? customBio : optimizedStats.bio) || '',
-      theme,
-      skills,
-      fontFamily: typeof fontFamily === 'string' ? fontFamily : 'Pretendard', 
+      name: stats.name,
+      bio: stats.bio ?? undefined,
+      theme: 'default',
+      skills: ['GITHUB', 'REACT', 'NEXTJS', 'TYPESCRIPT'], // 옵션 다 지우고 하드코딩된 기본 스택으로 제한
+      fontFamily: 'Pretendard', 
     };
     
-    const cardHeight = calculateCardHeight(profile.skills.length, profile.fontFamily);
-    
-    const { result: imageBuffer } = await measurePerformance('카드 이미지 생성', async () => {
-      const imageResponse = new ImageResponse(
-        // @ts-ignore
-        (
-          <ProfileCardStatic 
-            profile={profile}
-            stats={optimizedStats}
-            loading={false}
-          />
-        ),
-        {
-          width: 600,
-          height: cardHeight,
-          fonts: fonts as VercelFontOptions[],
-          headers: {
-            'Cache-Control': 'public, max-age=86400',
-            'ETag': `"${safeETag}"`,
-          }
+    const imageResponse = new ImageResponse(
+      (
+        <ProfileCardStatic 
+          profile={profile}
+          stats={stats}
+          loading={false}
+        />
+      ),
+      {
+        width: 600,
+        height: 920,
+        fonts: fontsResult as VercelFontOptions[],
+        headers: {
+          'Cache-Control': 'public, max-age=86400',
+          'ETag': `"${safeETag}"`,
         }
-      );
-      const imageArrayBuffer = await imageResponse.arrayBuffer();
-      return Buffer.from(imageArrayBuffer);
-    });
+      }
+    );
+    
+    console.log('[DEBUG-CARD] Calling arrayBuffer()...');
+    const imageArrayBuffer = await imageResponse.arrayBuffer();
+    const imageBuffer = Buffer.from(imageArrayBuffer);
 
+    console.log('[DEBUG-CARD] Caching...');
     await setCachedData(cacheKey, imageBuffer, CACHE_TTL_SECONDS);
 
     const response = new NextResponse(imageBuffer);
     response.headers.set('Content-Type', 'image/png');
-    // GitHub camo proxy 등의 캐시를 회피하기 위해 s-maxage 제어 및 stale-while-revalidate 추가
     response.headers.set('Cache-Control', 'public, max-age=14400, s-maxage=14400, stale-while-revalidate=86400');
     response.headers.set('ETag', `"${safeETag}"`);
     
-    const endTime = Date.now();
-    const totalTime = (endTime - startTime) / 1000;
-    console.log(`[카드 API 완료] 캐시 생성 - 총 처리 시간: ${totalTime.toFixed(2)}초`);
-    
+    console.log(`[DEBUG-CARD] Done in ${(Date.now() - startTime) / 1000}s`);
     return response;
   } catch (error) {
     console.error('카드 생성 실패:', error);
-    
-    // API 장애 또는 처리 오류 시 Fallback 카드 반환 (서비스 중단 방지)
-    try {
-      // 최대한 파라미터에서 유도된 프로필 정보 활용
-      const { searchParams } = req.nextUrl;
-      const dataParam = searchParams.get('data');
-      let username = 'UNKNOWN';
-      let theme: CardTheme = 'default';
-      let skills: string[] = [];
-      let name = '';
-
-      if (dataParam) {
-        try {
-          let base64 = dataParam.replace(/-/g, '+').replace(/_/g, '/');
-          while (base64.length % 4) base64 += '=';
-          const decoded = JSON.parse(decodeURIComponent(Buffer.from(base64, 'base64').toString('utf-8')));
-          username = decoded.username || username;
-          theme = decoded.theme || theme;
-          skills = typeof decoded.skills === 'string' ? decoded.skills.split(',').map((s: string) => s.trim()) : [];
-          name = decoded.name || '';
-        } catch (e) {}
-      } else {
-        username = searchParams.get('username') || username;
-        theme = (searchParams.get('theme') as CardTheme) || theme;
-        skills = searchParams.get('skills')?.split(',').map(s => s.trim()) || [];
-        name = searchParams.get('name') || '';
-      }
-
-      // 폰트는 기본값 사용
-      const fontsResult = await getFontData('Pretendard');
-      
-      const fallbackProfile: Profile = {
-        githubUsername: username,
-        name: name || username,
-        bio: 'SYSTEM_STATUS: OFFLINE // GitHub API connection lost. Displaying cached/static identification.',
-        theme,
-        skills,
-        fontFamily: 'Pretendard',
-      };
-
-      const fallbackStats = {
-        name: name || username,
-        totalStars: 0,
-        totalCommits: 0,
-        totalPRs: 0,
-        totalIssues: 0,
-        rank: { level: '?', score: 0, label: 'OFFLINE' },
-        avatarUrl: null, // 비어있는 문자열 대신 null을 사용하여 로드 시도 방지
-        bio: 'MAINTENANCE_MODE_ACTIVE',
-      };
-
-      const imageResponse = new ImageResponse(
-        // @ts-ignore
-        (
-          <ProfileCardStatic 
-            profile={fallbackProfile}
-            // @ts-ignore
-            stats={fallbackStats}
-            loading={false}
-          />
-        ),
-        {
-          width: 600,
-          height: 920, // 기본 높이 고정
-          fonts: fontsResult as VercelFontOptions[]
-        }
-      );
-
-      const imageArrayBuffer = await imageResponse.arrayBuffer();
-      const response = new NextResponse(Buffer.from(imageArrayBuffer));
-      response.headers.set('Content-Type', 'image/png');
-      response.headers.set('Cache-Control', 'no-store, must-revalidate'); // 장애 시에는 캐싱 안함
-      return response;
-
-    } catch (fallbackError) {
-      console.error('Fallback 카드 생성조차 실패:', fallbackError);
-      return NextResponse.json({ 
-        message: '카드 생성에 완전히 실패했습니다.', 
-        error: error instanceof Error ? error.message : '알 수 없는 오류' 
-      }, { status: 500 });
-    }
+    return NextResponse.json({ message: 'Error generating card' }, { status: 500 });
   }
 }

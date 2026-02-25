@@ -18,8 +18,7 @@ export async function getFontData(fontFamily: string = 'Pretendard'): Promise<Ve
   try {
     if (fontFamily === 'Pretendard') {
       return [
-        { name: fontFamily, data: await fs.readFile(path.join(process.cwd(), 'public/fonts/Pretendard-Regular.ttf')), weight: 400, style: 'normal' },
-        { name: fontFamily, data: await fs.readFile(path.join(process.cwd(), 'public/fonts/Pretendard-Bold.ttf')), weight: 700, style: 'normal' }
+        { name: fontFamily, data: await fs.readFile(path.join(process.cwd(), 'public/fonts/Pretendard-Bold.ttf')), weight: 400, style: 'normal' }
       ];
     }
     if (fontFamily === 'HSSanTokki2.0') {
@@ -45,10 +44,9 @@ export async function getFontData(fontFamily: string = 'Pretendard'): Promise<Ve
       console.log(`[폰트 유틸] 요청된 폰트 ${fontFamily}가 없어 기본 폰트(Pretendard)를 사용합니다.`);
     }
 
-    // 기본값 (Pretendard)
+    // 기본값 (Pretendard) - Vercel Edge 환경 타임아웃 방지 (단일 폰트 파싱)
     return [
-      { name: fontFamily === 'Pretendard' ? fontFamily : 'Pretendard', data: await fs.readFile(path.join(process.cwd(), 'public/fonts/Pretendard-Regular.ttf')), weight: 300, style: 'normal' },
-      { name: fontFamily === 'Pretendard' ? fontFamily : 'Pretendard', data: await fs.readFile(path.join(process.cwd(), 'public/fonts/Pretendard-Bold.ttf')), weight: 700, style: 'normal' }
+      { name: fontFamily === 'Pretendard' ? fontFamily : 'Pretendard', data: await fs.readFile(path.join(process.cwd(), 'public/fonts/Pretendard-Bold.ttf')), weight: 400, style: 'normal' }
     ];
   } catch (error) {
     console.error(`[폰트 유틸] 폰트 로딩 실패:`, error);
