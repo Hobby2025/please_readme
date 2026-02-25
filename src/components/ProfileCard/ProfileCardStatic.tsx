@@ -13,6 +13,13 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
   const ACCENT = rankStyle.headerBorderColor || '#FFD700';
   const ACCENT_DIM = `${ACCENT}88`;
   const ACCENT_GHOST = `${ACCENT}11`;
+
+  const truncateText = (text: string, len: number) => {
+    return text.length > len ? text.slice(0, len - 3) + '...' : text;
+  };
+  
+  const bioRaw = `"${profile.bio || stats?.bio || 'SYSTEM_INFO: No narrative data recovered from target server.'}"`;
+  const bioText = truncateText(bioRaw, 130);
   
   return (
     <div
@@ -75,7 +82,8 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
-              maxWidth: '350px'
+              maxWidth: '350px',
+              display: 'flex',
             }}>
               {profile.name || stats?.name || 'UNKNOWN'}
             </h1>
@@ -95,13 +103,13 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
             {stats?.avatarUrl ? (
               <img src={stats.avatarUrl} style={{ width: '100%', height: '100%' }} />
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: '10px', textAlign: 'center' }}>NO_IMAGE</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: '10px', textAlign: 'center', width: '100%' }}>NO_IMAGE</div>
             )}
             {/* Crosshair decorators */}
-            <div style={{ position: 'absolute', top: '-5px', left: '-5px', width: '10px', height: '10px', borderTop: `2px solid ${ACCENT}`, borderLeft: `2px solid ${ACCENT}` }} />
-            <div style={{ position: 'absolute', top: '-5px', right: '-5px', width: '10px', height: '10px', borderTop: `2px solid ${ACCENT}`, borderRight: `2px solid ${ACCENT}` }} />
-            <div style={{ position: 'absolute', bottom: '-5px', left: '-5px', width: '10px', height: '10px', borderBottom: `2px solid ${ACCENT}`, borderLeft: `2px solid ${ACCENT}` }} />
-            <div style={{ position: 'absolute', bottom: '-5px', right: '-5px', width: '10px', height: '10px', borderBottom: `2px solid ${ACCENT}`, borderRight: `2px solid ${ACCENT}` }} />
+            <div style={{ position: 'absolute', top: '-5px', left: '-5px', width: '10px', height: '10px', borderTop: `2px solid ${ACCENT}`, borderLeft: `2px solid ${ACCENT}`, display: 'flex' }} />
+            <div style={{ position: 'absolute', top: '-5px', right: '-5px', width: '10px', height: '10px', borderTop: `2px solid ${ACCENT}`, borderRight: `2px solid ${ACCENT}`, display: 'flex' }} />
+            <div style={{ position: 'absolute', bottom: '-5px', left: '-5px', width: '10px', height: '10px', borderBottom: `2px solid ${ACCENT}`, borderLeft: `2px solid ${ACCENT}`, display: 'flex' }} />
+            <div style={{ position: 'absolute', bottom: '-5px', right: '-5px', width: '10px', height: '10px', borderBottom: `2px solid ${ACCENT}`, borderRight: `2px solid ${ACCENT}`, display: 'flex' }} />
           </div>
         </div>
 
@@ -110,7 +118,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
           
           {/* IDENTIFICATION DATA */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: '12px', fontWeight: 900, borderLeft: `5px solid ${ACCENT}`, paddingLeft: '10px', marginBottom: '15px' }}>01_IDENTIFICATION_NARRATIVE</div>
+            <div style={{ fontSize: '12px', fontWeight: 900, borderLeft: `5px solid ${ACCENT}`, paddingLeft: '10px', marginBottom: '15px', display: 'flex' }}>01_IDENTIFICATION_NARRATIVE</div>
             <div style={{ 
               backgroundColor: ACCENT_GHOST, 
               padding: '20px', 
@@ -119,20 +127,17 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
               color: '#FFF', 
               border: `1px solid ${ACCENT_DIM}`,
               fontStyle: 'italic',
-              display: '-webkit-box',
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: 'vertical',
+              display: 'flex',
               overflow: 'hidden',
-              textOverflow: 'ellipsis',
               height: '80px' // 줄어들거나 늘어나도 레이아웃 유지
             }}>
-              {`"${profile.bio || stats?.bio || 'SYSTEM_INFO: No narrative data recovered from target server.'}"`}
+              {bioText}
             </div>
           </div>
 
           {/* ARSENAL DATA */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: '12px', fontWeight: 900, borderLeft: `5px solid ${ACCENT}`, paddingLeft: '10px', marginBottom: '15px' }}>02_TECHNICAL_CORE_ARSENAL</div>
+            <div style={{ fontSize: '12px', fontWeight: 900, borderLeft: `5px solid ${ACCENT}`, paddingLeft: '10px', marginBottom: '15px', display: 'flex' }}>02_TECHNICAL_CORE_ARSENAL</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
               {(() => {
                 const allSkills = profile.skills && profile.skills.length > 0 
@@ -155,7 +160,10 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                     width: '107px',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
-                    textOverflow: 'ellipsis'
+                    textOverflow: 'ellipsis',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}>{skill.toUpperCase()}</div>
                 ));
               })()}
@@ -164,7 +172,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
 
           {/* DIAGNOSTIC DATA */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: '12px', fontWeight: 900, borderLeft: `5px solid ${ACCENT}`, paddingLeft: '10px', marginBottom: '15px' }}>03_PERFORMANCE_DIAGNOSTICS</div>
+            <div style={{ fontSize: '12px', fontWeight: 900, borderLeft: `5px solid ${ACCENT}`, paddingLeft: '10px', marginBottom: '15px', display: 'flex' }}>03_PERFORMANCE_DIAGNOSTICS</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1px', backgroundColor: ACCENT_DIM, border: `1px solid ${ACCENT_DIM}` }}>
               {[
                 { label: 'TOTAL_COMMITS', value: formatNumberUnit(stats?.totalCommits || 0) },
@@ -172,7 +180,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                 { label: 'PULL_REQUESTS', value: formatNumberUnit(stats?.totalPRs || 0) },
                 { label: 'SYSTEM_ISSUES', value: formatNumberUnit(stats?.totalIssues || 0) },
               ].map((stat, i) => (
-                <div key={i} style={{ backgroundColor: '#000', padding: '20px', display: 'flex', flexDirection: 'column', gap: '5px', width: '229.5px' }}>
+                <div key={i} style={{ backgroundColor: '#000', padding: '20px', display: 'flex', flexDirection: 'column', gap: '5px', width: '228px' }}>
                    <span style={{ fontSize: '9px', fontWeight: 900, opacity: 0.6 }}>{stat.label}</span>
                    <span style={{ fontSize: '28px', fontWeight: 900, color: '#FFF' }}>{stat.value}</span>
                 </div>
@@ -190,7 +198,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
             <div style={{ fontSize: '12px', fontWeight: 900, color: ACCENT, display: 'flex' }}>STATUS: // SECURED_STABLE</div>
             <div style={{ display: 'flex', width: '150px', height: '40px', overflow: 'hidden' }}>
               {[...Array(25)].map((_, i) => (
-                <div key={i} style={{ width: i % 2 === 0 ? '2px' : '4px', height: '100%', backgroundColor: ACCENT, marginRight: '2px' }} />
+                <div key={i} style={{ width: i % 2 === 0 ? '2px' : '4px', height: '100%', backgroundColor: ACCENT, marginRight: '2px', display: 'flex' }} />
               ))}
             </div>          </div>
 
