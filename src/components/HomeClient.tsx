@@ -100,7 +100,7 @@ export default function HomeClient() {
           </div>
           <div className="flex gap-8">
             <a 
-              href="https://github.com/stjoo0925/please_readme" 
+              href="https://github.com/Stjoo0925/please_readme_v2" 
               target="_blank" 
               rel="noopener noreferrer"
               className="hover:text-yellow-500 transition-colors flex items-center gap-2"
