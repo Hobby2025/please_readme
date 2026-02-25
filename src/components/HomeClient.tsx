@@ -4,29 +4,34 @@ import React, { useState, useEffect } from 'react';
 import { ProfileConfig } from '@/types';
 
 export default function HomeClient() {
+  // State for raw inputs
   const [username, setUsername] = useState('');
-  const [debouncedUsername, setDebouncedUsername] = useState('');
-  const [config, setConfig] = useState<Partial<ProfileConfig>>({});
+  const [title, setTitle] = useState('');
+  
+  // State for debounced values used in API calls
+  const [debouncedParams, setDebouncedParams] = useState({ username: '', title: '' });
   const [previewUrl, setPreviewUrl] = useState('');
 
-  // Handle debounce (1.5s delay)
+  // Unified debounce logic
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedUsername(username);
-    }, 1500);
+      setDebouncedParams({ username, title });
+    }, 1000); // 1s debounce is sufficient and responsive
 
     return () => clearTimeout(timer);
-  }, [username]);
+  }, [username, title]);
 
   useEffect(() => {
-    if (debouncedUsername) {
+    if (debouncedParams.username) {
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-      const titleParam = config.title ? `&title=${encodeURIComponent(config.title)}` : '';
-      setPreviewUrl(`${baseUrl}/api/card?username=${debouncedUsername}${titleParam}&t=${Date.now()}`);
+      const titleParam = debouncedParams.title ? `&title=${encodeURIComponent(debouncedParams.title)}` : '';
+      // Only include a timestamp if the user explicitly wants to refresh, 
+      // otherwise rely on the debounced params to change the URL
+      setPreviewUrl(`${baseUrl}/api/card?username=${debouncedParams.username}${titleParam}`);
     } else {
       setPreviewUrl('');
     }
-  }, [debouncedUsername, config]);
+  }, [debouncedParams]);
 
   return (
     <main className="max-h-[100svh] bg-black text-white p-10 font-mono">
@@ -54,8 +59,8 @@ export default function HomeClient() {
                 <label className="text-xs font-bold text-yellow-500 uppercase tracking-tighter">Custom Title</label>
                 <input 
                   type="text" 
-                  value={config.title || ''}
-                  onChange={(e) => setConfig({ ...config, title: e.target.value })}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                   placeholder="GITHUB ENGINEER"
                   className="bg-transparent border-b-2 border-white/20 p-2 text-xl outline-none focus:border-yellow-500 transition-all font-black text-white/80"
                 />

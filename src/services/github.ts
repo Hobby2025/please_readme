@@ -4,6 +4,9 @@ import { GitHubStats } from '../types';
 export class GitHubService {
   private static instance: GitHubService;
   private octokit: Octokit;
+  // Simple in-memory cache to prevent redundant search API calls
+  private statsCache: Map<string, { stats: GitHubStats; timestamp: number }> = new Map();
+  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   private constructor() {
     this.octokit = new Octokit({
@@ -19,6 +22,12 @@ export class GitHubService {
   }
 
   public async getStats(username: string): Promise<GitHubStats> {
+    // Return cached data if available and fresh
+    const cached = this.statsCache.get(username);
+    if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
+      return cached.stats;
+    }
+
     const token = process.env.GITHUB_TOKEN;
     
     // Create octokit instance within the request to ensure environment variables are fresh
@@ -60,12 +69,16 @@ export class GitHubService {
         try {
           const result = await promise;
           return result.data.total_count || 0;
-        } catch (err) {
-          // Subtle log for rate limits to avoid terminal clutter
-          if (err instanceof Error && err.message.includes('rate limit exceeded')) {
+        } catch (err: any) {
+          // Silent 403 Forbidden (Secondary rate limit or Search API restriction)
+          if (err.status === 403) {
+            return 0;
+          }
+          // Silent rate limit exceeded
+          if (err.message?.includes('rate limit exceeded')) {
              return 0; 
           }
-          console.warn(`Search API error: ${err instanceof Error ? err.message : String(err)}`);
+          console.warn(`Search API error: ${err.message || String(err)}`);
           return 0;
         }
       };
@@ -89,7 +102,7 @@ export class GitHubService {
       else if (score >= 2000) level = 'B';
       else if (score >= 1000) level = 'C+';
 
-      return {
+      const stats = {
         username: user.login,
         name: user.name || user.login,
         bio: user.bio,
@@ -104,6 +117,11 @@ export class GitHubService {
         createdAt: user.created_at,
         rank: { level, score }
       };
+
+      // Save to cache
+      this.statsCache.set(username, { stats, timestamp: Date.now() });
+
+      return stats;
     } catch (e: any) {
       console.error(`GitHub API error: ${e.message}`);
       throw new Error(`Failed to fetch GitHub data: ${e.message}`);
