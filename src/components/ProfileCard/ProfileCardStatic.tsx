@@ -50,8 +50,9 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
           fontWeight: 900,
           letterSpacing: '0.2em',
           textTransform: 'uppercase',
+          display: 'flex',
         }}>
-          PLEASE_README_PROTOCOL_V3.1.7 // PROPERTY_OF_{profile.githubUsername?.toUpperCase() || 'UNKNOWN'}
+          {`PLEASE_README_PROTOCOL_V3.1.7 // PROPERTY_OF_${profile.githubUsername?.toUpperCase() || 'UNKNOWN'}`}
         </div>
       </div>
 
@@ -61,7 +62,9 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
         {/* Top Header Information */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: `2px solid ${ACCENT}`, paddingBottom: '20px', marginBottom: '30px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-            <span style={{ fontSize: '10px', fontWeight: 900, opacity: 0.6 }}>SPECIFICATION_LABEL / NO. {stats?.totalStars || '0000'}</span>
+            <span style={{ fontSize: '10px', fontWeight: 900, opacity: 0.6, display: 'flex' }}>
+              {`SPECIFICATION_LABEL / NO. ${stats?.totalStars || '0000'}`}
+            </span>
             <h1 style={{ 
               fontSize: '42px', 
               fontWeight: 900, 
@@ -76,7 +79,9 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
             }}>
               {profile.name || stats?.name || 'UNKNOWN'}
             </h1>
-            <span style={{ fontSize: '14px', fontWeight: 700, color: ACCENT }}>GITHUB_USER_LINK // @{profile.githubUsername?.toUpperCase()}</span>
+            <span style={{ fontSize: '14px', fontWeight: 700, color: ACCENT, display: 'flex' }}>
+              {`GITHUB_USER_LINK // @${profile.githubUsername?.toUpperCase()}`}
+            </span>
           </div>
           
           <div style={{ 
@@ -84,7 +89,8 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
             height: '120px', 
             border: `2px solid ${ACCENT}`, 
             position: 'relative',
-            background: ACCENT_GHOST
+            background: ACCENT_GHOST,
+            display: 'flex',
           }}>
             {stats?.avatarUrl ? (
               <img src={stats.avatarUrl} style={{ width: '100%', height: '100%' }} />
@@ -103,7 +109,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
         <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
           
           {/* IDENTIFICATION DATA */}
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ fontSize: '12px', fontWeight: 900, borderLeft: `5px solid ${ACCENT}`, paddingLeft: '10px', marginBottom: '15px' }}>01_IDENTIFICATION_NARRATIVE</div>
             <div style={{ 
               backgroundColor: ACCENT_GHOST, 
@@ -120,12 +126,12 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
               textOverflow: 'ellipsis',
               height: '80px' // 줄어들거나 늘어나도 레이아웃 유지
             }}>
-              "{profile.bio || stats?.bio || 'SYSTEM_INFO: No narrative data recovered from target server.'}"
+              {`"${profile.bio || stats?.bio || 'SYSTEM_INFO: No narrative data recovered from target server.'}"`}
             </div>
           </div>
 
           {/* ARSENAL DATA */}
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ fontSize: '12px', fontWeight: 900, borderLeft: `5px solid ${ACCENT}`, paddingLeft: '10px', marginBottom: '15px' }}>02_TECHNICAL_CORE_ARSENAL</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
               {(() => {
@@ -157,7 +163,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
           </div>
 
           {/* DIAGNOSTIC DATA */}
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ fontSize: '12px', fontWeight: 900, borderLeft: `5px solid ${ACCENT}`, paddingLeft: '10px', marginBottom: '15px' }}>03_PERFORMANCE_DIAGNOSTICS</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1px', backgroundColor: ACCENT_DIM, border: `1px solid ${ACCENT_DIM}` }}>
               {[
@@ -167,8 +173,8 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                 { label: 'SYSTEM_ISSUES', value: formatNumberUnit(stats?.totalIssues || 0) },
               ].map((stat, i) => (
                 <div key={i} style={{ backgroundColor: '#000', padding: '20px', display: 'flex', flexDirection: 'column', gap: '5px', width: '229.5px' }}>
-                  <span style={{ fontSize: '9px', fontWeight: 900, opacity: 0.6 }}>{stat.label}</span>
-                  <span style={{ fontSize: '28px', fontWeight: 900, color: '#FFF' }}>{stat.value}</span>
+                   <span style={{ fontSize: '9px', fontWeight: 900, opacity: 0.6 }}>{stat.label}</span>
+                   <span style={{ fontSize: '28px', fontWeight: 900, color: '#FFF' }}>{stat.value}</span>
                 </div>
               ))}
             </div>
@@ -178,8 +184,10 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
         {/* QC Stamp Section */}
         <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: '40px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-            <div style={{ fontSize: '10px', fontWeight: 900, color: ACCENT_DIM }}>LAST_CALIBRATION: {currentYear}.02.25</div>
-            <div style={{ fontSize: '12px', fontWeight: 900, color: ACCENT }}>STATUS: // SECURED_STABLE</div>
+            <div style={{ fontSize: '10px', fontWeight: 900, color: ACCENT_DIM, display: 'flex' }}>
+              {`LAST_CALIBRATION: ${currentYear}.02.25`}
+            </div>
+            <div style={{ fontSize: '12px', fontWeight: 900, color: ACCENT, display: 'flex' }}>STATUS: // SECURED_STABLE</div>
             <div style={{ display: 'flex', width: '150px', height: '40px', overflow: 'hidden' }}>
               {[...Array(25)].map((_, i) => (
                 <div key={i} style={{ width: i % 2 === 0 ? '2px' : '4px', height: '100%', backgroundColor: ACCENT, marginRight: '2px' }} />
@@ -205,7 +213,6 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
         </div>
       </div>
 
-      {/* Background Decorative Text */}
       <div style={{
         position: 'absolute',
         top: '20%',
@@ -214,6 +221,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
         fontWeight: 900,
         color: ACCENT_GHOST,
         zIndex: 0,
+        display: 'flex',
       }}>
         {rankLevel}
       </div>

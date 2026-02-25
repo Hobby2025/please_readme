@@ -175,7 +175,6 @@ export class GitHubService {
     }
     
     console.log(`[GitHub API 요청] ${username}의 통계 데이터 요청 중...`);
-    console.time(`github:stats:${username}`);
     
     try {
       // 최적화: 쿼리 및 변수를 한 번만 생성
@@ -246,12 +245,10 @@ export class GitHubService {
 
       // 캐시에 저장
       await setCachedData(cacheKey, finalStats, GITHUB_STATS_CACHE_TTL);
-      console.timeEnd(`github:stats:${username}`);
 
       return finalStats;
     } catch (error) {
       console.error(`GitHub 통계 조회 실패 (${username}):`, error);
-      console.timeEnd(`github:stats:${username}`);
        
       // 에러 시 기본값 반환
       const defaultRank: Rank = { level: '?', percentile: 0, score: 0 };
