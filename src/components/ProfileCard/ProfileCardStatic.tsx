@@ -69,7 +69,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
         {/* Top Header Information */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: `2px solid ${ACCENT}`, paddingBottom: '20px', marginBottom: '30px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-            <span style={{ fontSize: '10px', fontWeight: 900, opacity: 0.6, display: 'flex' }}>
+            <span style={{ fontSize: '10px', fontWeight: 900, opacity: 0.6 }}>
               {`SPECIFICATION_LABEL / NO. ${stats?.totalStars || '0000'}`}
             </span>
             <h1 style={{ 
@@ -79,15 +79,11 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
               lineHeight: 0.9, 
               letterSpacing: '-0.02em', 
               color: '#FFF',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
               maxWidth: '350px',
-              display: 'flex',
             }}>
               {profile.name || stats?.name || 'UNKNOWN'}
             </h1>
-            <span style={{ fontSize: '14px', fontWeight: 700, color: ACCENT, display: 'flex' }}>
+            <span style={{ fontSize: '14px', fontWeight: 700, color: ACCENT }}>
               {`GITHUB_USER_LINK // @${profile.githubUsername?.toUpperCase()}`}
             </span>
           </div>
@@ -100,7 +96,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
             background: ACCENT_GHOST,
             display: 'flex',
           }}>
-            {stats?.avatarUrl ? (
+            {stats && stats.avatarUrl ? (
               <img src={stats.avatarUrl} style={{ width: '100%', height: '100%' }} />
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: '10px', textAlign: 'center', width: '100%' }}>NO_IMAGE</div>
@@ -127,9 +123,6 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
               color: '#FFF', 
               border: `1px solid ${ACCENT_DIM}`,
               fontStyle: 'italic',
-              display: 'flex',
-              overflow: 'hidden',
-              height: '80px' // 줄어들거나 늘어나도 레이아웃 유지
             }}>
               {bioText}
             </div>
@@ -138,7 +131,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
           {/* ARSENAL DATA */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ fontSize: '12px', fontWeight: 900, borderLeft: `5px solid ${ACCENT}`, paddingLeft: '10px', marginBottom: '15px', display: 'flex' }}>02_TECHNICAL_CORE_ARSENAL</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {(() => {
                 const allSkills = profile.skills && profile.skills.length > 0 
                   ? profile.skills 
@@ -149,22 +142,29 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
                   ? [...allSkills.slice(0, 11), `+${allSkills.length - 11} MORE`]
                   : allSkills;
 
-                return displaySkills.map((skill, i) => (
-                  <div key={i} style={{ 
-                    border: `1px solid ${ACCENT_DIM}`, 
-                    padding: '10px 5px', 
-                    fontSize: '11px', 
-                    textAlign: 'center', 
-                    fontWeight: 900,
-                    backgroundColor: ACCENT_GHOST,
-                    width: '107px',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>{skill.toUpperCase()}</div>
+                // chunkSize: 4 items per row
+                const chunks = [];
+                for (let i = 0; i < displaySkills.length; i += 4) {
+                  chunks.push(displaySkills.slice(i, i + 4));
+                }
+
+                return chunks.map((chunk, rowIdx) => (
+                  <div key={rowIdx} style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
+                    {chunk.map((skill, i) => (
+                      <div key={i} style={{ 
+                        border: `1px solid ${ACCENT_DIM}`, 
+                        padding: '10px 5px', 
+                        fontSize: '11px', 
+                        textAlign: 'center', 
+                        fontWeight: 900,
+                        backgroundColor: ACCENT_GHOST,
+                        width: '104px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>{skill.toUpperCase()}</div>
+                    ))}
+                  </div>
                 ));
               })()}
             </div>
@@ -173,16 +173,24 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
           {/* DIAGNOSTIC DATA */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ fontSize: '12px', fontWeight: 900, borderLeft: `5px solid ${ACCENT}`, paddingLeft: '10px', marginBottom: '15px', display: 'flex' }}>03_PERFORMANCE_DIAGNOSTICS</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1px', backgroundColor: ACCENT_DIM, border: `1px solid ${ACCENT_DIM}` }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', backgroundColor: ACCENT_DIM, border: `1px solid ${ACCENT_DIM}` }}>
               {[
-                { label: 'TOTAL_COMMITS', value: formatNumberUnit(stats?.totalCommits || 0) },
-                { label: 'DELIVERED_STARS', value: formatNumberUnit(stats?.totalStars || 0) },
-                { label: 'PULL_REQUESTS', value: formatNumberUnit(stats?.totalPRs || 0) },
-                { label: 'SYSTEM_ISSUES', value: formatNumberUnit(stats?.totalIssues || 0) },
-              ].map((stat, i) => (
-                <div key={i} style={{ backgroundColor: '#000', padding: '20px', display: 'flex', flexDirection: 'column', gap: '5px', width: '228px' }}>
-                   <span style={{ fontSize: '9px', fontWeight: 900, opacity: 0.6 }}>{stat.label}</span>
-                   <span style={{ fontSize: '28px', fontWeight: 900, color: '#FFF' }}>{stat.value}</span>
+                [
+                  { label: 'TOTAL_COMMITS', value: formatNumberUnit(stats?.totalCommits || 0) },
+                  { label: 'DELIVERED_STARS', value: formatNumberUnit(stats?.totalStars || 0) }
+                ],
+                [
+                  { label: 'PULL_REQUESTS', value: formatNumberUnit(stats?.totalPRs || 0) },
+                  { label: 'SYSTEM_ISSUES', value: formatNumberUnit(stats?.totalIssues || 0) }
+                ]
+              ].map((row, rIdx) => (
+                <div key={rIdx} style={{ display: 'flex', flexDirection: 'row', gap: '1px' }}>
+                  {row.map((stat, i) => (
+                    <div key={i} style={{ backgroundColor: '#000', padding: '20px', display: 'flex', flexDirection: 'column', gap: '5px', width: '228px' }}>
+                      <span style={{ fontSize: '9px', fontWeight: 900, opacity: 0.6 }}>{stat.label}</span>
+                      <span style={{ fontSize: '28px', fontWeight: 900, color: '#FFF' }}>{stat.value}</span>
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>
@@ -196,7 +204,7 @@ export default function ProfileCardStatic({ profile, stats, loading }: ProfileCa
               {`LAST_CALIBRATION: ${currentYear}.02.25`}
             </div>
             <div style={{ fontSize: '12px', fontWeight: 900, color: ACCENT, display: 'flex' }}>STATUS: // SECURED_STABLE</div>
-            <div style={{ display: 'flex', width: '150px', height: '40px', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', width: '150px', height: '40px' }}>
               {[...Array(25)].map((_, i) => (
                 <div key={i} style={{ width: i % 2 === 0 ? '2px' : '4px', height: '100%', backgroundColor: ACCENT, marginRight: '2px', display: 'flex' }} />
               ))}

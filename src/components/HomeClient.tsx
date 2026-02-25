@@ -173,7 +173,7 @@ export default function HomeClient() {
           {/* Right Side: Preview (Sticky) */}
           <div className="lg:col-span-12 xl:col-span-7 lg:sticky lg:top-10 flex flex-col gap-6">
             <div className="cyber-card p-0 border-white/10 bg-[#050505] shadow-2xl relative min-h-[950px] flex flex-col items-center pt-8 overflow-hidden">
-              <div className="scale-[0.85] origin-top">
+              <div className="origin-top">
                 <ProfilePreview
                   profileForFallback={profile}
                   previewParams={previewParams}

@@ -116,7 +116,7 @@ export async function GET(req: NextRequest) {
       bio: (typeof customBio === 'string' ? customBio : optimizedStats.bio) || '',
       theme,
       skills,
-      fontFamily: typeof fontFamily === 'string' ? fontFamily : 'BookkMyungjo', 
+      fontFamily: typeof fontFamily === 'string' ? fontFamily : 'Pretendard', 
     };
     
     const cardHeight = calculateCardHeight(profile.skills.length, profile.fontFamily);
@@ -138,8 +138,7 @@ export async function GET(req: NextRequest) {
           headers: {
             'Cache-Control': 'public, max-age=86400',
             'ETag': `"${safeETag}"`,
-          },
-          emoji: 'twemoji',
+          }
         }
       );
       const imageArrayBuffer = await imageResponse.arrayBuffer();
@@ -190,7 +189,7 @@ export async function GET(req: NextRequest) {
       }
 
       // 폰트는 기본값 사용
-      const fontsResult = await getFontData('BookkMyungjo');
+      const fontsResult = await getFontData('Pretendard');
       
       const fallbackProfile: Profile = {
         githubUsername: username,
@@ -198,7 +197,7 @@ export async function GET(req: NextRequest) {
         bio: 'SYSTEM_STATUS: OFFLINE // GitHub API connection lost. Displaying cached/static identification.',
         theme,
         skills,
-        fontFamily: 'BookkMyungjo',
+        fontFamily: 'Pretendard',
       };
 
       const fallbackStats = {
@@ -225,8 +224,7 @@ export async function GET(req: NextRequest) {
         {
           width: 600,
           height: 920, // 기본 높이 고정
-          fonts: fontsResult as VercelFontOptions[],
-          emoji: 'twemoji',
+          fonts: fontsResult as VercelFontOptions[]
         }
       );
 
