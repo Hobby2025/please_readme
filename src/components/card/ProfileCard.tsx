@@ -197,6 +197,20 @@ export default function ProfileCard({ stats, config }: ProfileCardProps) {
         </div>
 
       </div>
+      
+      {/* 5. FOOTER: VERIFICATION & TIMESTAMP */}
+      <div style={{ position: 'absolute', bottom: '25px', left: '60px', right: '60px', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #ffffff0a', paddingTop: '10px' }}>
+        <div style={{ display: 'flex', gap: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '6px', height: '6px', backgroundColor: activeColor, borderRadius: '50%' }} />
+            <span style={{ fontSize: '10px', color: '#bbb', fontWeight: '900', letterSpacing: '1px' }}>PLEASE_README_VERIFIED</span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+           <span style={{ fontSize: '10px', color: '#bbb', fontWeight: '900', letterSpacing: '1px' }}>LAST_UPDATED:</span>
+           <span style={{ fontSize: '10px', color: activeColor, fontWeight: 'bold', fontFamily: 'monospace' }}>{currentDate}</span>
+        </div>
+      </div>
     </div>
   );
 }
